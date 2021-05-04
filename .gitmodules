@@ -1,0 +1,12 @@
+[submodule "Agos/vendor/spdlog"]
+	path = Agos/vendor/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "Agos/vendor/tiny_obj_loader"]
+	path = Agos/vendor/tiny_obj_loader
+	url = https://github.com/tinyobjloader/tinyobjloader
+[submodule "Agos/vendor/stb"]
+	path = Agos/vendor/stb
+	url = https://github.com/nothings/stb
+[submodule "Agos/vendor/glm"]
+	path = Agos/vendor/glm
+	url = https://github.com/g-truc/glm
