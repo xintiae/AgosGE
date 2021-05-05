@@ -15,7 +15,7 @@ add_executable(AgosGE ${AGOSGE_CPPS})
 
 target_link_libraries(AgosGE PUBLIC Agos)
 target_include_directories(AgosGE PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(AgosGE PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(AgosGE PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/Agos ${CMAKE_SOURCE_DIR}/Agos/vendor)
 set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
 
 
