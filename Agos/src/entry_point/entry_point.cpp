@@ -1,5 +1,5 @@
 #include "entry_point.h"
-#include "logger.h"
+#include "logger/logger.h"
 
 Agos::AgApplication::AgApplication()
 {

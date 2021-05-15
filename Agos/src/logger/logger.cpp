@@ -10,12 +10,17 @@ std::shared_ptr<spdlog::logger> AG_API Agos::clientLogger;
 #ifdef AG_DEBUG_LAYERS_ENABLED
 Agos::AgResult Agos::init_loggers()
 {
-    spdlog::set_pattern("[%D - %T | %n in thread %t with process ID %P] [%^%l%$ in file %@] %v");
+    // likes talking ?
+    // spdlog::set_pattern("[%D - %T | %n in thread %t with process ID %P] [%^%l%$ in file %@] %v");
+
+    // prefer calm and quietness?
+    spdlog::set_pattern("[%D - %T | %n] [%^%l%$] %v");
+
     coreLogger = std::shared_ptr<spdlog::logger>();
     clientLogger = std::shared_ptr<spdlog::logger>();
 
-    coreLogger = spdlog::stdout_color_mt("AGOS");
-    clientLogger = spdlog::stdout_color_mt("CLIENT");
+    coreLogger = spdlog::stdout_color_mt("AgosGE");
+    clientLogger = spdlog::stdout_color_mt("Client");
 
     coreLogger->set_level(spdlog::level::info);
     clientLogger->set_level(spdlog::level::info);

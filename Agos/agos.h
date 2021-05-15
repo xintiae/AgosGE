@@ -3,5 +3,5 @@
 
 #include "src/core.h"
 #include "src/base.h"
-#include "src/logger.h"
-#include "src/entry_point.h"
+#include "src/logger/logger.h"
+#include "src/entry_point/entry_point.h"
