@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1.9 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib)
 
 set(EXECUTABLE_OUTPUT_PATH bin)
 set(LIBRARY_OUTPUT_PATH lib)
@@ -36,3 +37,9 @@ target_link_libraries(AgosGE PUBLIC glfw)
 find_package(Vulkan REQUIRED)
 target_include_directories(AgosGE PUBLIC ${VULKAN_INCLUDE_DIRS})
 target_link_libraries(AgosGE PUBLIC Vulkan::Vulkan)
+
+find_package(Threads REQUIRED)
+target_link_libraries(AgosGE PUBLIC Threads::Threads)
+
+target_link_libraries(AgosGE PUBLIC Dexode::EventBus)
+target_link_libraries(AgosGE PUBLIC stdc++fs)
