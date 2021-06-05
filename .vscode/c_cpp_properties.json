@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "AgosGE_vscode_config",
+            "includePath": [
+                "${workspaceFolder}/",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/Agos/"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-Wall",
+                "-Wextra",
+                "-std=c++17"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/",
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/Agos/"
+                    ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}
