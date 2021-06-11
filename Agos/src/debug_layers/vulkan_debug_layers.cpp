@@ -3,26 +3,59 @@
 #include "Agos/src/logger/logger.h"
 #include <GLFW/glfw3.h>
 
-VkDebugUtilsMessengerEXT Agos::AgVulkanDebugMessenger;
-const std::vector<const char *> Agos::AgValidationLayers = {
-    "VK_LAYER_KHRONOS_validation"};
-
-Agos::AgResult Agos::ag_vulkan_setup_debug_messenger()
+Agos::AgVulkanHandlerDebugLayersManager::AgVulkanHandlerDebugLayersManager()
 {
+    m_VulkanInstanceReference = std::make_shared<AgVulkanHandlerInstance>();
+    m_ValidationLayers = {
+    "VK_LAYER_KHRONOS_validation"};
+    // vulkan_setup_debug_messenger();
+}
+
+Agos::AgVulkanHandlerDebugLayersManager::AgVulkanHandlerDebugLayersManager(const std::shared_ptr<Agos::AgVulkanHandlerInstance>& vulkanInstance)
+{
+    m_VulkanInstanceReference = vulkanInstance;
+    m_ValidationLayers = {
+    "VK_LAYER_KHRONOS_validation"};
+    // vulkan_setup_debug_messenger();
+}
+
+Agos::AgVulkanHandlerDebugLayersManager::~AgVulkanHandlerDebugLayersManager()
+{
+        if (AG_ENABLE_DEBUG_VALIDATION_LAYER)
+        {
+            destroy_debug_utils_messenger_EXT(m_VulkanInstanceReference->get_instance(), m_DebugMessenger, nullptr);
+        }
+}
+
+VkDebugUtilsMessengerEXT& Agos::AgVulkanHandlerDebugLayersManager::get_debug_messenger()
+{
+    return m_DebugMessenger;
+}
+
+std::vector<const char*>& Agos::AgVulkanHandlerDebugLayersManager::get_validation_layers()
+{
+    return m_ValidationLayers;
+}
+
+// defines inside-private member std::shared_ptr<AgVulkanHandlerInstance>&
+Agos::AgResult Agos::AgVulkanHandlerDebugLayersManager::vulkan_setup_debug_messenger(const std::shared_ptr<Agos::AgVulkanHandlerInstance>& vulkanInstance)
+{
+    m_VulkanInstanceReference = vulkanInstance;
     if (!AG_ENABLE_DEBUG_VALIDATION_LAYER)
         return Agos::AG_SUCCESS; // shall change to something like ?
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
-    Agos::ag_populate_debug_messenger_create_info(createInfo);
-    if (Agos::ag_create_debug_utils_messenger_EXT(Agos::AgVulkanInstance, &createInfo, nullptr, &Agos::AgVulkanDebugMessenger) != VK_SUCCESS)
+    populate_debug_messenger_create_info(createInfo);
+    if (create_debug_utils_messenger_EXT(m_VulkanInstanceReference->get_instance(), &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to set up debug messenger!");
+        AG_CORE_CRITICAL("failed to set up debug messenger!");
+        return AG_FAILED_TO_SET_UP_VULKAN_DEBUG_MESSENGER;
     }
 
     return Agos::AG_SUCCESS;
 }
 
-void Agos::ag_populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT &debugMessengerCreateInfo)
+void Agos::AgVulkanHandlerDebugLayersManager::populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT &debugMessengerCreateInfo)
 {
     debugMessengerCreateInfo = {};
     debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -31,7 +64,7 @@ void Agos::ag_populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateIn
     debugMessengerCreateInfo.pfnUserCallback = ag_debug_callback;
 }
 
-VkResult Agos::ag_create_debug_utils_messenger_EXT(
+VkResult Agos::AgVulkanHandlerDebugLayersManager::create_debug_utils_messenger_EXT(
     VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
     const VkAllocationCallbacks *pAllocator,
@@ -48,7 +81,7 @@ VkResult Agos::ag_create_debug_utils_messenger_EXT(
     }
 }
 
-void Agos::ag_destroy_debug_utils_messenger_EXT(
+void Agos::AgVulkanHandlerDebugLayersManager::destroy_debug_utils_messenger_EXT(
     VkInstance instance,
     VkDebugUtilsMessengerEXT debugMessenger,
     const VkAllocationCallbacks *pAllocator)
@@ -60,19 +93,7 @@ void Agos::ag_destroy_debug_utils_messenger_EXT(
     }
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData)
-{
-    std::string callbackMessage = std::move(std::string("found validation layer : " + std::string(pCallbackData->pMessage)));
-    AG_CORE_WARN(callbackMessage);
-
-    return VK_FALSE;
-}
-
-bool Agos::ag_check_validation_layer_support()
+bool Agos::AgVulkanHandlerDebugLayersManager::check_validation_layer_support()
 {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -80,7 +101,7 @@ bool Agos::ag_check_validation_layer_support()
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const char *layerName : Agos::AgValidationLayers)
+    for (const char *layerName : m_ValidationLayers)
     {
         bool layerFound = false;
 
@@ -102,7 +123,7 @@ bool Agos::ag_check_validation_layer_support()
     return true;
 }
 
-std::vector<const char *> Agos::Ag_get_required_extensions()
+std::vector<const char *> Agos::AgVulkanHandlerDebugLayersManager::get_required_extensions()
 {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
@@ -116,4 +137,31 @@ std::vector<const char *> Agos::Ag_get_required_extensions()
     }
 
     return extensions;
+}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+    void *pUserData)
+{
+    switch (messageSeverity)
+    {
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+        AG_CORE_INFO(pCallbackData->pMessage);
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        AG_CORE_WARN(pCallbackData->pMessage);
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        AG_CORE_ERROR(pCallbackData->pMessage);
+        break;
+    
+    default:
+        std::string callbackMessage = std::move(std::string("Received vulkan debug layer callback message, but severity is unrecognized!\tMessage : " + std::string(pCallbackData->pMessage)));
+        AG_CORE_WARN(callbackMessage);
+        break;
+    }
+
+    return VK_FALSE;
 }

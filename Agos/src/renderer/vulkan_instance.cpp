@@ -1,16 +1,28 @@
 #include "Agos/src/renderer/vulkan_instance.h"
 
 #include "Agos/src/logger/logger.h"
-#include "Agos/src/debug_layers/vulkan_debug_layers.h"
 
-VkInstance Agos::AgVulkanInstance;
 
-Agos::AgResult Agos::ag_init_vulkan_instance()
+Agos::AgVulkanHandlerInstance::AgVulkanHandlerInstance()
 {
-    // vulkan logger?
-    if (AG_ENABLE_DEBUG_VALIDATION_LAYER && !ag_check_validation_layer_support())
+}
+
+Agos::AgVulkanHandlerInstance::~AgVulkanHandlerInstance()
+{
+    vkDestroyInstance(m_Instance, nullptr);
+}
+
+VkInstance& Agos::AgVulkanHandlerInstance::get_instance()
+{
+    return m_Instance;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerInstance::init_instance(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager)
+{
+    if (AG_ENABLE_DEBUG_VALIDATION_LAYER && !DebugLayersManager->check_validation_layer_support())
     {
         AG_CORE_ERROR("validation layers requested, but not available!");
+        return AG_FAILED_TO_CREATE_VULKAN_INSTANCE;
     }
 
     VkApplicationInfo appInfo{};
@@ -25,17 +37,17 @@ Agos::AgResult Agos::ag_init_vulkan_instance()
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    std::vector<const char *> extensions = Agos::Ag_get_required_extensions();
+    std::vector<const char *> extensions = DebugLayersManager->get_required_extensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
     if (AG_ENABLE_DEBUG_VALIDATION_LAYER)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(Agos::AgValidationLayers.size());
-        createInfo.ppEnabledLayerNames = Agos::AgValidationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(DebugLayersManager->get_validation_layers().size());
+        createInfo.ppEnabledLayerNames = DebugLayersManager->get_validation_layers().data();
 
-        ag_populate_debug_messenger_create_info(debugCreateInfo);
+        DebugLayersManager->populate_debug_messenger_create_info(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
     }
     else
@@ -45,9 +57,10 @@ Agos::AgResult Agos::ag_init_vulkan_instance()
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &Agos::AgVulkanInstance) != VK_SUCCESS)
+    if (vkCreateInstance(&createInfo, nullptr, &m_Instance) != VK_SUCCESS)
     {
         AG_CORE_CRITICAL("failed to create vulkan instance!");
+        return AG_FAILED_TO_CREATE_VULKAN_INSTANCE;
     }
     
     return Agos::AG_SUCCESS;
