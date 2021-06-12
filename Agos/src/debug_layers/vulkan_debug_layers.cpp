@@ -3,28 +3,27 @@
 #include "Agos/src/logger/logger.h"
 #include <GLFW/glfw3.h>
 
-Agos::AgVulkanHandlerDebugLayersManager::AgVulkanHandlerDebugLayersManager()
-{
-    m_VulkanInstanceReference = std::make_shared<AgVulkanHandlerInstance>();
-    m_ValidationLayers = {
-    "VK_LAYER_KHRONOS_validation"};
-    // vulkan_setup_debug_messenger();
-}
-
 Agos::AgVulkanHandlerDebugLayersManager::AgVulkanHandlerDebugLayersManager(const std::shared_ptr<Agos::AgVulkanHandlerInstance>& vulkanInstance)
 {
     m_VulkanInstanceReference = vulkanInstance;
     m_ValidationLayers = {
     "VK_LAYER_KHRONOS_validation"};
-    // vulkan_setup_debug_messenger();
 }
 
 Agos::AgVulkanHandlerDebugLayersManager::~AgVulkanHandlerDebugLayersManager()
 {
-        if (AG_ENABLE_DEBUG_VALIDATION_LAYER)
-        {
-            destroy_debug_utils_messenger_EXT(m_VulkanInstanceReference->get_instance(), m_DebugMessenger, nullptr);
-        }
+    this->terminate();
+}
+
+Agos::AgResult Agos::AgVulkanHandlerDebugLayersManager::terminate()
+{
+    if (AG_ENABLE_DEBUG_VALIDATION_LAYER && !m_Terminated)
+    {
+        destroy_debug_utils_messenger_EXT(m_VulkanInstanceReference->get_instance(), m_DebugMessenger, nullptr);
+        m_Terminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
 VkDebugUtilsMessengerEXT& Agos::AgVulkanHandlerDebugLayersManager::get_debug_messenger()
@@ -38,9 +37,8 @@ std::vector<const char*>& Agos::AgVulkanHandlerDebugLayersManager::get_validatio
 }
 
 // defines inside-private member std::shared_ptr<AgVulkanHandlerInstance>&
-Agos::AgResult Agos::AgVulkanHandlerDebugLayersManager::vulkan_setup_debug_messenger(const std::shared_ptr<Agos::AgVulkanHandlerInstance>& vulkanInstance)
+Agos::AgResult Agos::AgVulkanHandlerDebugLayersManager::vulkan_setup_debug_messenger()
 {
-    m_VulkanInstanceReference = vulkanInstance;
     if (!AG_ENABLE_DEBUG_VALIDATION_LAYER)
         return Agos::AG_SUCCESS; // shall change to something like ?
 
@@ -145,22 +143,29 @@ VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
     void *pUserData)
 {
-    switch (messageSeverity)
+    if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
     {
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-        AG_CORE_INFO(pCallbackData->pMessage);
-        break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-        AG_CORE_WARN(pCallbackData->pMessage);
-        break;
-    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-        AG_CORE_ERROR(pCallbackData->pMessage);
-        break;
-    
-    default:
-        std::string callbackMessage = std::move(std::string("Received vulkan debug layer callback message, but severity is unrecognized!\tMessage : " + std::string(pCallbackData->pMessage)));
+        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+    }
+    else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+    {
+        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+    }
+    else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+    {
+        AG_CORE_WARN(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+    }
+    else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+    {
+        AG_CORE_ERROR(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+    }
+    else
+    {
+        std::string callbackMessage = std::move(
+            std::string("Received vulkan debug layer callback message, but severity (which is ") +
+            std::to_string(messageSeverity) + std::string(") is unrecognized!\nMessage : \"") +
+            std::string(pCallbackData->pMessage) + "\"");
         AG_CORE_WARN(callbackMessage);
-        break;
     }
 
     return VK_FALSE;

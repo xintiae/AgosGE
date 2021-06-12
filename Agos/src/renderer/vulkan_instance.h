@@ -16,6 +16,7 @@ typedef class AG_API AgVulkanHandlerInstance
 {
 private:
     VkInstance m_Instance;
+    bool m_Destroyed = false;
 
 public:
     AgVulkanHandlerInstance();
@@ -23,6 +24,7 @@ public:
 
     VkInstance& get_instance();
 
-    AgResult init_instance(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager);
+    AgResult init(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager);
+    AgResult destroy();
 } AgVulkanHandlerInstance;
 } // namespace Agos

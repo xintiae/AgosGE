@@ -6,7 +6,6 @@
 std::shared_ptr<spdlog::logger> AG_API Agos::AgCoreLogger;
 std::shared_ptr<spdlog::logger> AG_API Agos::AgClientLogger;
 
-
 #ifdef AG_DEBUG_LAYERS_ENABLED
 Agos::AgResult Agos::ag_init_loggers()
 {

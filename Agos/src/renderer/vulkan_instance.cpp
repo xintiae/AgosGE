@@ -9,7 +9,7 @@ Agos::AgVulkanHandlerInstance::AgVulkanHandlerInstance()
 
 Agos::AgVulkanHandlerInstance::~AgVulkanHandlerInstance()
 {
-    vkDestroyInstance(m_Instance, nullptr);
+    this->destroy();
 }
 
 VkInstance& Agos::AgVulkanHandlerInstance::get_instance()
@@ -17,7 +17,7 @@ VkInstance& Agos::AgVulkanHandlerInstance::get_instance()
     return m_Instance;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerInstance::init_instance(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager)
+Agos::AgResult Agos::AgVulkanHandlerInstance::init(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager)
 {
     if (AG_ENABLE_DEBUG_VALIDATION_LAYER && !DebugLayersManager->check_validation_layer_support())
     {
@@ -64,4 +64,15 @@ Agos::AgResult Agos::AgVulkanHandlerInstance::init_instance(const std::shared_pt
     }
     
     return Agos::AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerInstance::destroy()
+{
+    if (!m_Destroyed)
+    {
+        vkDestroyInstance(m_Instance, nullptr);
+        m_Destroyed = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
 }
