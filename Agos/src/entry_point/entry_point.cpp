@@ -6,9 +6,11 @@
 
 Agos::AgApplication::AgApplication()
 {
+    m_EventBus                  = std::make_shared<dexode::EventBus>();
     // gotta allocate mem
-    m_GLFWInstance              = std::make_shared<AgGLFWHandler>();
-    m_VulkanInstance            = std::make_shared<AgVulkanHandlerInstance>();
+    m_GLFWEventsHandler         = std::make_shared<AgGLFWHandlerEvents>(m_EventBus);
+    m_GLFWInstance              = std::make_shared<AgGLFWHandlerInstance>(m_EventBus);
+    m_VulkanInstance            = std::make_shared<AgVulkanHandlerInstance>(m_EventBus);
     m_VulkanDebugLayersManager  = std::make_shared<AgVulkanHandlerDebugLayersManager>(m_VulkanInstance);
 }
 
@@ -22,7 +24,7 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     AG_CORE_WARN("Initializing Agos core application...");
 
     AG_CORE_INFO("Initializing GLFW instance...");
-    m_GLFWInstance->init();
+    m_GLFWInstance->init(m_GLFWEventsHandler);
 
     AG_CORE_INFO("Initializing vulkan instance...");
     m_VulkanInstance->init(m_VulkanDebugLayersManager);

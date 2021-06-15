@@ -2,17 +2,25 @@
 
 #include "Agos/src/logger/logger.h"
 
-Agos::AgGLFWHandler::AgGLFWHandler()
+Agos::AgGLFWHandlerInstance::AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus)
+    : m_EventBusListener(event_bus)
 {
 }
 
-Agos::AgGLFWHandler::~AgGLFWHandler()
+Agos::AgGLFWHandlerInstance::~AgGLFWHandlerInstance()
 {
     this->terminate();
 }
 
-Agos::AgResult Agos::AgGLFWHandler::init()
+Agos::AgResult Agos::AgGLFWHandlerInstance::init(const std::shared_ptr<AgGLFWHandlerEvents>& eventHandler)
 {
+    m_EventBusListener.listen<AgGLFWHandlerEvents>(
+        [this](const AgGLFWHandlerEvents& event) -> void
+        {
+            AG_CORE_INFO("[GLFW/AgGLFWHandlerInstance - init] Event notified!");
+        }
+    );
+
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
@@ -23,10 +31,16 @@ Agos::AgResult Agos::AgGLFWHandler::init()
         return AG_FAILED_TO_CREATE_GLFW_INSTANCE;
     }
 
+    glfwSetWindowUserPointer(m_ApplicationWindow, this);
+    glfwSetFramebufferSizeCallback(m_ApplicationWindow, eventHandler->framebufferResizeCallback);
+
+    glfwSetMouseButtonCallback(m_ApplicationWindow, eventHandler->mouseButtonCallback);
+    glfwSetCursorPosCallback(m_ApplicationWindow, eventHandler->cursorPosCallback);
+
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgGLFWHandler::terminate()
+Agos::AgResult Agos::AgGLFWHandlerInstance::terminate()
 {
     if (!m_Terminated)
     {
@@ -40,7 +54,7 @@ Agos::AgResult Agos::AgGLFWHandler::terminate()
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-GLFWwindow*& Agos::AgGLFWHandler::get_window()
+GLFWwindow*& Agos::AgGLFWHandlerInstance::get_window()
 {
     return m_ApplicationWindow;
 }

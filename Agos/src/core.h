@@ -1,7 +1,7 @@
 #pragma once
 
-#define AG_WINDOW_HEIGHT 600U
-#define AG_WINDOW_WIDTH 400U
+#define AG_WINDOW_WIDTH 800
+#define AG_WINDOW_HEIGHT 600
 
 namespace Agos
 {
