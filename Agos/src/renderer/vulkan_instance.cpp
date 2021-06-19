@@ -4,7 +4,7 @@
 
 
 Agos::AgVulkanHandlerInstance::AgVulkanHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus)
-    : m_EventBusListener(event_bus)
+    : m_EventBusListener{event_bus}
 {
 }
 

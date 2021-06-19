@@ -3,7 +3,7 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgGLFWHandlerInstance::AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus)
-    : m_EventBusListener(event_bus)
+    : m_EventBusListener{event_bus}
 {
 }
 
@@ -14,10 +14,10 @@ Agos::AgGLFWHandlerInstance::~AgGLFWHandlerInstance()
 
 Agos::AgResult Agos::AgGLFWHandlerInstance::init(const std::shared_ptr<AgGLFWHandlerEvents>& eventHandler)
 {
-    m_EventBusListener.listen<AgGLFWHandlerEvents>(
-        [this](const AgGLFWHandlerEvents& event) -> void
+    m_EventBusListener.listen<Agos::Events::AgGLFWHandlerEvent>(
+        [this](const Agos::Events::AgGLFWHandlerEvent& event) -> void
         {
-            AG_CORE_INFO("[GLFW/AgGLFWHandlerInstance - init] Event notified!");
+            this->on_event_process(event);
         }
     );
 
@@ -57,4 +57,26 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::terminate()
 GLFWwindow*& Agos::AgGLFWHandlerInstance::get_window()
 {
     return m_ApplicationWindow;
+}
+
+void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHandlerEvent& event)
+{
+    switch (event.type)
+    {
+    case Agos::Events::framebufferResizeCallback:
+        // resize rendering and swapchain...
+        break;
+    
+    case Agos::Events::mouseButtonCallback:
+        // clicky stuff over here
+        break;
+    
+    case Agos::Events::cursorPosCallback:
+        // do stuff with your mouse or something...
+        break;
+
+    default:
+        AG_CORE_WARN("[GLFW/HandlerInstance] noticed unkown event");
+        break;
+    }
 }

@@ -9,42 +9,44 @@
 
 namespace Agos
 {
+namespace Events
+{
 // see GLFW documentation on why and how buttons and actions work
 typedef int AgGLFWHandlerMouseButton;
 typedef int AgGLFWHandlerMouseAction;
 
-typedef struct AG_API AgGLFWHandlerEventTypes
-{
-    enum type : uint8_t
-    {
-        undefined                   = 0,
-        framebufferResizeCallback   = 1,
-        cursorPosCallback           = 2,
-        mouseButtonCallback         = 3
-    };
+typedef enum AgGLFWHandlerEventType : uint8_t {
+    undefined                   = 0,
+    framebufferResizeCallback   = 1,
+    cursorPosCallback           = 2,
+    mouseButtonCallback         = 3
+} AgGLFWHandlerEventType;
 
-    struct glfwFramebufferResizeCallback
-    {
-        type t  = type::undefined;
-        GLFWwindow* window;
-        int new_width;
-        int new_height;
-    };
-    struct glfwCursorPosCallback
-    {
-        type t  = type::undefined;
-        GLFWwindow* window;
-        double xpos;
-        double ypos;
-    };
-    struct tglfwMouseButtonCallback
-    {
-        type t  = type::undefined;
-        GLFWwindow* window;
-        AgGLFWHandlerMouseButton button;
-        AgGLFWHandlerMouseAction action;
-    };
-} AgGLFWHandlerEventTypes;
+typedef struct AG_API AgGLFWHandlerEventFramebufferResizeCallback {
+    GLFWwindow* window;
+    int new_width;
+    int new_height;
+} AgGLFWHandlerEventFramebufferResizeCallback;
+
+typedef struct AG_API AgGLFWHandlerEventCursorPosCallback {
+    GLFWwindow* window;
+    double xpos;
+    double ypos;
+} AgGLFWHandlerEventCursorPosCallback;
+
+typedef struct AG_API AgGLFWHandlerEventMouseButtonCallback {
+    GLFWwindow* window;
+    AgGLFWHandlerMouseButton button;
+    AgGLFWHandlerMouseAction action;
+} AgGLFWHandlerEventMouseButtonCallback;
+
+typedef struct AG_API AgGLFWHandlerEvent
+{
+    AgGLFWHandlerEventType type = AgGLFWHandlerEventType::undefined;
+    void* event_data;
+} AgGLFWHandlerEvent;
+}   // namespace Events (within namespace Agos)
+
 
 typedef class AG_API AgGLFWHandlerEvents
 {
