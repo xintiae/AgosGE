@@ -12,7 +12,7 @@ Agos::AgGLFWHandlerInstance::~AgGLFWHandlerInstance()
     this->terminate();
 }
 
-Agos::AgResult Agos::AgGLFWHandlerInstance::init(const std::shared_ptr<AgGLFWHandlerEvents>& eventHandler)
+Agos::AgResult Agos::AgGLFWHandlerInstance::init(const std::shared_ptr<AgGLFWHandlerEvents>& event_handler)
 {
     m_EventBusListener.listen<Agos::Events::AgGLFWHandlerEvent>(
         [this](const Agos::Events::AgGLFWHandlerEvent& event) -> void
@@ -32,11 +32,27 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::init(const std::shared_ptr<AgGLFWHan
     }
 
     glfwSetWindowUserPointer(m_ApplicationWindow, this);
-    glfwSetFramebufferSizeCallback(m_ApplicationWindow, eventHandler->framebufferResizeCallback);
+    glfwSetFramebufferSizeCallback(m_ApplicationWindow, event_handler->framebufferResizeCallback);
 
-    glfwSetMouseButtonCallback(m_ApplicationWindow, eventHandler->mouseButtonCallback);
-    glfwSetCursorPosCallback(m_ApplicationWindow, eventHandler->cursorPosCallback);
+    glfwSetMouseButtonCallback(m_ApplicationWindow, event_handler->mouseButtonCallback);
+    glfwSetCursorPosCallback(m_ApplicationWindow, event_handler->cursorPosCallback);
 
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgGLFWHandlerInstance::setup_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance)
+{
+    if (glfwCreateWindowSurface(vulkan_instance->get_instance(), m_ApplicationWindow, nullptr, &m_ApplicationSurface) != VK_SUCCESS)
+    {
+        AG_CORE_CRITICAL("[GLFW/HandlerInstance] failed to create vulkan window surface!");
+        return AG_FAILED_TO_CREATE_WINDOW_SURFACE;
+    }
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgGLFWHandlerInstance::terminate_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance)
+{
+    vkDestroySurfaceKHR(vulkan_instance->get_instance(), m_ApplicationSurface, nullptr);
     return AG_SUCCESS;
 }
 

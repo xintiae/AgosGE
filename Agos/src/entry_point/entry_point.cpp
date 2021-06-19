@@ -32,6 +32,9 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     AG_CORE_INFO("Setting up debug layers...");
     m_VulkanDebugLayersManager->vulkan_setup_debug_messenger();
 
+    AG_CORE_INFO("Setting up something?");
+    m_GLFWInstance->setup_vulkan_surface(m_VulkanInstance);
+
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -54,6 +57,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
+    m_GLFWInstance->terminate_vulkan_surface(m_VulkanInstance);
     m_VulkanDebugLayersManager->terminate();
     m_VulkanInstance->destroy();
     m_GLFWInstance->terminate();
