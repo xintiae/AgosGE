@@ -18,7 +18,7 @@ typedef class AG_API AgVulkanHandlerDebugLayersManager
 private:
     std::shared_ptr<AgVulkanHandlerInstance> m_VulkanInstanceReference;
     VkDebugUtilsMessengerEXT m_DebugMessenger;
-    std::vector<const char*> m_ValidationLayers;
+    static std::vector<const char*> m_ValidationLayers;
     bool m_Terminated = false;
 
 public:

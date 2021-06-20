@@ -22,19 +22,19 @@ typedef enum AgGLFWHandlerEventType : uint8_t {
     mouseButtonCallback         = 3
 } AgGLFWHandlerEventType;
 
-typedef struct AG_API AgGLFWHandlerEventFramebufferResizeCallback {
+typedef struct AG_API AgGLFWEventFramebufferResizeCallback {
     GLFWwindow* window;
     int new_width;
     int new_height;
 } AgGLFWHandlerEventFramebufferResizeCallback;
 
-typedef struct AG_API AgGLFWHandlerEventCursorPosCallback {
+typedef struct AG_API AgGLFWEventCursorPosCallback {
     GLFWwindow* window;
     double xpos;
     double ypos;
 } AgGLFWHandlerEventCursorPosCallback;
 
-typedef struct AG_API AgGLFWHandlerEventMouseButtonCallback {
+typedef struct AG_API AgGLFWEventMouseButtonCallback {
     GLFWwindow* window;
     AgGLFWHandlerMouseButton button;
     AgGLFWHandlerMouseAction action;

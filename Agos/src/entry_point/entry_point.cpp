@@ -12,6 +12,8 @@ Agos::AgApplication::AgApplication()
     m_GLFWInstance              = std::make_shared<AgGLFWHandlerInstance>(m_EventBus);
     m_VulkanInstance            = std::make_shared<AgVulkanHandlerInstance>(m_EventBus);
     m_VulkanDebugLayersManager  = std::make_shared<AgVulkanHandlerDebugLayersManager>(m_VulkanInstance);
+
+    m_VulkanPhysicalDevice      = std::make_shared<AgVulkanHandlerPhysicalDevice>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -32,8 +34,9 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     AG_CORE_INFO("Setting up debug layers...");
     m_VulkanDebugLayersManager->vulkan_setup_debug_messenger();
 
-    AG_CORE_INFO("Setting up something?");
+    AG_CORE_INFO("Picking vulkan compatible GPU...");
     m_GLFWInstance->setup_vulkan_surface(m_VulkanInstance);
+    m_VulkanPhysicalDevice->pick_physical_device(m_VulkanInstance, m_GLFWInstance);
 
 
     AG_CORE_INFO("Done initializing Agos core application!");

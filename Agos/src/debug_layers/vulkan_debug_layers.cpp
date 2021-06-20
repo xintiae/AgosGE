@@ -3,11 +3,13 @@
 #include "Agos/src/logger/logger.h"
 #include <GLFW/glfw3.h>
 
-Agos::AgVulkanHandlerDebugLayersManager::AgVulkanHandlerDebugLayersManager(const std::shared_ptr<Agos::AgVulkanHandlerInstance>& vulkanInstance)
-{
-    m_VulkanInstanceReference = vulkanInstance;
-    m_ValidationLayers = {
+
+std::vector<const char*> Agos::AgVulkanHandlerDebugLayersManager::m_ValidationLayers = {
     "VK_LAYER_KHRONOS_validation"};
+
+Agos::AgVulkanHandlerDebugLayersManager::AgVulkanHandlerDebugLayersManager(const std::shared_ptr<Agos::AgVulkanHandlerInstance>& vulkanInstance)
+    : m_VulkanInstanceReference(vulkanInstance)
+{
 }
 
 Agos::AgVulkanHandlerDebugLayersManager::~AgVulkanHandlerDebugLayersManager()

@@ -16,7 +16,7 @@ Agos::AgGLFWHandlerEvents::~AgGLFWHandlerEvents()
 void Agos::AgGLFWHandlerEvents::framebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
     // optimize?
-    auto data = Agos::Events::AgGLFWHandlerEventFramebufferResizeCallback({window, width, height});
+    auto data = Agos::Events::AgGLFWEventFramebufferResizeCallback({window, width, height});
     m_EventBus->postpone<Agos::Events::AgGLFWHandlerEvent>({
         Agos::Events::AgGLFWHandlerEventType::framebufferResizeCallback,
         &data
@@ -26,7 +26,7 @@ void Agos::AgGLFWHandlerEvents::framebufferResizeCallback(GLFWwindow* window, in
 
 void Agos::AgGLFWHandlerEvents::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    auto data = Agos::Events::AgGLFWHandlerEventCursorPosCallback({window, xpos, ypos});
+    auto data = Agos::Events::AgGLFWEventCursorPosCallback({window, xpos, ypos});
     m_EventBus->postpone<Agos::Events::AgGLFWHandlerEvent>({
         Agos::Events::AgGLFWHandlerEventType::cursorPosCallback,
         &data
@@ -36,7 +36,7 @@ void Agos::AgGLFWHandlerEvents::cursorPosCallback(GLFWwindow* window, double xpo
 
 void Agos::AgGLFWHandlerEvents::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    auto data = Agos::Events::AgGLFWHandlerEventMouseButtonCallback({window, button, action});
+    auto data = Agos::Events::AgGLFWEventMouseButtonCallback({window, button, action});
     m_EventBus->postpone<Agos::Events::AgGLFWHandlerEvent>({
         Agos::Events::AgGLFWHandlerEventType::mouseButtonCallback,
         &data

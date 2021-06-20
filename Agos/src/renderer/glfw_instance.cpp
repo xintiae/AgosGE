@@ -75,6 +75,11 @@ GLFWwindow*& Agos::AgGLFWHandlerInstance::get_window()
     return m_ApplicationWindow;
 }
 
+VkSurfaceKHR& Agos::AgGLFWHandlerInstance::get_surface()
+{
+    return m_ApplicationSurface;
+}
+
 void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHandlerEvent& event)
 {
     switch (event.type)

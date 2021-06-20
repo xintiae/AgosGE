@@ -31,6 +31,7 @@ public:
     AgResult terminate();
 
     GLFWwindow*& get_window();
+    VkSurfaceKHR& get_surface();
 private:
     void on_event_process(const Agos::Events::AgGLFWHandlerEvent& event);
 } AgGLFWHandlerInstance;
