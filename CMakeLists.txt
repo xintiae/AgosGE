@@ -25,8 +25,6 @@ target_include_directories(AgosGE PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR
 
 set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(AgosGE PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
-set_target_properties(AgosGE PROPERTIES LINK_FLAGS "-Wall -Wextra -fPIC")
-
 
 find_package(Spdlog REQUIRED)
 target_include_directories(AgosGE PRIVATE ${SPDLOG_INCLUDE_DIR})

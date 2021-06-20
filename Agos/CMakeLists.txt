@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(Agos VERSION 0.1 LANGUAGES CXX)
+
 file(GLOB_RECURSE AGOS_CPPS ./src/*.cpp
                             ./src/*/*.cpp
                             ./src/*/*/*.cpp)
@@ -14,6 +15,7 @@ target_include_directories(Agos PUBLIC  ${CMAKE_SOURCE_DIR}
                                         ${CMAKE_SOURCE_DIR}/Agos
                                         ${CMAKE_SOURCE_DIR}/Agos/src
                                         ${CMAKE_SOURCE_DIR}/agos/vendor)
+
 set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC -fvisibility=hidden")
 
 target_link_libraries(Agos PRIVATE Dexode::EventBus)
