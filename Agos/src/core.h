@@ -13,7 +13,9 @@ typedef enum AgResult {
     AG_FAILED_TO_CREATE_GLFW_INSTANCE           = 9,
     AG_FAILED_TO_CREATE_VULKAN_INSTANCE         = 10,
     AG_FAILED_TO_SET_UP_VULKAN_DEBUG_MESSENGER  = 11,
-    AG_FAILED_TO_CREATE_WINDOW_SURFACE          = 12
+    AG_FAILED_TO_CREATE_WINDOW_SURFACE          = 12,
+    AG_NO_VULKAN_COMPATIBLE_GPU_FOUND           = 13,
+    AG_FAILED_TO_FIND_SUITABLE_GPU              = 14
 } AgResult;
 
 }   // namespace Agos

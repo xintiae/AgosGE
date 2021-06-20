@@ -25,16 +25,16 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     Agos::ag_init_loggers();
     AG_CORE_WARN("Initializing Agos core application...");
 
-    AG_CORE_INFO("Initializing GLFW instance...");
+    AG_CORE_WARN("Initializing GLFW instance...");
     m_GLFWInstance->init(m_GLFWEventsHandler);
 
-    AG_CORE_INFO("Initializing vulkan instance...");
+    AG_CORE_WARN("Initializing vulkan instance...");
     m_VulkanInstance->init(m_VulkanDebugLayersManager);
 
-    AG_CORE_INFO("Setting up debug layers...");
+    AG_CORE_WARN("Setting up debug layers...");
     m_VulkanDebugLayersManager->vulkan_setup_debug_messenger();
 
-    AG_CORE_INFO("Picking vulkan compatible GPU...");
+    AG_CORE_WARN("Picking vulkan compatible GPU...");
     m_GLFWInstance->setup_vulkan_surface(m_VulkanInstance);
     m_VulkanPhysicalDevice->pick_physical_device(m_VulkanInstance, m_GLFWInstance);
 

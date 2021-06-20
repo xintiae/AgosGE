@@ -1,5 +1,6 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 
+#include "Agos/src/logger/logger.h"
 #include <set>
 
 const std::vector<const char *> Agos::AgVulkanHandlerPhysicalDevice::m_DeviceExtensions = {
@@ -22,7 +23,8 @@ Agos::AgResult Agos::AgVulkanHandlerPhysicalDevice::pick_physical_device(
 
     if (deviceCount == 0)
     {
-        throw std::runtime_error("failed to find GPUs with Vulkan support!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPhysicalDevice - pick_pysical_device] Failed to find vulkan compatible GPUs!");
+        return AG_NO_VULKAN_COMPATIBLE_GPU_FOUND;
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -40,8 +42,10 @@ Agos::AgResult Agos::AgVulkanHandlerPhysicalDevice::pick_physical_device(
 
     if (m_PhysicalDevice == VK_NULL_HANDLE)
     {
-        throw std::runtime_error("failed to find a suitable GPU!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPhysicalDevice - pick_pysical_device] Failed to find a suitable GPU!");
+        return AG_FAILED_TO_FIND_SUITABLE_GPU;
     }
+    return AG_SUCCESS;
 }
 
 bool Agos::AgVulkanHandlerPhysicalDevice::is_device_suitable(
