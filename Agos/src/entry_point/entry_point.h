@@ -22,7 +22,7 @@ private:
     std::shared_ptr<AgVulkanHandlerDebugLayersManager> m_VulkanDebugLayersManager;
 
     std::shared_ptr<AgVulkanHandlerPhysicalDevice> m_VulkanPhysicalDevice;
-    
+    std::shared_ptr<AgVulkanHandlerLogicalDevice> m_VulkanLogicalDevice;
 
 public:
     AgApplication();

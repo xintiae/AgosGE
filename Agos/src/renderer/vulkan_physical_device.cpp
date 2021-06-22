@@ -45,7 +45,18 @@ Agos::AgResult Agos::AgVulkanHandlerPhysicalDevice::pick_physical_device(
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPhysicalDevice - pick_pysical_device] Failed to find a suitable GPU!");
         return AG_FAILED_TO_FIND_SUITABLE_GPU;
     }
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerPhysicalDevice] Found vulkan compatible GPU!");
     return AG_SUCCESS;
+}
+
+const std::vector<const char*>& Agos::AgVulkanHandlerPhysicalDevice::get_device_extensions()
+{
+    return m_DeviceExtensions;
+}
+
+VkPhysicalDevice& Agos::AgVulkanHandlerPhysicalDevice::get_device()
+{
+    return m_PhysicalDevice;
 }
 
 bool Agos::AgVulkanHandlerPhysicalDevice::is_device_suitable(

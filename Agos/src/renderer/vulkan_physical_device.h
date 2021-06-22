@@ -2,8 +2,12 @@
 
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
-#include "Agos/src/renderer/vulkan_instance.h"
 #include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/vulkan_instance.h"
+namespace Agos{
+    class AgVulkanHandlerLogicalDevice;
+}
+#include "Agos/src/renderer/vulkan_logical_device.h"
 
 #include <vulkan/vulkan.h>
 #include <memory>
@@ -22,14 +26,14 @@ typedef struct AG_API AgQueueFamilyIndices
     {
         return graphics_family.has_value() && present_family.has_value();
     }
-};
+} AgQueueFamilyIndices;
 
-struct AgSwapChainSupportDetails
+typedef struct AG_API AgSwapChainSupportDetails
 {
     VkSurfaceCapabilitiesKHR        capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR>   presentModes;
-};
+} AgSwapChainSupportDetails;
 }   // namespace VulkanPhysicalDevice (within namespace Agos)
 
 
@@ -48,6 +52,10 @@ public:
         const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
 
+    const std::vector<const char*>& get_device_extensions();
+    VkPhysicalDevice& get_device();
+
+    friend class AG_API Agos::AgVulkanHandlerLogicalDevice;
 private:
     bool is_device_suitable(
         const VkPhysicalDevice& physical_device,
@@ -55,10 +63,12 @@ private:
 
     bool check_device_extensions_support(const VkPhysicalDevice& physical_device);
 
-    VulkanPhysicalDevice::AgQueueFamilyIndices find_queue_families(
+protected:
+    static VulkanPhysicalDevice::AgQueueFamilyIndices find_queue_families(
         const VkPhysicalDevice& physical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
 
+private:
     VulkanPhysicalDevice::AgSwapChainSupportDetails query_swapchain_support(
         const VkPhysicalDevice& physical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);

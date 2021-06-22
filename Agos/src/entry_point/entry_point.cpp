@@ -14,6 +14,7 @@ Agos::AgApplication::AgApplication()
     m_VulkanDebugLayersManager  = std::make_shared<AgVulkanHandlerDebugLayersManager>(m_VulkanInstance);
 
     m_VulkanPhysicalDevice      = std::make_shared<AgVulkanHandlerPhysicalDevice>();
+    m_VulkanLogicalDevice       = std::make_shared<AgVulkanHandlerLogicalDevice>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -38,6 +39,12 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     m_GLFWInstance->setup_vulkan_surface(m_VulkanInstance);
     m_VulkanPhysicalDevice->pick_physical_device(m_VulkanInstance, m_GLFWInstance);
 
+    AG_CORE_WARN("Creating vulkan logical device...");
+    m_VulkanLogicalDevice->create_logical_device(
+        m_VulkanPhysicalDevice,
+        m_GLFWInstance,
+        m_VulkanDebugLayersManager
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -60,6 +67,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
+    m_VulkanLogicalDevice->terminate();
     m_GLFWInstance->terminate_vulkan_surface(m_VulkanInstance);
     m_VulkanDebugLayersManager->terminate();
     m_VulkanInstance->destroy();
