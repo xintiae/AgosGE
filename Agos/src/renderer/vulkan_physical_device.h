@@ -8,6 +8,10 @@ namespace Agos{
     class AgVulkanHandlerLogicalDevice;
 }
 #include "Agos/src/renderer/vulkan_logical_device.h"
+namespace Agos{
+    class AgVulkanHandlerSwapChain;
+}
+#include "Agos/src/renderer/vulkan_swapchain.h"
 
 #include <vulkan/vulkan.h>
 #include <memory>
@@ -32,7 +36,7 @@ typedef struct AG_API AgSwapChainSupportDetails
 {
     VkSurfaceCapabilitiesKHR        capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR>   presentModes;
+    std::vector<VkPresentModeKHR>   present_modes;
 } AgSwapChainSupportDetails;
 }   // namespace VulkanPhysicalDevice (within namespace Agos)
 
@@ -48,6 +52,9 @@ public:
     AgVulkanHandlerPhysicalDevice();
     ~AgVulkanHandlerPhysicalDevice();
 
+    AgVulkanHandlerPhysicalDevice(const AgVulkanHandlerPhysicalDevice& other)   = delete;
+    AgVulkanHandlerPhysicalDevice(AgVulkanHandlerPhysicalDevice&& other)        = delete;
+
     AgResult pick_physical_device(
         const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
@@ -55,7 +62,8 @@ public:
     const std::vector<const char*>& get_device_extensions();
     VkPhysicalDevice& get_device();
 
-    friend class AG_API Agos::AgVulkanHandlerLogicalDevice;
+    friend class Agos::AgVulkanHandlerLogicalDevice;
+    friend class Agos::AgVulkanHandlerSwapChain;
 private:
     bool is_device_suitable(
         const VkPhysicalDevice& physical_device,
@@ -68,11 +76,11 @@ protected:
         const VkPhysicalDevice& physical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
 
-private:
     VulkanPhysicalDevice::AgSwapChainSupportDetails query_swapchain_support(
         const VkPhysicalDevice& physical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
     
+private:
     VkSampleCountFlagBits get_max_usable_sample_count();
 };
 

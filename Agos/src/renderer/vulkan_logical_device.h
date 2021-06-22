@@ -28,6 +28,9 @@ public:
     AgVulkanHandlerLogicalDevice();
     ~AgVulkanHandlerLogicalDevice();
 
+    AgVulkanHandlerLogicalDevice(const AgVulkanHandlerLogicalDevice& other) = delete;
+    AgVulkanHandlerLogicalDevice(AgVulkanHandlerLogicalDevice&& other)      = delete;
+
     AgResult create_logical_device(
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance,

@@ -15,8 +15,8 @@ Agos::AgVulkanHandlerPhysicalDevice::~AgVulkanHandlerPhysicalDevice()
 }
 
 Agos::AgResult Agos::AgVulkanHandlerPhysicalDevice::pick_physical_device(
-    const std::shared_ptr<AgVulkanHandlerInstance> &vulkan_intance,
-    const std::shared_ptr<AgGLFWHandlerInstance> &glfw_instance)
+    const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_intance,
+    const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(vulkan_intance->get_instance(), &deviceCount, nullptr);
@@ -45,7 +45,7 @@ Agos::AgResult Agos::AgVulkanHandlerPhysicalDevice::pick_physical_device(
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPhysicalDevice - pick_pysical_device] Failed to find a suitable GPU!");
         return AG_FAILED_TO_FIND_SUITABLE_GPU;
     }
-    AG_CORE_INFO("[Vulkan/AgVulkanHandlerPhysicalDevice] Found vulkan compatible GPU!");
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerPhysicalDevice - pick_physical_device] Found vulkan compatible GPU!");
     return AG_SUCCESS;
 }
 
@@ -60,8 +60,8 @@ VkPhysicalDevice& Agos::AgVulkanHandlerPhysicalDevice::get_device()
 }
 
 bool Agos::AgVulkanHandlerPhysicalDevice::is_device_suitable(
-    const VkPhysicalDevice &physical_device,
-    const std::shared_ptr<AgGLFWHandlerInstance> &glfw_instance)
+    const VkPhysicalDevice& physical_device,
+    const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance)
 {
     VulkanPhysicalDevice::AgQueueFamilyIndices indices = find_queue_families(physical_device, glfw_instance);
 
@@ -71,7 +71,7 @@ bool Agos::AgVulkanHandlerPhysicalDevice::is_device_suitable(
     if (extensionsSupported)
     {
         VulkanPhysicalDevice::AgSwapChainSupportDetails swapChainSupport = query_swapchain_support(physical_device, glfw_instance);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.present_modes.empty();
     }
 
     VkPhysicalDeviceFeatures supportedFeatures;
@@ -99,8 +99,8 @@ bool Agos::AgVulkanHandlerPhysicalDevice::check_device_extensions_support(const 
 }
 
 Agos::VulkanPhysicalDevice::AgQueueFamilyIndices Agos::AgVulkanHandlerPhysicalDevice::find_queue_families(
-    const VkPhysicalDevice &physical_device,
-    const std::shared_ptr<AgGLFWHandlerInstance> &glfw_instance)
+    const VkPhysicalDevice& physical_device,
+    const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance)
 {
     VulkanPhysicalDevice::AgQueueFamilyIndices indices;
 
@@ -138,8 +138,8 @@ Agos::VulkanPhysicalDevice::AgQueueFamilyIndices Agos::AgVulkanHandlerPhysicalDe
 }
 
 Agos::VulkanPhysicalDevice::AgSwapChainSupportDetails Agos::AgVulkanHandlerPhysicalDevice::query_swapchain_support(
-    const VkPhysicalDevice &physical_device,
-    const std::shared_ptr<AgGLFWHandlerInstance> &glfw_instance)
+    const VkPhysicalDevice& physical_device,
+    const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance)
 {
     VulkanPhysicalDevice::AgSwapChainSupportDetails details;
 
@@ -159,8 +159,8 @@ Agos::VulkanPhysicalDevice::AgSwapChainSupportDetails Agos::AgVulkanHandlerPhysi
 
     if (presentModeCount != 0)
     {
-        details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, glfw_instance->get_surface(), &presentModeCount, details.presentModes.data());
+        details.present_modes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, glfw_instance->get_surface(), &presentModeCount, details.present_modes.data());
     }
 
     return details;

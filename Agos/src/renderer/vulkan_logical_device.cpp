@@ -1,5 +1,6 @@
 #include "Agos/src/renderer/vulkan_logical_device.h"
 
+#include "Agos/src/logger/logger.h"
 #include <cstdint>
 #include <set>
 
@@ -59,12 +60,14 @@ Agos::AgResult Agos::AgVulkanHandlerLogicalDevice::create_logical_device(
 
     if (vkCreateDevice(physical_device->get_device(), &createInfo, nullptr, &m_LogicalDevice) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create logical device!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerLogicalDevice - create_logical_device] Failed to create logical device from GPU!");
+        return AG_FAILED_TO_CREATE_LOGICAL_DEVICE_FROM_GPU;
     }
 
     vkGetDeviceQueue(m_LogicalDevice, indices.graphics_family.value(), 0, &m_GraphicsQueue);
     vkGetDeviceQueue(m_LogicalDevice, indices.present_family.value(), 0, &m_PresentQueue);
 
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerLogicalDevice - create_logical_device] Created logical device!");
     return AG_SUCCESS;
 }
 

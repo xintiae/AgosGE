@@ -24,6 +24,9 @@ public:
     AgVulkanHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus);
     ~AgVulkanHandlerInstance();
 
+    AgVulkanHandlerInstance(const AgVulkanHandlerInstance& other)   = delete;
+    AgVulkanHandlerInstance(AgVulkanHandlerInstance&& other)        = delete;
+
     VkInstance& get_instance();
 
     AgResult init(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager);

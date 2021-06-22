@@ -2,10 +2,8 @@
 
 #include "Agos/src/core.h"
 #include "Agos/src/base.h"
-#include "Agos/src/event_system/glfw_events.h"
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/renderer.h"
 #include "Agos/src/debug_layers/vulkan_debug_layers.h"
-#include "Agos/src/renderer/vulkan_physical_device.h"
 
 #include <Agos/vendor/EventBus/lib/src/dexode/EventBus.hpp>
 
@@ -23,6 +21,7 @@ private:
 
     std::shared_ptr<AgVulkanHandlerPhysicalDevice> m_VulkanPhysicalDevice;
     std::shared_ptr<AgVulkanHandlerLogicalDevice> m_VulkanLogicalDevice;
+    std::shared_ptr<AgVulkanHandlerSwapChain> m_VulkanSwapChain;
 
 public:
     AgApplication();
