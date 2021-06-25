@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib)
 
 set(EXECUTABLE_OUTPUT_PATH bin)
@@ -26,9 +25,6 @@ target_include_directories(AgosGE PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR
 set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(AgosGE PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
 
-find_package(Spdlog REQUIRED)
-target_include_directories(AgosGE PRIVATE ${SPDLOG_INCLUDE_DIR})
-target_link_libraries(AgosGE PRIVATE Spdlog::Spdlog)
 
 find_package(glfw3 3.3 REQUIRED)
 target_include_directories(AgosGE PRIVATE glfw3::glfw)
