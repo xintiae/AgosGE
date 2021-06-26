@@ -6,7 +6,8 @@
                 "${workspaceFolder}/",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/Agos/",
-                "${workspaceFolder}/AGos/**"
+                "${workspaceFolder}/Agos/**",
+                "${workspaceFolder}/Agos/vendor/EventBus/lib/src"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
@@ -23,7 +24,7 @@
                     "${workspaceFolder}/",
                     "${workspaceFolder}/**",
                     "${workspaceFolder}/Agos/"
-                    ],
+                ],
                 "limitSymbolsToIncludedHeaders": true
             }
         }

@@ -84,10 +84,26 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_swap_chain(
     return AG_SUCCESS;
 }
 
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_image_views(const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device)
+{
+    m_SwapChainImageViews.resize(m_SwapChainImages.size());
+
+    for (uint32_t i = 0; i < m_SwapChainImages.size(); i++)
+    {
+        m_SwapChainImageViews[i] = create_image_view(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, logical_device->get_device());
+    }
+
+    return AG_SUCCESS;
+}
+
 Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate()
 {
     if (!m_Terminated)
     {
+        for (const VkImageView& it : m_SwapChainImageViews)
+        {
+            vkDestroyImageView(m_LogicalDeviceReference, it, nullptr);
+        }
         vkDestroySwapchainKHR(m_LogicalDeviceReference, m_SwapChain, nullptr);
         m_Terminated = true;
         return AG_SUCCESS;
@@ -143,4 +159,32 @@ VkExtent2D Agos::AgVulkanHandlerSwapChain::choose_swap_extent(
 
         return actualExtent;
     }
+}
+
+VkImageView Agos::AgVulkanHandlerSwapChain::create_image_view(
+    const VkImage& image,
+    const VkFormat& format,
+    const VkImageAspectFlags& aspectFlags,
+    const uint32_t& mipLevels,
+    const VkDevice& device)
+{
+    VkImageViewCreateInfo viewInfo{};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image = image;
+    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = format;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = mipLevels;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+    if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    {
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerSwapChain - create_image_view] Failed to create texture image view!");
+        return VK_NULL_HANDLE;
+    }
+
+    return imageView;
 }

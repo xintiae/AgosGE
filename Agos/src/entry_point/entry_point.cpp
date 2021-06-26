@@ -53,6 +53,10 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanLogicalDevice,
         m_GLFWInstance
     );
+    AG_CORE_WARN("Creating swap chain image views...");
+    m_VulkanSwapChain->create_image_views(
+        m_VulkanLogicalDevice
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;

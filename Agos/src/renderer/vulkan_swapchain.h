@@ -18,6 +18,7 @@ typedef class AG_API AgVulkanHandlerSwapChain
 private:
     VkSwapchainKHR m_SwapChain;
     std::vector<VkImage> m_SwapChainImages;
+    std::vector<VkImageView> m_SwapChainImageViews;
     VkFormat m_SwapChainImageFormat;
     VkExtent2D m_SwapChainExtent;
 
@@ -35,6 +36,9 @@ public:
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
+    AgResult create_image_views(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device
+    );
     AgResult terminate();
 
 private:
@@ -43,6 +47,13 @@ private:
     VkExtent2D choose_swap_extent(
         const VkSurfaceCapabilitiesKHR& capabilities,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
+    VkImageView create_image_view(
+        const VkImage& image,
+        const VkFormat& format,
+        const VkImageAspectFlags& aspectFlags,
+        const uint32_t& mipLevels,
+        const VkDevice& device
+    );
 } AgVulkanHandlerSwapChain;
 
 }   // namespace Agos
