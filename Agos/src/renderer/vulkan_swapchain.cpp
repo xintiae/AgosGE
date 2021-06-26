@@ -93,6 +93,7 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_image_views(const std::sha
         m_SwapChainImageViews[i] = create_image_view(m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, logical_device->get_device());
     }
 
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerSwapChain - create_image_views] Created swap chain image views!");
     return AG_SUCCESS;
 }
 
@@ -109,6 +110,26 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate()
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+VkSwapchainKHR& Agos::AgVulkanHandlerSwapChain::get_swapchain()
+{
+    return m_SwapChain;
+}
+
+std::vector<VkImage>& Agos::AgVulkanHandlerSwapChain::get_swapchain_images()
+{
+    return m_SwapChainImages;
+}
+
+std::vector<VkImageView>&  Agos::AgVulkanHandlerSwapChain::get_swapchain_image_views()
+{
+    return m_SwapChainImageViews;
+}
+
+VkFormat& Agos::AgVulkanHandlerSwapChain::get_swapchain_image_format()
+{
+    return m_SwapChainImageFormat;
 }
 
 VkSurfaceFormatKHR Agos::AgVulkanHandlerSwapChain::choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats)

@@ -59,6 +59,11 @@ VkPhysicalDevice& Agos::AgVulkanHandlerPhysicalDevice::get_device()
     return m_PhysicalDevice;
 }
 
+VkSampleCountFlagBits& Agos::AgVulkanHandlerPhysicalDevice::get_msaa_samples()
+{
+    return m_MsaaSamples;
+}
+
 bool Agos::AgVulkanHandlerPhysicalDevice::is_device_suitable(
     const VkPhysicalDevice& physical_device,
     const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance)

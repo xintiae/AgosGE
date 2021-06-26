@@ -16,6 +16,7 @@ Agos::AgApplication::AgApplication()
     m_VulkanPhysicalDevice      = std::make_shared<AgVulkanHandlerPhysicalDevice>();
     m_VulkanLogicalDevice       = std::make_shared<AgVulkanHandlerLogicalDevice>();
     m_VulkanSwapChain           = std::make_shared<AgVulkanHandlerSwapChain>();
+    m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -57,6 +58,12 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     m_VulkanSwapChain->create_image_views(
         m_VulkanLogicalDevice
     );
+    AG_CORE_WARN("Creating render pass...");
+    m_VulkanRenderPass->create_render_pass(
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -79,6 +86,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
+    m_VulkanRenderPass->terminate();
     m_VulkanSwapChain->terminate();
     m_VulkanLogicalDevice->terminate();
 

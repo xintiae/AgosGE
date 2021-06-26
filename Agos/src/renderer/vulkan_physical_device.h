@@ -61,6 +61,7 @@ public:
 
     const std::vector<const char*>& get_device_extensions();
     VkPhysicalDevice& get_device();
+    VkSampleCountFlagBits& get_msaa_samples();
 
     friend class Agos::AgVulkanHandlerLogicalDevice;
     friend class Agos::AgVulkanHandlerSwapChain;

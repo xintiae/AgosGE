@@ -41,6 +41,11 @@ public:
     );
     AgResult terminate();
 
+    VkSwapchainKHR&             get_swapchain();
+    std::vector<VkImage>&       get_swapchain_images();
+    std::vector<VkImageView>&   get_swapchain_image_views();
+    VkFormat&                   get_swapchain_image_format();
+
 private:
     VkSurfaceFormatKHR choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats);
     VkPresentModeKHR choose_swap_present_mode(const std::vector<VkPresentModeKHR>& available_present_modes);

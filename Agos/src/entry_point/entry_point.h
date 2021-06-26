@@ -22,6 +22,7 @@ private:
     std::shared_ptr<AgVulkanHandlerPhysicalDevice> m_VulkanPhysicalDevice;
     std::shared_ptr<AgVulkanHandlerLogicalDevice> m_VulkanLogicalDevice;
     std::shared_ptr<AgVulkanHandlerSwapChain> m_VulkanSwapChain;
+    std::shared_ptr<AgVulkanHandlerRenderPass> m_VulkanRenderPass;
 
 public:
     AgApplication();
