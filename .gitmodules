@@ -13,3 +13,6 @@
 [submodule "Agos/vendor/EventBus"]
 	path = Agos/vendor/EventBus
 	url = https://github.com/gelldur/EventBus.git
+[submodule "Agos/vendor/GLFW"]
+	path = Agos/vendor/GLFW
+	url = https://github.com/glfw/glfw
