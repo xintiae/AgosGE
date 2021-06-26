@@ -4,7 +4,3 @@
 #include "Agos/src/core.h"
 
 #include "Agos/src/debug_layers/debug_layers.h"
-
-namespace Agos
-{
-} // namespace Agos

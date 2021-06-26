@@ -5,9 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+project(AgosGE VERSION 0.1 LANGUAGES CXX)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     execute_process(
-        COMMAND ${CMAKE_SOURCE_DIR}/scripts/build_linux.sh
+        COMMAND  bash ${CMAKE_SOURCE_DIR}/scripts/build_linux.sh
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/scripts
     )
 endif()
 
@@ -16,7 +19,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib)
 set(EXECUTABLE_OUTPUT_PATH bin)
 set(LIBRARY_OUTPUT_PATH lib)
 
-project(AgosGE VERSION 0.1 LANGUAGES CXX)
 
 file(GLOB_RECURSE AGOSGE_CPPS examples/*.cpp examples/*/*.cpp)
 
@@ -32,7 +34,7 @@ target_include_directories(AgosGE PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR
 set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(AgosGE PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     find_package(Spdlog REQUIRED)
     target_include_directories(AgosGE PUBLIC ${SPDLOG_INCLUDE_DIR})
     target_link_libraries(AgosGE PUBLIC Spdlog::Spdlog)

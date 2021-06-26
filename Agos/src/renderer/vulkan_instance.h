@@ -6,9 +6,9 @@ namespace Agos{
     class AgVulkanHandlerDebugLayersManager;
 }
 #include "Agos/src/debug_layers/vulkan_debug_layers.h"
-#include <Agos/vendor/EventBus/lib/src/dexode/EventBus.hpp>
 
-#include <vulkan/vulkan.h>
+#include AG_EVENTBUS_INCLUDE
+#include AG_VULKAN_INCLUDE
 #include <memory>
 
 namespace Agos

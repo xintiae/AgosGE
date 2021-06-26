@@ -5,7 +5,7 @@
 #include "Agos/src/renderer/renderer.h"
 #include "Agos/src/debug_layers/vulkan_debug_layers.h"
 
-#include <Agos/vendor/EventBus/lib/src/dexode/EventBus.hpp>
+#include AG_EVENTBUS_INCLUDE
 
 namespace Agos
 {

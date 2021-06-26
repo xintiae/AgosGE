@@ -3,8 +3,8 @@
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
-#include <Agos/vendor/EventBus/lib/src/dexode/EventBus.hpp>
-#include <GLFW/glfw3.h>
+#include AG_EVENTBUS_INCLUDE
+#include AG_GLFW_INCLUDE
 #include <memory>
 
 namespace Agos
