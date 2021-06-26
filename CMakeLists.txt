@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.1.9 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    execute_process(
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/build_linux.sh
+    )
+endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib)
 
@@ -25,16 +32,21 @@ target_include_directories(AgosGE PRIVATE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR
 set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(AgosGE PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(Spdlog REQUIRED)
+    target_include_directories(AgosGE PUBLIC ${SPDLOG_INCLUDE_DIR})
+    target_link_libraries(AgosGE PUBLIC Spdlog::Spdlog)
+    
+    find_package(glfw3 3.3 REQUIRED)
+    target_include_directories(AgosGE PRIVATE glfw3::glfw)
+    target_link_libraries(AgosGE PRIVATE glfw)
 
-find_package(glfw3 3.3 REQUIRED)
-target_include_directories(AgosGE PRIVATE glfw3::glfw)
-target_link_libraries(AgosGE PRIVATE glfw)
+    find_package(Vulkan REQUIRED)
+    target_include_directories(AgosGE PRIVATE ${VULKAN_INCLUDE_DIRS})
+    target_link_libraries(AgosGE PRIVATE Vulkan::Vulkan)
 
-find_package(Vulkan REQUIRED)
-target_include_directories(AgosGE PRIVATE ${VULKAN_INCLUDE_DIRS})
-target_link_libraries(AgosGE PRIVATE Vulkan::Vulkan)
+    find_package(Threads REQUIRED)
+    target_link_libraries(AgosGE PRIVATE Threads::Threads)
 
-find_package(Threads REQUIRED)
-target_link_libraries(AgosGE PRIVATE Threads::Threads)
-
-target_link_libraries(AgosGE PRIVATE Dexode::EventBus)
+    target_link_libraries(AgosGE PRIVATE Dexode::EventBus)
+endif()
