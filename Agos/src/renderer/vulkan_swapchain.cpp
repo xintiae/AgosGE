@@ -25,49 +25,49 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_swap_chain(
 {
     m_LogicalDeviceReference = logical_device->get_device();
 
-    Agos::VulkanPhysicalDevice::AgSwapChainSupportDetails swapChainSupport = physical_device->query_swapchain_support(physical_device->get_device(), glfw_instance);
+    Agos::VulkanPhysicalDevice::AgSwapChainSupportDetails swapchain_support = physical_device->query_swapchain_support(physical_device->get_device(), glfw_instance);
 
-    VkSurfaceFormatKHR surfaceFormat = choose_swap_surface_format(swapChainSupport.formats);
-    VkPresentModeKHR presentMode = choose_swap_present_mode(swapChainSupport.present_modes);
-    VkExtent2D extent = choose_swap_extent(swapChainSupport.capabilities, glfw_instance);
+    VkSurfaceFormatKHR surfaceFormat = choose_swap_surface_format(swapchain_support.formats);
+    VkPresentModeKHR presentMode = choose_swap_present_mode(swapchain_support.present_modes);
+    VkExtent2D extent = choose_swap_extent(swapchain_support.capabilities, glfw_instance);
 
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+    uint32_t imageCount = swapchain_support.capabilities.minImageCount + 1;
+    if (swapchain_support.capabilities.maxImageCount > 0 && imageCount > swapchain_support.capabilities.maxImageCount)
     {
-        imageCount = swapChainSupport.capabilities.maxImageCount;
+        imageCount = swapchain_support.capabilities.maxImageCount;
     }
 
-    VkSwapchainCreateInfoKHR createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = glfw_instance->get_surface();
+    VkSwapchainCreateInfoKHR create_info{};
+    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    create_info.surface = glfw_instance->get_surface();
 
-    createInfo.minImageCount = imageCount;
-    createInfo.imageFormat = surfaceFormat.format;
-    createInfo.imageColorSpace = surfaceFormat.colorSpace;
-    createInfo.imageExtent = extent;
-    createInfo.imageArrayLayers = 1;
-    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    create_info.minImageCount = imageCount;
+    create_info.imageFormat = surfaceFormat.format;
+    create_info.imageColorSpace = surfaceFormat.colorSpace;
+    create_info.imageExtent = extent;
+    create_info.imageArrayLayers = 1;
+    create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     Agos::VulkanPhysicalDevice::AgQueueFamilyIndices indices = physical_device->find_queue_families(physical_device->get_device(), glfw_instance);
     uint32_t queueFamilyIndices[] = {indices.graphics_family.value(), indices.present_family.value()};
 
     if (indices.graphics_family != indices.present_family)
     {
-        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-        createInfo.queueFamilyIndexCount = 2;
-        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        create_info.queueFamilyIndexCount = 2;
+        create_info.pQueueFamilyIndices = queueFamilyIndices;
     }
     else
     {
-        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     }
 
-    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode = presentMode;
-    createInfo.clipped = VK_TRUE;
+    create_info.preTransform = swapchain_support.capabilities.currentTransform;
+    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    create_info.presentMode = presentMode;
+    create_info.clipped = VK_TRUE;
 
-    if (vkCreateSwapchainKHR(logical_device->get_device(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(logical_device->get_device(), &create_info, nullptr, &m_SwapChain) != VK_SUCCESS)
     {
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerSwapChain - create_swapchain] Failed to create swap chain!");
         return AG_FAILED_TO_CREATE_SWAPCHAIN;

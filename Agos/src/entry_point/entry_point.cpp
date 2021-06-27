@@ -17,6 +17,8 @@ Agos::AgApplication::AgApplication()
     m_VulkanLogicalDevice       = std::make_shared<AgVulkanHandlerLogicalDevice>();
     m_VulkanSwapChain           = std::make_shared<AgVulkanHandlerSwapChain>();
     m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
+
+    m_VulkanDescriptorManager   = std::make_shared<AgVulkanHandlerDescriptorManager>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -64,6 +66,10 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
     );
+    AG_CORE_WARN("Creating descriptors sets layouts...");
+    m_VulkanDescriptorManager->create_descriptor_set_layout(
+        m_VulkanLogicalDevice
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -86,8 +92,11 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
+
     m_VulkanRenderPass->terminate();
     m_VulkanSwapChain->terminate();
+
+    m_VulkanDescriptorManager->terminate();
     m_VulkanLogicalDevice->terminate();
 
     m_VulkanDebugLayersManager->terminate();

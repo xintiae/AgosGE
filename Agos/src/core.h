@@ -18,7 +18,8 @@ typedef enum AgResult {
     AG_FAILED_TO_FIND_SUITABLE_GPU              = 14,
     AG_FAILED_TO_CREATE_LOGICAL_DEVICE_FROM_GPU = 15,
     AG_FAILED_TO_CREATE_SWAPCHAIN               = 16,
-    AG_FAILED_TO_CREATE_RENDER_PASS             = 17
+    AG_FAILED_TO_CREATE_RENDER_PASS             = 17,
+    AG_FAILED_TO_CREATE_DESCRIPTOR_SET_LAYOUT   = 18
 } AgResult;
 
 }   // namespace Agos

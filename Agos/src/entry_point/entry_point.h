@@ -24,6 +24,8 @@ private:
     std::shared_ptr<AgVulkanHandlerSwapChain> m_VulkanSwapChain;
     std::shared_ptr<AgVulkanHandlerRenderPass> m_VulkanRenderPass;
 
+    std::shared_ptr<AgVulkanHandlerDescriptorManager> m_VulkanDescriptorManager;
+
 public:
     AgApplication();
     virtual ~AgApplication();
