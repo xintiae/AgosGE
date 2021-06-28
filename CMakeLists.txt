@@ -16,7 +16,10 @@ endif()
 
 add_subdirectory(Agos)
 add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib)
-add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/GLFW)
+
+if(WIN32)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/GLFW)
+endif()
 
 set(EXECUTABLE_OUTPUT_PATH bin)
 set(LIBRARY_OUTPUT_PATH lib)
