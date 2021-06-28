@@ -1,0 +1,1 @@
+glslc -o vert.spv vertex_shader.glsl

@@ -132,6 +132,11 @@ VkFormat& Agos::AgVulkanHandlerSwapChain::get_swapchain_image_format()
     return m_SwapChainImageFormat;
 }
 
+VkExtent2D& Agos::AgVulkanHandlerSwapChain::get_swapchain_extent()
+{
+    return m_SwapChainExtent;
+}
+
 VkSurfaceFormatKHR Agos::AgVulkanHandlerSwapChain::choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats)
 {
     for (const auto &availableFormat : available_formats)

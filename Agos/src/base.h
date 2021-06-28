@@ -9,6 +9,8 @@
 #define AG_DEBUG_LAYERS_ENABLED
 #define AG_ENABLE_DEBUG_VALIDATION_LAYER true
 
+#define AG_SHADERS_PATH "AgosGE/Agos/shaders/"  // transfer this into the cmake
+
 // #define AGOS_COMPILED_STATIC
 #define AGOS_COMPILED_SHARED
 

@@ -1,0 +1,1 @@
+glslc -o frag.spv frament_shader.glsl

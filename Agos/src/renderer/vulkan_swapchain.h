@@ -45,6 +45,7 @@ public:
     std::vector<VkImage>&       get_swapchain_images();
     std::vector<VkImageView>&   get_swapchain_image_views();
     VkFormat&                   get_swapchain_image_format();
+    VkExtent2D&                 get_swapchain_extent();
 
 private:
     VkSurfaceFormatKHR choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats);

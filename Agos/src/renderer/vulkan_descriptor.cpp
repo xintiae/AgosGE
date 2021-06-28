@@ -61,3 +61,8 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate()
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
+
+VkDescriptorSetLayout& Agos::AgVulkanHandlerDescriptorManager::get_descriptor_set_layout()
+{
+    return m_DescriptorSetLayout;
+}
