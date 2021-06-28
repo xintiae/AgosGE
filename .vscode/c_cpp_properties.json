@@ -9,7 +9,9 @@
                 "${workspaceFolder}/Agos/**",
                 "${workspaceFolder}/Agos/vendor/EventBus/lib/src"
             ],
-            "defines": [],
+            "defines": [
+                "AG_SHADERS_PATH"
+            ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
             "cppStandard": "c++17",
