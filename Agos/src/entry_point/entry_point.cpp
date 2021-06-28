@@ -73,6 +73,7 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     );
     AG_CORE_WARN("Creating graphics pipeline...");
     m_VulkanGraphicsPipelineManager->create_graphics_pipeline(
+        std::string(AG_SHADERS_PATH) + '/',
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,

@@ -86,9 +86,11 @@ private:
 
 public:
     AgVulkanHandlerGraphicsPipelineManager();
+    AgVulkanHandlerGraphicsPipelineManager(const VkDevice& logical_device);
     ~AgVulkanHandlerGraphicsPipelineManager();
 
     AgResult create_graphics_pipeline(
+        const std::string& shaders_path,
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
@@ -97,6 +99,8 @@ public:
     AgResult terminate();
 
 private:
+    AgResult compile_vertex_shader(const std::string& vert_shader_path);
+    AgResult compile_fragment_shader(const std::string& frag_shader_path);
     std::vector<char> read_file(const std::string& file_path);
     VkShaderModule create_shader_module(
         const std::vector<char>& shader_source,

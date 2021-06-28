@@ -7,21 +7,28 @@ Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineMan
 {
 }
 
+Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager(const VkDevice& logical_device)
+{
+    m_LogicalDeviceReference = logical_device;
+}
+
 Agos::AgVulkanHandlerGraphicsPipelineManager::~AgVulkanHandlerGraphicsPipelineManager()
 {
     terminate();
 }
 
 Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pipeline(
+    const std::string& shaders_path,
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
     const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-    const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor
-)
+    const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor)
 {
-    auto vertShaderCode = read_file( std::string(AG_SHADERS_PATH) + std::string("vert.spv") );
-    auto fragShaderCode = read_file( std::string(AG_SHADERS_PATH) + std::string("frag.spv") );
+    m_LogicalDeviceReference = logical_device->get_device();
+
+    std::vector<char> vertShaderCode = read_file( shaders_path + "vert.spv" );
+    std::vector<char> fragShaderCode = read_file( shaders_path + "frag.spv" );
 
     VkShaderModule vertShaderModule = create_shader_module(vertShaderCode, logical_device->get_device());
     VkShaderModule fragShaderModule = create_shader_module(fragShaderCode, logical_device->get_device());
