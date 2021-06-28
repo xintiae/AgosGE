@@ -14,6 +14,7 @@
 #include <memory>
 #include <array>
 #include <vector>
+#include <string>
 
 
 namespace Agos
@@ -77,17 +78,26 @@ typedef class AG_API AgVulkanHandlerGraphicsPipelineManager
 {
 private:
     VkPipeline m_GraphicsPipeline;
-    VkPipelineLayout m_PipelineLayout;
+    VkPipelineLayout m_GraphicsPipelineLayout;
+
+    // do I need to repeat myself?... (see Agos/src/renderer/vulkan_swapchain.h)
+    VkDevice m_LogicalDeviceReference;
+    bool m_Terminated = false;
 
 public:
     AgVulkanHandlerGraphicsPipelineManager();
     ~AgVulkanHandlerGraphicsPipelineManager();
 
-    AgResult create_graphics_pipeline();
+    AgResult create_graphics_pipeline(
+        const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+        const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
+        const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor);
     AgResult terminate();
 
 private:
-    std::vector<char> read_file();
+    std::vector<char> read_file(const std::string& file_path);
     VkShaderModule create_shader_module(
         const std::vector<char>& shader_source,
         const VkDevice& logical_device);

@@ -19,6 +19,7 @@ Agos::AgApplication::AgApplication()
     m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
 
     m_VulkanDescriptorManager   = std::make_shared<AgVulkanHandlerDescriptorManager>();
+    m_VulkanGraphicsPipelineManager = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -70,6 +71,14 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     m_VulkanDescriptorManager->create_descriptor_set_layout(
         m_VulkanLogicalDevice
     );
+    AG_CORE_WARN("Creating graphics pipeline...");
+    m_VulkanGraphicsPipelineManager->create_graphics_pipeline(
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanDescriptorManager
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -92,7 +101,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
-
+    m_VulkanGraphicsPipelineManager->terminate();
     m_VulkanRenderPass->terminate();
     m_VulkanSwapChain->terminate();
 

@@ -25,6 +25,7 @@ private:
     std::shared_ptr<AgVulkanHandlerRenderPass> m_VulkanRenderPass;
 
     std::shared_ptr<AgVulkanHandlerDescriptorManager> m_VulkanDescriptorManager;
+    std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager> m_VulkanGraphicsPipelineManager;
 
 public:
     AgApplication();

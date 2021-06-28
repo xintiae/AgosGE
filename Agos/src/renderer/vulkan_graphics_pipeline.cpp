@@ -1,6 +1,7 @@
 #include "Agos/src/renderer/vulkan_graphics_pipeline.h"
 
 #include "Agos/src/logger/logger.h"
+#include <fstream>
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager()
 {
@@ -8,6 +9,7 @@ Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineMan
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::~AgVulkanHandlerGraphicsPipelineManager()
 {
+    terminate();
 }
 
 Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pipeline(
@@ -18,8 +20,8 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor
 )
 {
-    auto vertShaderCode = read_file(SHADER_PATH + "vert.spv");
-    auto fragShaderCode = read_file(SHADER_PATH + "frag.spv");
+    auto vertShaderCode = read_file( std::string(AG_SHADERS_PATH) + std::string("vert.spv") );
+    auto fragShaderCode = read_file( std::string(AG_SHADERS_PATH) + std::string("frag.spv") );
 
     VkShaderModule vertShaderModule = create_shader_module(vertShaderCode, logical_device->get_device());
     VkShaderModule fragShaderModule = create_shader_module(fragShaderCode, logical_device->get_device());
@@ -116,9 +118,10 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptor->get_descriptor_set_layout();
 
-    if (vkCreatePipelineLayout(logical_device->get_device(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logical_device->get_device(), &pipelineLayoutInfo, nullptr, &m_GraphicsPipelineLayout) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create pipeline layout!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerGraphicsPipelineManger - create_graphics_pipeline] Failed to create graphics pipeline layout!");
+        return AG_FAILED_TO_CREATE_GRAPHICS_PIPELINE_LAYOUT;
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -132,18 +135,54 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = m_PipelineLayout;
+    pipelineInfo.layout = m_GraphicsPipelineLayout;
     pipelineInfo.renderPass = render_pass->get_render_pass();
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     if (vkCreateGraphicsPipelines(logical_device->get_device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create graphics pipeline!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - create_graphics_pipeline] Failed to create graphics pipeline!");
+        return AG_FAILED_TO_CREATE_GRAPHICS_PIPELINE;
     }
 
     vkDestroyShaderModule(logical_device->get_device(), fragShaderModule, nullptr);
     vkDestroyShaderModule(logical_device->get_device(), vertShaderModule, nullptr);
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - create_graphics_pipeline] crated graphics pipeline!");
+    return AG_SUCCESS;
+}
+
+std::vector<char> Agos::AgVulkanHandlerGraphicsPipelineManager::read_file(const std::string& file_path)
+{
+    std::ifstream file(file_path, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+    {
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - read_file] Failed to open file! current path to file : " + std::string(file_path));
+        return std::vector<char>();
+    }
+
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+
+    file.close();
+
+    return buffer;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::terminate()
+{
+    if (!m_Terminated)
+    {
+        vkDestroyPipeline(m_LogicalDeviceReference, m_GraphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(m_LogicalDeviceReference, m_GraphicsPipelineLayout, nullptr);
+        m_Terminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
 VkShaderModule Agos::AgVulkanHandlerGraphicsPipelineManager::create_shader_module(
