@@ -10,9 +10,10 @@
 [submodule "Agos/vendor/glm"]
 	path = Agos/vendor/glm
 	url = https://github.com/g-truc/glm
+# Fork is used until the core repository is updated to fix a bug (see https://github.com/gelldur/EventBus/pull/42 )
 [submodule "Agos/vendor/EventBus"]
 	path = Agos/vendor/EventBus
-	url = https://github.com/gelldur/EventBus.git
+	url = https://github.com/Dodopriester/EventBus
 [submodule "Agos/vendor/GLFW"]
 	path = Agos/vendor/GLFW
 	url = https://github.com/glfw/glfw

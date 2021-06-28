@@ -14,8 +14,12 @@ add_library(Agos STATIC ${AGOS_CPPS})
 target_include_directories(Agos PUBLIC  ${CMAKE_SOURCE_DIR}
                                         ${CMAKE_SOURCE_DIR}/Agos
                                         ${CMAKE_SOURCE_DIR}/Agos/src
-                                        ${CMAKE_SOURCE_DIR}/agos/vendor)
+                                        ${CMAKE_SOURCE_DIR}/agos/vendor
+                                        ${CMAKE_SOURCE_DIR}/Agos/vendor/GLFW/include
+                                        ${CMAKE_SOURCE_DIR}/Agos/vendor/spdlog/include
+                                        ${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib/src
+                                        ${Vulkan_INCLUDE_DIR})
 
-set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC -fvisibility=hidden")
-
-target_link_libraries(Agos PRIVATE Dexode::EventBus)
+if (NOT WIN32)
+    set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC -fvisibility=hidden")
+endif()
