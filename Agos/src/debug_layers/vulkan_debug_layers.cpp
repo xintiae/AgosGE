@@ -1,7 +1,7 @@
 #include "Agos/src/debug_layers/vulkan_debug_layers.h"
 
 #include "Agos/src/logger/logger.h"
-#include <GLFW/glfw3.h>
+#include AG_GLFW_INCLUDE
 
 
 std::vector<const char*> Agos::AgVulkanHandlerDebugLayersManager::m_ValidationLayers = {

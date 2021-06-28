@@ -7,7 +7,7 @@ namespace Agos{
 }
 #include "Agos/src/renderer/vulkan_instance.h"
 
-#include <vulkan/vulkan.h>
+#include AG_VULKAN_INCLUDE
 #include <vector>
 #include <memory>
 

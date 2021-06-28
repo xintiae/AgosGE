@@ -13,7 +13,7 @@ namespace Agos{
 }
 #include "Agos/src/renderer/vulkan_swapchain.h"
 
-#include <vulkan/vulkan.h>
+#include AG_VULKAN_INCLUDE
 #include <memory>
 #include <optional>
 
@@ -61,6 +61,7 @@ public:
 
     const std::vector<const char*>& get_device_extensions();
     VkPhysicalDevice& get_device();
+    VkSampleCountFlagBits& get_msaa_samples();
 
     friend class Agos::AgVulkanHandlerLogicalDevice;
     friend class Agos::AgVulkanHandlerSwapChain;

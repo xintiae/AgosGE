@@ -5,7 +5,7 @@
 #include "Agos/src/renderer/renderer.h"
 #include "Agos/src/debug_layers/vulkan_debug_layers.h"
 
-#include <Agos/vendor/EventBus/lib/src/dexode/EventBus.hpp>
+#include AG_EVENTBUS_INCLUDE
 
 namespace Agos
 {
@@ -22,6 +22,9 @@ private:
     std::shared_ptr<AgVulkanHandlerPhysicalDevice> m_VulkanPhysicalDevice;
     std::shared_ptr<AgVulkanHandlerLogicalDevice> m_VulkanLogicalDevice;
     std::shared_ptr<AgVulkanHandlerSwapChain> m_VulkanSwapChain;
+    std::shared_ptr<AgVulkanHandlerRenderPass> m_VulkanRenderPass;
+
+    std::shared_ptr<AgVulkanHandlerDescriptorManager> m_VulkanDescriptorManager;
 
 public:
     AgApplication();

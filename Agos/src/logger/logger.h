@@ -3,7 +3,7 @@
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
-#include <Agos/vendor/spdlog/include/spdlog/spdlog.h>
+#include AG_SPDLOG_INCLUDE
 #include <memory>
 
 namespace Agos

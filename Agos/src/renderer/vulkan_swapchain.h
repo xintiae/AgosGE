@@ -7,7 +7,7 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 
-#include <vulkan/vulkan.h>
+#include AG_VULKAN_INCLUDE
 #include <memory>
 #include <vector>
 
@@ -18,6 +18,7 @@ typedef class AG_API AgVulkanHandlerSwapChain
 private:
     VkSwapchainKHR m_SwapChain;
     std::vector<VkImage> m_SwapChainImages;
+    std::vector<VkImageView> m_SwapChainImageViews;
     VkFormat m_SwapChainImageFormat;
     VkExtent2D m_SwapChainExtent;
 
@@ -35,7 +36,15 @@ public:
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
+    AgResult create_image_views(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device
+    );
     AgResult terminate();
+
+    VkSwapchainKHR&             get_swapchain();
+    std::vector<VkImage>&       get_swapchain_images();
+    std::vector<VkImageView>&   get_swapchain_image_views();
+    VkFormat&                   get_swapchain_image_format();
 
 private:
     VkSurfaceFormatKHR choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats);
@@ -43,6 +52,13 @@ private:
     VkExtent2D choose_swap_extent(
         const VkSurfaceCapabilitiesKHR& capabilities,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
+    VkImageView create_image_view(
+        const VkImage& image,
+        const VkFormat& format,
+        const VkImageAspectFlags& aspectFlags,
+        const uint32_t& mipLevels,
+        const VkDevice& device
+    );
 } AgVulkanHandlerSwapChain;
 
 }   // namespace Agos

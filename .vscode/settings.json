@@ -73,5 +73,6 @@
         "csignal": "cpp",
         "any": "cpp",
         "shared_mutex": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }
