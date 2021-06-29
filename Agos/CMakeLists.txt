@@ -10,6 +10,8 @@ file(GLOB_RECURSE AGOS_CPPS ./src/*.cpp
                             ./src/*/*.cpp
                             ./src/*/*/*.cpp)
 
+include(FindVulkan)
+
 add_library(Agos STATIC ${AGOS_CPPS})
 target_include_directories(Agos PUBLIC  ${CMAKE_SOURCE_DIR}
                                         ${CMAKE_SOURCE_DIR}/Agos
@@ -19,6 +21,7 @@ target_include_directories(Agos PUBLIC  ${CMAKE_SOURCE_DIR}
                                         ${CMAKE_SOURCE_DIR}/Agos/vendor/spdlog/include
                                         ${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib/src
                                         ${Vulkan_INCLUDE_DIR})
+
 target_compile_definitions(Agos PUBLIC -DAG_SHADERS_PATH="${CMAKE_SOURCE_DIR}/Agos/shaders")
 
 if (NOT WIN32)

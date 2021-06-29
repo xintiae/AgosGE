@@ -5,7 +5,7 @@ SET MSBuildPath=%%F
 
 echo "Creating Visual Studio Files..."
 cd ..
-mkdir build
+if not exist build mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Debug ..
 echo "Building AgosGE..."
