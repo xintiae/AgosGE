@@ -189,12 +189,13 @@ VkShaderModule Agos::AgVulkanHandlerGraphicsPipelineManager::create_shader_modul
         return VK_NULL_HANDLE;
     }
 
+    clear_compiled_shader(shader);
     return shaderModule;
 }
 
 /**
  * @param @std::string shader_folder_path
- * @b path to the @b dir containing both @b manifest.json @c and @b <your_vertex_shader_name>
+ * @b path to the @b dir containing both @b manifest.json @c and @b <your_vertex_shader_name> (path without "/" at the end x] )
 */
 Agos::VulkanGraphicsPipeline::Shader Agos::AgVulkanHandlerGraphicsPipelineManager::compile_shader(const std::string& shader_folder_path)
 {
@@ -206,7 +207,7 @@ Agos::VulkanGraphicsPipeline::Shader Agos::AgVulkanHandlerGraphicsPipelineManage
 
     Agos::VulkanGraphicsPipeline::Shader shader_info;
     std::string type = manifest["type"];
-    shader_info.type;
+    shader_info.folder_path = shader_folder_path;
     shader_info.id          = manifest["id"];
     shader_info.id_compiled = manifest["id_compiled"];
     shader_info.compile     = manifest["compile"];
@@ -272,3 +273,16 @@ Agos::VulkanGraphicsPipeline::Shader Agos::AgVulkanHandlerGraphicsPipelineManage
     shader_info.shader_contents = std::move(buffer);
     return shader_info;
 }
+
+Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::clear_compiled_shader(const Agos::VulkanGraphicsPipeline::Shader& shader)
+{
+    std::string compiled_shader_path = shader.folder_path + "/" + shader.id_compiled;
+    std::string delete_cmd = "rm -f " + compiled_shader_path;
+    int result = system(delete_cmd.c_str());
+    
+    if (result != 0)
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - clear_compiled_shader] Failed to destroy compiled shader : " + compiled_shader_path + "!");
+    else
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - clear_compiled_shader] Cleaned compiled shader : " + compiled_shader_path);
+}
+

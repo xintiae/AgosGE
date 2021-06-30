@@ -122,7 +122,7 @@ private:
         const std::string& shader_folder,
         const VkDevice& logical_device);
     VulkanGraphicsPipeline::Shader compile_shader(const std::string& shader_folder_path);
-    const std::vector<char> read_file(const std::string& file_path);
+    AgResult clear_compiled_shader(const VulkanGraphicsPipeline::Shader& shader);
 };
 
 }   // namespace Agos
