@@ -105,7 +105,6 @@ private:
     VkShaderModule create_shader_module(
         const std::vector<char>& shader_source,
         const VkDevice& logical_device);
-
 };
 
 }   // namespace Agos

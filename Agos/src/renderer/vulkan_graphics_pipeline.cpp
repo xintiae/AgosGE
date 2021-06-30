@@ -2,6 +2,7 @@
 
 #include "Agos/src/logger/logger.h"
 #include <fstream>
+#include <filesystem>
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager()
 {
@@ -157,6 +158,26 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     vkDestroyShaderModule(logical_device->get_device(), vertShaderModule, nullptr);
     AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - create_graphics_pipeline] crated graphics pipeline!");
     return AG_SUCCESS;
+}
+
+// path to the file (e.g. /home/user1234/AgosGE/Agos/shaders/shader.vert)
+Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::compile_vertex_shader(const std::string& vert_shader_path)
+{
+    bool is_compiled = false;
+
+    if (std::filesystem::exists(std::filesystem::path(vert_shader_path)))
+    {
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_vertex_shader] Found possible vertex shader : " + vert_shader_path);
+    }
+    AG_CORE_WARN("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_vertex_shader] Compiling file " + vert_shader_path + "...");
+    std::string compile_cmd = std::string("./compile_vert_shader.") + std::string(AG_SHADER_SCRIPT_COMPILE_EXTENTION);
+    system(compile_cmd.c_str());
+    if (std::filesystem::exists(vert_shader_path));
+}
+
+Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::compile_fragment_shader(const std::string& frag_shader_path)
+{
+
 }
 
 std::vector<char> Agos::AgVulkanHandlerGraphicsPipelineManager::read_file(const std::string& file_path)

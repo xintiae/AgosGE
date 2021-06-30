@@ -1,0 +1,4 @@
+{
+    "name" : "vertex_shader",
+    "compile_cmd" : "glslc -o ${name}.spv"
+}

@@ -72,7 +72,8 @@
         "variant": "cpp",
         "csignal": "cpp",
         "any": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "filesystem": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

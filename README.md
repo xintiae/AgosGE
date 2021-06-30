@@ -19,13 +19,12 @@ https://www.apache.org/licenses/LICENSE-2.0.html
 4. Run the AgosGE.exe file in build/bin
 
 ### Linux
-1. Run scripts/build_linux.sh
-2. Create a new directory (eg. build)
-3. cd into this directory
-4. Run ```cmake ..``` and ```make && make install```
-5. Open the bin/AgosGE executable
+1. Clone the repository: ```git clone https://github.com/xintiae/AgosGE.git```
+2. Create a build repo (e.g. "build"): ```mkdir build```
+3. Cd in that repo : ```cd build```
+4. Run ```cmake .. && make && ./bin/AgosGE```
 
 Note: You can ignore the warnings that might appear
 
 ### macOS
-Not yet supported
+Not supported yet

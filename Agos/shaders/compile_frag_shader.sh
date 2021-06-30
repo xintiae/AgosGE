@@ -1,1 +1,0 @@
-glslc -o frag.spv shader.frag

@@ -9,8 +9,6 @@
 #define AG_DEBUG_LAYERS_ENABLED
 #define AG_ENABLE_DEBUG_VALIDATION_LAYER true
 
-// #define AG_SHADERS_PATH  // transfer this into the cmake
-
 // #define AGOS_COMPILED_STATIC
 #define AGOS_COMPILED_SHARED
 
@@ -26,6 +24,8 @@
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
   #define AG_STB_INCLUDE              "stb/stb.h"
 
+  #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".bat"
+
   #define AGOS_HELPER_SHARED_IMPORT __declspec(dllimport)
   #define AGOS_HELPER_SHARED_EXPORT __declspec(dllexport)
   #define AGOS_HELPER_SHARED_LOCAL
@@ -37,6 +37,8 @@
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
   #define AG_STB_INCLUDE              "stb/stb.h"
+
+  #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".sh"
 
   #if __GNUC__ >= 4
     #define AGOS_HELPER_SHARED_IMPORT __attribute__( (visibility ("default")) )
