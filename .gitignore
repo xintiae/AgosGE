@@ -21,4 +21,6 @@ build
 *vcxproj
 *vcxproj.filters
 
+*.spv
+
 _deps
