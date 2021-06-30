@@ -1,8 +1,10 @@
 #include "Agos/src/renderer/vulkan_graphics_pipeline.h"
 
+#include AG_JSON_INCLUDE
 #include "Agos/src/logger/logger.h"
 #include <fstream>
 #include <filesystem>
+
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager()
 {
@@ -28,11 +30,8 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
 {
     m_LogicalDeviceReference = logical_device->get_device();
 
-    std::vector<char> vertShaderCode = read_file( shaders_path + "vert.spv" );
-    std::vector<char> fragShaderCode = read_file( shaders_path + "frag.spv" );
-
-    VkShaderModule vertShaderModule = create_shader_module(vertShaderCode, logical_device->get_device());
-    VkShaderModule fragShaderModule = create_shader_module(fragShaderCode, logical_device->get_device());
+    VkShaderModule vertShaderModule = create_shader_module(shaders_path + AG_DEFAULT_VERTEX_SHADER_FOLDER, logical_device->get_device());
+    VkShaderModule fragShaderModule = create_shader_module(shaders_path + AG_DEFAULT_FRAGMENT_SHADER_FOLDER, logical_device->get_device());
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -160,47 +159,6 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     return AG_SUCCESS;
 }
 
-// path to the file (e.g. /home/user1234/AgosGE/Agos/shaders/shader.vert)
-Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::compile_vertex_shader(const std::string& vert_shader_path)
-{
-    bool is_compiled = false;
-
-    if (std::filesystem::exists(std::filesystem::path(vert_shader_path)))
-    {
-        AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_vertex_shader] Found possible vertex shader : " + vert_shader_path);
-    }
-    AG_CORE_WARN("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_vertex_shader] Compiling file " + vert_shader_path + "...");
-    std::string compile_cmd = std::string("./compile_vert_shader.") + std::string(AG_SHADER_SCRIPT_COMPILE_EXTENTION);
-    system(compile_cmd.c_str());
-    if (std::filesystem::exists(vert_shader_path));
-}
-
-Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::compile_fragment_shader(const std::string& frag_shader_path)
-{
-
-}
-
-std::vector<char> Agos::AgVulkanHandlerGraphicsPipelineManager::read_file(const std::string& file_path)
-{
-    std::ifstream file(file_path, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open())
-    {
-        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - read_file] Failed to open file! current path to file : " + std::string(file_path));
-        return std::vector<char>();
-    }
-
-    size_t fileSize = (size_t)file.tellg();
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
-    return buffer;
-}
-
 Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::terminate()
 {
     if (!m_Terminated)
@@ -214,19 +172,103 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::terminate()
 }
 
 VkShaderModule Agos::AgVulkanHandlerGraphicsPipelineManager::create_shader_module(
-    const std::vector<char>& shader_source,
+    const std::string& shader_folder,
     const VkDevice& logical_device)
 {
+    Agos::VulkanGraphicsPipeline::Shader shader = compile_shader(shader_folder);
+
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = shader_source.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(shader_source.data());
+    createInfo.codeSize = shader.shader_contents.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(shader.shader_contents.data());
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(logical_device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create shader module!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - create_shader_module] Failed to create shader module!");
+        return VK_NULL_HANDLE;
     }
 
     return shaderModule;
+}
+
+/**
+ * @param @std::string shader_folder_path
+ * @b path to the @b dir containing both @b manifest.json @c and @b <your_vertex_shader_name>
+*/
+Agos::VulkanGraphicsPipeline::Shader Agos::AgVulkanHandlerGraphicsPipelineManager::compile_shader(const std::string& shader_folder_path)
+{
+    // read .json
+    std::string manifest_path = shader_folder_path + "/manifest.json";
+    std::ifstream manifest_stream(manifest_path);
+    std::string manifest_content((std::istreambuf_iterator<char>(manifest_stream)), std::istreambuf_iterator<char>());
+    nlohmann::json manifest = nlohmann::json::parse(manifest_content);
+
+    Agos::VulkanGraphicsPipeline::Shader shader_info;
+    std::string type = manifest["type"];
+    shader_info.type;
+    shader_info.id          = manifest["id"];
+    shader_info.id_compiled = manifest["id_compiled"];
+    shader_info.compile     = manifest["compile"];
+    std::string compiled_shader_path = shader_folder_path + "/" + shader_info.id_compiled;
+
+    if (type == "none")
+        shader_info.type = Agos::VulkanGraphicsPipeline::ShaderTypes::__None;
+    else if (type == "vertex")
+        shader_info.type = Agos::VulkanGraphicsPipeline::ShaderTypes::__Vertex;
+    else if (type == "fragment")
+        shader_info.type = Agos::VulkanGraphicsPipeline::ShaderTypes::__Fragment;
+    else
+    {
+        shader_info.type = Agos::VulkanGraphicsPipeline::ShaderTypes::__Error_type;
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Shader type precised in manifest : "
+            + manifest_path + " is unknown!");
+    }
+
+    bool compiled_shader_exists = false;
+    std::filesystem::path compiled_shader_entry(compiled_shader_path);
+
+    if (std::filesystem::exists(compiled_shader_entry) )
+    {
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Found possible compiled shader of type : " + type + " : "
+            + shader_folder_path + "/" + shader_info.id_compiled);
+        compiled_shader_exists = true;
+    }
+    else
+    {
+        AG_CORE_WARN("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] No compiled shader found at : " + shader_folder_path);
+        // compiled_shader_exists = false;
+    }
+
+    // compile
+    std::string compile_cmd = "(cd " + shader_folder_path + " && " + shader_info.compile + ")";
+    if (!compiled_shader_exists || AG_SHADERS_COMPILE_ANYWAY)
+    {
+        AG_CORE_WARN("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Compiling shader : " + shader_folder_path + "/" + shader_info.id + "...");
+
+        int result = system(compile_cmd.c_str());
+        if (result == 0)
+            AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Done compiling.");
+        else
+            AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Compilation failed!");
+    }
+
+    std::ifstream shader_stream(shader_folder_path + "/" + shader_info.id_compiled, std::ios::ate | std::ios::binary);
+    if (!shader_stream.is_open())
+    {
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Failed to open compiled shader file : " +
+            shader_folder_path + "/" + shader_info.id + "!");
+    }
+
+    size_t shader_size = static_cast<size_t>(shader_stream.tellg());
+    std::vector<char> buffer(shader_size);
+
+    shader_stream.seekg(0);
+    shader_stream.read(buffer.data(), shader_size);
+
+    shader_stream.close();
+    manifest_stream.close();
+
+    shader_info.shader_contents = std::move(buffer);
+    return shader_info;
 }

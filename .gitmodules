@@ -17,3 +17,6 @@
 [submodule "Agos/vendor/GLFW"]
 	path = Agos/vendor/GLFW
 	url = https://github.com/glfw/glfw
+[submodule "Agos/vendor/nlohmann_json"]
+	path = Agos/vendor/nlohmann_json
+	url = https://github.com/nlohmann/json

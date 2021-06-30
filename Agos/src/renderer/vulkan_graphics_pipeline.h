@@ -22,6 +22,25 @@ namespace Agos
 
 namespace VulkanGraphicsPipeline
 {
+typedef enum AG_API ShaderTypes : int8_t
+{
+    __Error_type    = -1,
+    __None          = 0,
+    __Vertex        = 1,
+    __Fragment      = 2
+} ShaderTypes;
+
+typedef struct AG_API Shader
+{
+    std::string folder_path;
+    std::vector<char> shader_contents;
+
+    ShaderTypes type;
+    std::string id;
+    std::string id_compiled;
+    std::string compile;
+} Shader;
+
 typedef struct AG_API Vertex
 {
     glm::vec3 pos;
@@ -99,12 +118,11 @@ public:
     AgResult terminate();
 
 private:
-    AgResult compile_vertex_shader(const std::string& vert_shader_path);
-    AgResult compile_fragment_shader(const std::string& frag_shader_path);
-    std::vector<char> read_file(const std::string& file_path);
     VkShaderModule create_shader_module(
-        const std::vector<char>& shader_source,
+        const std::string& shader_folder,
         const VkDevice& logical_device);
+    VulkanGraphicsPipeline::Shader compile_shader(const std::string& shader_folder_path);
+    const std::vector<char> read_file(const std::string& file_path);
 };
 
 }   // namespace Agos

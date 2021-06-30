@@ -9,6 +9,10 @@
 #define AG_DEBUG_LAYERS_ENABLED
 #define AG_ENABLE_DEBUG_VALIDATION_LAYER true
 
+#define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
+#define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
+#define AG_SHADERS_COMPILE_ANYWAY true
+
 // #define AGOS_COMPILED_STATIC
 #define AGOS_COMPILED_SHARED
 
@@ -23,6 +27,7 @@
   #define AG_GLM_INCLUDE              "glm/glm/glm.hpp"
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
   #define AG_STB_INCLUDE              "stb/stb.h"
+  #define AG_JSON_INCLUDE             ""
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".bat"
 
@@ -37,6 +42,7 @@
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
   #define AG_STB_INCLUDE              "stb/stb.h"
+  #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".sh"
 

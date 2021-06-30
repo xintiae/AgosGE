@@ -1,0 +1,6 @@
+{
+    "type" : "fragment",
+    "id" : "shader.frag",
+    "id_compiled" : "frag.spv",
+    "compile" : "glslc -o frag.spv shader.frag"
+}
