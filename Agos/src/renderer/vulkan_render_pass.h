@@ -22,7 +22,7 @@ private:
     // like the swap chain, we need it to destroy the render pass
     // it was meant to be a reference, but getting compiler error when repporting it as a ref
     VkDevice m_LogicalDeviceReference;
-    bool m_Terminated;
+    bool m_Terminated = false;
 
 public:
     AgVulkanHandlerRenderPass();

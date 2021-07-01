@@ -25,7 +25,7 @@ private:
     // need it to destroy the swapchain
     // it was meant to be a reference, but getting compiler error when repporting it as a ref
     VkDevice m_LogicalDeviceReference;
-    bool m_Terminated;
+    bool m_Terminated = false;
 
 public:
     AgVulkanHandlerSwapChain();

@@ -19,7 +19,7 @@ private:
 
 
     VkDevice m_LogicalDeviceReference;
-    bool m_Terminated;
+    bool m_Terminated = false;
 
 public:
     AgVulkanHandlerFramebuffers();

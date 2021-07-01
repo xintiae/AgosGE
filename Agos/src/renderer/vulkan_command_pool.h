@@ -18,7 +18,7 @@ private:
     VkCommandPool m_CommandPool;
 
     VkDevice m_LogicalDeviceReference;
-    bool m_Terminated;
+    bool m_Terminated = false;
 
 public:
     AgVulkanHandlerCommandPoolManager();

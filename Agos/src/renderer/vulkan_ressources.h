@@ -5,6 +5,10 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
+namespace {
+    class AgVulkanHandlerTextureImageManager;
+}
+#include "Agos/src/renderer/vulkan_textures.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -29,7 +33,7 @@ private:
 
     // like the swap chain, we need it to destroy the render pass
     VkDevice m_LogicalDeviceReference;
-    bool m_Terminated;
+    bool m_Terminated = false;
 
 public:
     AgVulkanHandlerColorDepthRessourcesManager();
@@ -54,7 +58,8 @@ public:
     VkImageView&     get_depth_image_view();
     VkFormat&        get_depth_format();
 
-private:
+    friend class AgVulkanHandlerTextureImageManager;
+protected:
     VkImage create_image(
        const VkPhysicalDevice& physical_device,
         const VkDevice& logical_device,
@@ -74,7 +79,8 @@ private:
         const VkFormat& format,
         const VkImageAspectFlags& aspectFlags,
         const uint32_t& mipLevels);
-    
+
+private:
     uint32_t find_memory_type(
         const VkPhysicalDevice& physical_device,
         const uint32_t& type_filter,
