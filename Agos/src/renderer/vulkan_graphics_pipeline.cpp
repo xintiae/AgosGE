@@ -277,7 +277,7 @@ Agos::VulkanGraphicsPipeline::Shader Agos::AgVulkanHandlerGraphicsPipelineManage
 Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::clear_compiled_shader(const Agos::VulkanGraphicsPipeline::Shader& shader)
 {
     std::string compiled_shader_path = shader.folder_path + "/" + shader.id_compiled;
-    std::string delete_cmd = "rm -f " + compiled_shader_path;
+    std::string delete_cmd = AG_SHADER_DELETE_COMPILED_SHADER_COMMAND + std::string(" ") + compiled_shader_path;
     int result = system(delete_cmd.c_str());
     
     if (result != 0)
@@ -292,4 +292,3 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::clear_compiled_shad
 
     return AG_SUCCESS;
 }
-

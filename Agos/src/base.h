@@ -30,6 +30,7 @@
   #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".bat"
+  #define AG_SHADER_DELETE_COMPILED_SHADER_COMMAND "del"
 
   #define AGOS_HELPER_SHARED_IMPORT __declspec(dllimport)
   #define AGOS_HELPER_SHARED_EXPORT __declspec(dllexport)
@@ -45,6 +46,7 @@
   #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".sh"
+  #define AG_SHADER_DELETE_COMPILED_SHADER_COMMAND "rm -f"
 
   #if __GNUC__ >= 4
     #define AGOS_HELPER_SHARED_IMPORT __attribute__( (visibility ("default")) )
