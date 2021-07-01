@@ -17,13 +17,8 @@ endif()
 add_subdirectory(Agos)
 add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib)
 
-if(WIN32)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/Agos/vendor/GLFW)
-endif()
-
 set(EXECUTABLE_OUTPUT_PATH bin)
 set(LIBRARY_OUTPUT_PATH lib)
-
 
 file(GLOB_RECURSE AGOSGE_CPPS examples/*.cpp examples/*/*.cpp)
 
@@ -43,9 +38,16 @@ if(NOT WIN32)
     target_include_directories(AgosGE PRIVATE glfw3::glfw)
     target_link_libraries(AgosGE PRIVATE glfw)
 else()
-    include(FindVulkan)
-	target_include_directories(AgosGE PUBLIC glfw3::glfw "${CMAKE_SOURCE_DIR}/Agos/vendor/GLFW/include")
-	target_link_libraries(AgosGE PUBLIC glfw "${CMAKE_SOURCE_DIR}/Agos/vendor/lib/GLFW/glfw3.lib")
+    add_subdirectory(Agos/vendor/GLFW)
+
+    set( ENKITS_BUILD_EXAMPLES OFF CACHE BOOL "Build basic example applications" )
+    set( GLFW_BUILD_EXAMPLES OFF CACHE BOOL  "GLFW lib only" )
+    set( GLFW_BUILD_TESTS OFF CACHE BOOL  "GLFW lib only" )
+    set( GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only" )
+    set( GLFW_BUILD_INSTALL OFF CACHE BOOL  "GLFW lib only" )
+
+    include_directories("Agos/vendor/GLFW/include")
+    target_link_libraries(AgosGE PUBLIC glfw)
 endif()
 
 find_package(OpenGL REQUIRED)
