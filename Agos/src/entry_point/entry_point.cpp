@@ -19,7 +19,8 @@ Agos::AgApplication::AgApplication()
     m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
 
     m_VulkanDescriptorManager   = std::make_shared<AgVulkanHandlerDescriptorManager>();
-    m_VulkanGraphicsPipelineManager = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
+    m_VulkanGraphicsPipelineManager     = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
+    m_VulkanColorDepthRessourcesManager = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -80,6 +81,17 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanRenderPass,
         m_VulkanDescriptorManager
     );
+    AG_CORE_WARN("Creating color and depths ressources...");
+    m_VulkanColorDepthRessourcesManager->create_color_ressources(
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
+    m_VulkanColorDepthRessourcesManager->create_depth_ressources(
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -102,9 +114,13 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
+    m_VulkanColorDepthRessourcesManager->terminate();
+    // frame buffers
+    // command buffers
     m_VulkanGraphicsPipelineManager->terminate();
     m_VulkanRenderPass->terminate();
     m_VulkanSwapChain->terminate();
+    // descriptor pools
 
     m_VulkanDescriptorManager->terminate();
     m_VulkanLogicalDevice->terminate();

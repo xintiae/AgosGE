@@ -155,7 +155,7 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
 
     vkDestroyShaderModule(logical_device->get_device(), fragShaderModule, nullptr);
     vkDestroyShaderModule(logical_device->get_device(), vertShaderModule, nullptr);
-    AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - create_graphics_pipeline] crated graphics pipeline!");
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - create_graphics_pipeline] created graphics pipeline!");
     return AG_SUCCESS;
 }
 

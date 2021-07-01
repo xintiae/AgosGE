@@ -27,7 +27,7 @@
   #define AG_GLM_INCLUDE              "glm/glm/glm.hpp"
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
   #define AG_STB_INCLUDE              "stb/stb.h"
-  #define AG_JSON_INCLUDE             ""
+  #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".bat"
 

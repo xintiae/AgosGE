@@ -36,28 +36,52 @@ public:
     AgVulkanHandlerColorDepthRessourcesManager(const VkDevice& logical_device);
     ~AgVulkanHandlerColorDepthRessourcesManager();
 
-    AgResult create_color_ressources();
-    AgResult create_depth_ressources();
+    AgResult create_color_ressources(
+        const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
+    AgResult create_depth_ressources(
+        const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
     AgResult terminate();
 
 private:
-    void create_image(
-        uint32_t width,
-        uint32_t height,
-        uint32_t mipLevels,
-        VkSampleCountFlagBits numSamples,
-        VkFormat format,
-        VkImageTiling tiling,
-        VkImageUsageFlags usage,
-        VkMemoryPropertyFlags properties,
-        VkImage &image,
-        VkDeviceMemory &imageMemory);
+    VkImage create_image(
+       const VkPhysicalDevice& physical_device,
+        const VkDevice& logical_device,
+        const uint32_t& width,
+        const uint32_t& height,
+        const uint32_t& mipLevels,
+        const VkSampleCountFlagBits& numSamples,
+        const VkFormat& format,
+        const VkImageTiling& tiling,
+        const VkImageUsageFlags& usage,
+        const VkMemoryPropertyFlags& properties,
+        VkDeviceMemory& imageMemory);
 
     VkImageView create_image_view(
-        VkImage image,
-        VkFormat format,
-        VkImageAspectFlags aspectFlags,
-        uint32_t mipLevels);
+        const VkDevice& logical_device,
+        const VkImage& image,
+        const VkFormat& format,
+        const VkImageAspectFlags& aspectFlags,
+        const uint32_t& mipLevels);
+    
+    uint32_t find_memory_type(
+        const VkPhysicalDevice& physical_device,
+        const uint32_t& type_filter,
+        const VkMemoryPropertyFlags& properties);
+
+    VkFormat find_depth_format(
+        const VkPhysicalDevice& physical_device);
+
+    VkFormat find_supported_format(
+        const VkPhysicalDevice& physical_device,
+        const std::vector<VkFormat>& candidates,
+        VkImageTiling tiling,
+        VkFormatFeatureFlags features
+    );
+
 } AgVulkanHandlerColorDepthRessourcesManager;
 
 }   // namespace Agos
