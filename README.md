@@ -13,7 +13,7 @@ https://www.apache.org/licenses/LICENSE-2.0.html
 - [Visual Studio](https://visualstudio.microsoft.com/) (Windows)
 - [LunarG (Vulkan SDK)](https://vulkan.lunarg.com/sdk/home)
 
-Note for Debian Users: Agos will download every required packages automaticly (see scripts/build_linux.sh)
+Note for Debian Users: Agos will download every required packages automaticly (see [scripts/build_linux.sh](https://github.com/xintiae/AgosGE/blob/main/scripts/build_linux.sh))
 
 ### Windows
 1. Download the required programs

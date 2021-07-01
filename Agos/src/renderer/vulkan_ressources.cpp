@@ -87,6 +87,36 @@ Agos::AgResult Agos::AgVulkanHandlerColorDepthRessourcesManager::terminate()
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
+VkImage& Agos::AgVulkanHandlerColorDepthRessourcesManager::get_color_image()
+{
+    return m_ColorImage;
+}
+
+VkImageView& Agos::AgVulkanHandlerColorDepthRessourcesManager::get_color_image_view()
+{
+    return m_ColorImageView;
+}
+
+VkFormat& Agos::AgVulkanHandlerColorDepthRessourcesManager::get_color_format()
+{
+    return m_ColorFormat;
+}
+
+VkImage& Agos::AgVulkanHandlerColorDepthRessourcesManager::get_depth_image()
+{
+    return m_DepthImage;
+}
+
+VkImageView& Agos::AgVulkanHandlerColorDepthRessourcesManager::get_depth_image_view()
+{
+    return m_DepthImageView;
+}
+
+VkFormat& Agos::AgVulkanHandlerColorDepthRessourcesManager::get_depth_format()
+{
+    return m_DepthFormat;
+}
+
 VkImage Agos::AgVulkanHandlerColorDepthRessourcesManager::create_image(
     const VkPhysicalDevice& physical_device,
     const VkDevice& logical_device,

@@ -17,10 +17,11 @@ Agos::AgApplication::AgApplication()
     m_VulkanSwapChain           = std::make_shared<AgVulkanHandlerSwapChain>();
     m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
 
-    m_VulkanDescriptorManager           = std::make_shared<AgVulkanHandlerDescriptorManager>();
-    m_VulkanGraphicsPipelineManager     = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
-    m_VulkanGraphicsCommandPoolManager  = std::make_shared<AgVulkanHandlerCommandPoolManager>();
-    m_VulkanColorDepthRessourcesManager = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
+    m_VulkanDescriptorManager            = std::make_shared<AgVulkanHandlerDescriptorManager>();
+    m_VulkanGraphicsPipelineManager      = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
+    m_VulkanGraphicsCommandPoolManager   = std::make_shared<AgVulkanHandlerCommandPoolManager>();
+    m_VulkanColorDepthRessourcesManager  = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
+    m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -99,6 +100,13 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
     );
+    AG_CORE_WARN("Creating swap chain frame buffers...");
+    m_VulkanSwapChainFrameBuffersManager->create_framebuffers(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanColorDepthRessourcesManager
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -122,7 +130,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     AG_CORE_WARN("Terminating Agos core application...");
 
     m_VulkanColorDepthRessourcesManager->terminate();
-    // frame buffers
+    m_VulkanSwapChainFrameBuffersManager->terminate();
     // command buffers
     m_VulkanGraphicsPipelineManager->terminate();
     m_VulkanRenderPass->terminate();

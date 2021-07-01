@@ -46,6 +46,14 @@ public:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
     AgResult terminate();
 
+    VkImage&         get_color_image();
+    VkImageView&     get_color_image_view();
+    VkFormat&        get_color_format();
+
+    VkImage&         get_depth_image();
+    VkImageView&     get_depth_image_view();
+    VkFormat&        get_depth_format();
+
 private:
     VkImage create_image(
        const VkPhysicalDevice& physical_device,

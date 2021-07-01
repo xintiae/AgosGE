@@ -10,3 +10,4 @@
 #include "Agos/src/renderer/vulkan_graphics_pipeline.h"
 #include "Agos/src/renderer/vulkan_command_pool.h"
 #include "Agos/src/renderer/vulkan_ressources.h"
+#include "Agos/src/renderer/vulkan_framebuffers.h"
