@@ -281,8 +281,15 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::clear_compiled_shad
     int result = system(delete_cmd.c_str());
     
     if (result != 0)
+    {
         AG_CORE_ERROR("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - clear_compiled_shader] Failed to destroy compiled shader : " + compiled_shader_path + "!");
+        return AG_FAILED_TO_CLEAR_COMPILED_SHADER;
+    }
     else
+    {
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - clear_compiled_shader] Cleaned compiled shader : " + compiled_shader_path);
+    }
+
+    return AG_SUCCESS;
 }
 

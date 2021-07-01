@@ -22,7 +22,8 @@ typedef enum AgResult {
     AG_FAILED_TO_CREATE_DESCRIPTOR_SET_LAYOUT       = 18,
     AG_FAILED_TO_CREATE_GRAPHICS_PIPELINE_LAYOUT    = 19,
     AG_FAILED_TO_CREATE_GRAPHICS_PIPELINE           = 20,
-    AG_FAILED_TO_CREATE_FRAMEBUFFERS                = 21
+    AG_FAILED_TO_CREATE_FRAMEBUFFERS                = 21,
+    AG_FAILED_TO_CLEAR_COMPILED_SHADER              = 22
 } AgResult;
 
 }   // namespace Agos
