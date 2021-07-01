@@ -7,7 +7,6 @@
 Agos::AgApplication::AgApplication()
 {
     m_EventBus                  = std::make_shared<dexode::EventBus>();
-    // gotta allocate mem
     m_GLFWEventsHandler         = std::make_shared<AgGLFWHandlerEvents>(m_EventBus);
     m_GLFWInstance              = std::make_shared<AgGLFWHandlerInstance>(m_EventBus);
     m_VulkanInstance            = std::make_shared<AgVulkanHandlerInstance>(m_EventBus);
@@ -18,8 +17,9 @@ Agos::AgApplication::AgApplication()
     m_VulkanSwapChain           = std::make_shared<AgVulkanHandlerSwapChain>();
     m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
 
-    m_VulkanDescriptorManager   = std::make_shared<AgVulkanHandlerDescriptorManager>();
+    m_VulkanDescriptorManager           = std::make_shared<AgVulkanHandlerDescriptorManager>();
     m_VulkanGraphicsPipelineManager     = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
+    m_VulkanGraphicsCommandPoolManager  = std::make_shared<AgVulkanHandlerCommandPoolManager>();
     m_VulkanColorDepthRessourcesManager = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
 }
 
@@ -81,6 +81,13 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanRenderPass,
         m_VulkanDescriptorManager
     );
+    AG_CORE_WARN("Creating graphics command pools...");
+    m_VulkanGraphicsCommandPoolManager->create_command_pool(
+        m_GLFWInstance,
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
     AG_CORE_WARN("Creating color and depths ressources...");
     m_VulkanColorDepthRessourcesManager->create_color_ressources(
         m_VulkanPhysicalDevice,
@@ -123,6 +130,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     // descriptor pools
 
     m_VulkanDescriptorManager->terminate();
+    m_VulkanGraphicsCommandPoolManager->terminate();
     m_VulkanLogicalDevice->terminate();
 
     m_VulkanDebugLayersManager->terminate();

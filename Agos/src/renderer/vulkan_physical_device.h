@@ -12,6 +12,10 @@ namespace Agos{
     class AgVulkanHandlerSwapChain;
 }
 #include "Agos/src/renderer/vulkan_swapchain.h"
+namespace Agos{
+    class AgVulkanHandlerCommandPoolManager;
+}
+#include "Agos/src/renderer/vulkan_command_pool.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -65,6 +69,8 @@ public:
 
     friend class Agos::AgVulkanHandlerLogicalDevice;
     friend class Agos::AgVulkanHandlerSwapChain;
+    friend class Agos::AgVulkanHandlerCommandPoolManager;
+
 private:
     bool is_device_suitable(
         const VkPhysicalDevice& physical_device,
