@@ -47,12 +47,16 @@ public:
     VkFormat&                   get_swapchain_image_format();
     VkExtent2D&                 get_swapchain_extent();
 
+    friend class AgVulkanHandlerTextureManager;
+
 private:
     VkSurfaceFormatKHR choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats);
     VkPresentModeKHR choose_swap_present_mode(const std::vector<VkPresentModeKHR>& available_present_modes);
     VkExtent2D choose_swap_extent(
         const VkSurfaceCapabilitiesKHR& capabilities,
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance);
+
+protected:
     VkImageView create_image_view(
         const VkImage& image,
         const VkFormat& format,

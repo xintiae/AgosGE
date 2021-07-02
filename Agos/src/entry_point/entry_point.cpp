@@ -22,7 +22,7 @@ Agos::AgApplication::AgApplication()
     m_VulkanGraphicsCommandPoolManager   = std::make_shared<AgVulkanHandlerCommandPoolManager>();
     m_VulkanColorDepthRessourcesManager  = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
     m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
-    m_VulkanTextureImageManager          = std::make_shared<AgVulkanHandlerTextureImageManager>();
+    m_VulkanTextureImageManager          = std::make_shared<AgVulkanHandlerTextureManager>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -115,6 +115,14 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanLogicalDevice,
         m_VulkanColorDepthRessourcesManager,
         m_VulkanGraphicsCommandPoolManager
+    );
+    m_VulkanTextureImageManager->create_texture_image_view(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
+    m_VulkanTextureImageManager->create_texture_sampler(
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice
     );
 
     AG_CORE_INFO("Done initializing Agos core application!");

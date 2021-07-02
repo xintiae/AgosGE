@@ -3,21 +3,21 @@
 #include AG_STB_INCLUDE
 #include "Agos/src/logger/logger.h"
 
-Agos::AgVulkanHandlerTextureImageManager::AgVulkanHandlerTextureImageManager()
+Agos::AgVulkanHandlerTextureManager::AgVulkanHandlerTextureManager()
 {
 }
 
-Agos::AgVulkanHandlerTextureImageManager::AgVulkanHandlerTextureImageManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerTextureManager::AgVulkanHandlerTextureManager(const VkDevice& logical_device)
 {
     m_LogicalDeviceReference = logical_device;
 }
 
-Agos::AgVulkanHandlerTextureImageManager::~AgVulkanHandlerTextureImageManager()
+Agos::AgVulkanHandlerTextureManager::~AgVulkanHandlerTextureManager()
 {
     terminate();
 }
 
-Agos::AgResult Agos::AgVulkanHandlerTextureImageManager::create_texture_image(
+Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
     const std::string& texture_path,
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
@@ -34,8 +34,8 @@ Agos::AgResult Agos::AgVulkanHandlerTextureImageManager::create_texture_image(
 
     if (!pixels)
     {
-        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureImageManager - create_texture_image] Failed to load texture image!");
-        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureImageManager - create_texture_image] Failed to load texture image!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - create_texture_image] Failed to load texture image!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - create_texture_image] Failed to load texture image!");
     }
 
     VkBuffer stagingBuffer;
@@ -102,15 +102,66 @@ Agos::AgResult Agos::AgVulkanHandlerTextureImageManager::create_texture_image(
         texWidth,
         texHeight,
         m_MipLevels);
-    
-    AG_CORE_INFO("[Vulkan/AgVulkanHandlerTextureImageManager - create_texture_image] Created texture image from file : " + texture_path);
+
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerTextureManager - create_texture_image] Created texture image from file : " + texture_path);
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerTextureImageManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image_view(
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain
+)
+{
+    m_TextureImageView = swapchain->create_image_view(
+        m_TextureImage,
+        VK_FORMAT_R8G8B8A8_SRGB,
+        VK_IMAGE_ASPECT_COLOR_BIT,
+        m_MipLevels,
+        logical_device->get_device());
+    
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerTextureManager - create_texture_image_view] Created texture image view!");
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_sampler(
+    const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device)
+{
+    VkPhysicalDeviceProperties properties{};
+    vkGetPhysicalDeviceProperties(physical_device->get_device(), &properties);
+
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = static_cast<float>(m_MipLevels);
+    samplerInfo.mipLodBias = 0.0f;
+
+    if (vkCreateSampler(logical_device->get_device(), &samplerInfo, nullptr, &m_TextureSampler) != VK_SUCCESS)
+    {
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerSampler - create_sampler] Failed to create texture sampler!");
+        return AG_FAILED_TO_CREATE_TEXTURE_SAMPLER;
+    }
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerTextureManager::terminate()
 {
     if (!m_Terminated)
     {
+        vkDestroySampler(m_LogicalDeviceReference, m_TextureSampler, nullptr);
+        vkDestroyImageView(m_LogicalDeviceReference, m_TextureImageView, nullptr);
         vkDestroyImage(m_LogicalDeviceReference, m_TextureImage, nullptr);
         vkFreeMemory(m_LogicalDeviceReference, m_TextureImageMemory, nullptr);
         m_Terminated = true;
@@ -119,7 +170,32 @@ Agos::AgResult Agos::AgVulkanHandlerTextureImageManager::terminate()
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-void Agos::AgVulkanHandlerTextureImageManager::create_buffer(
+VkImage& Agos::AgVulkanHandlerTextureManager::get_texture_image()
+{
+    return m_TextureImage;
+}
+
+VkImageView& Agos::AgVulkanHandlerTextureManager::get_texture_image_view()
+{
+    return m_TextureImageView;
+}
+
+VkDeviceMemory& Agos::AgVulkanHandlerTextureManager::get_texture_image_memory()
+{
+    return m_TextureImageMemory;
+}
+
+uint32_t& Agos::AgVulkanHandlerTextureManager::get_miplevels()
+{
+    return m_MipLevels;
+}
+
+VkSampler& Agos::AgVulkanHandlerTextureManager::get_texture_sampler()
+{
+    return m_TextureSampler;
+}
+
+void Agos::AgVulkanHandlerTextureManager::create_buffer(
     const VkPhysicalDevice& physical_device,
     const VkDevice& logical_device,
     const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
@@ -137,7 +213,8 @@ void Agos::AgVulkanHandlerTextureImageManager::create_buffer(
 
     if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create buffer!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to create buffer!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to create buffer!");
     }
 
     VkMemoryRequirements memRequirements;
@@ -150,13 +227,14 @@ void Agos::AgVulkanHandlerTextureImageManager::create_buffer(
 
     if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate buffer memory!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to allocate buffer memory!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to allocate buffer memory!");
     }
 
     vkBindBufferMemory(logical_device, buffer, bufferMemory, 0);
 }
 
-void Agos::AgVulkanHandlerTextureImageManager::transition_image_layout(
+void Agos::AgVulkanHandlerTextureManager::transition_image_layout(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
@@ -202,7 +280,8 @@ void Agos::AgVulkanHandlerTextureImageManager::transition_image_layout(
     }
     else
     {
-        throw std::invalid_argument("unsupported layout transition!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - transition_image_layout] Unsupported layout transition!");
+        throw std::invalid_argument("[Vulkan/AgVulkanHandlerTextureManager - transition_image_layout] Unsupported layout transition!");
     }
 
     vkCmdPipelineBarrier(
@@ -220,7 +299,7 @@ void Agos::AgVulkanHandlerTextureImageManager::transition_image_layout(
         commandBuffer);
 }
 
-void Agos::AgVulkanHandlerTextureImageManager::copy_buffer_to_image(
+void Agos::AgVulkanHandlerTextureManager::copy_buffer_to_image(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
@@ -254,7 +333,7 @@ void Agos::AgVulkanHandlerTextureImageManager::copy_buffer_to_image(
         commandBuffer);
 }
 
-void Agos::AgVulkanHandlerTextureImageManager::generate_mipmaps(
+void Agos::AgVulkanHandlerTextureManager::generate_mipmaps(
     const VkPhysicalDevice& physical_device,
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
@@ -270,7 +349,8 @@ void Agos::AgVulkanHandlerTextureImageManager::generate_mipmaps(
 
     if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
     {
-        throw std::runtime_error("texture image format does not support linear blitting!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - generate_mipmaps] Texture image format does not support linear blitting!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - generate_mipmaps] Texture image format does not support linear blitting!");
     }
 
     VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
@@ -359,7 +439,7 @@ void Agos::AgVulkanHandlerTextureImageManager::generate_mipmaps(
 }
 
 
-VkCommandBuffer Agos::AgVulkanHandlerTextureImageManager::begin_single_time_command(
+VkCommandBuffer Agos::AgVulkanHandlerTextureManager::begin_single_time_command(
     const VkDevice& logical_device,
     const VkCommandPool& commandPool
 )
@@ -382,7 +462,7 @@ VkCommandBuffer Agos::AgVulkanHandlerTextureImageManager::begin_single_time_comm
     return commandBuffer;
 }
 
-void Agos::AgVulkanHandlerTextureImageManager::end_single_time_command(
+void Agos::AgVulkanHandlerTextureManager::end_single_time_command(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,

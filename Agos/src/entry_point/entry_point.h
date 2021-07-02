@@ -29,7 +29,7 @@ private:
     std::shared_ptr<AgVulkanHandlerCommandPoolManager> m_VulkanGraphicsCommandPoolManager;
     std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager> m_VulkanColorDepthRessourcesManager;
     std::shared_ptr<AgVulkanHandlerFramebuffers> m_VulkanSwapChainFrameBuffersManager;
-    std::shared_ptr<AgVulkanHandlerTextureImageManager> m_VulkanTextureImageManager;
+    std::shared_ptr<AgVulkanHandlerTextureManager> m_VulkanTextureImageManager;
 
 public:
     AgApplication();

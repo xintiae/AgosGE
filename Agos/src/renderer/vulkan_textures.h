@@ -19,20 +19,22 @@ namespace Agos{
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerTextureImageManager
+typedef class AG_API AgVulkanHandlerTextureManager
 {
 private:
     VkImage m_TextureImage;
+    VkImageView m_TextureImageView;
     VkDeviceMemory m_TextureImageMemory;
     uint32_t m_MipLevels;
+    VkSampler m_TextureSampler;
 
     VkDevice m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
-    AgVulkanHandlerTextureImageManager();
-    AgVulkanHandlerTextureImageManager(const VkDevice& logical_device);
-    ~AgVulkanHandlerTextureImageManager();
+    AgVulkanHandlerTextureManager();
+    AgVulkanHandlerTextureManager(const VkDevice& logical_device);
+    ~AgVulkanHandlerTextureManager();
 
     AgResult create_texture_image(
         const std::string& texture_path,
@@ -40,7 +42,22 @@ public:
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
         const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager);
+
+    AgResult create_texture_image_view(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
+
+    AgResult create_texture_sampler(
+        const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device);
+
     AgResult terminate();
+
+    VkImage& get_texture_image();
+    VkImageView& get_texture_image_view();
+    VkDeviceMemory& get_texture_image_memory();
+    uint32_t& get_miplevels();
+    VkSampler& get_texture_sampler();
 
 private:
     void create_buffer(

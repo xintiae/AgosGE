@@ -6,7 +6,7 @@
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
 namespace {
-    class AgVulkanHandlerTextureImageManager;
+    class AgVulkanHandlerTextureManager;
 }
 #include "Agos/src/renderer/vulkan_textures.h"
 
@@ -58,7 +58,7 @@ public:
     VkImageView&     get_depth_image_view();
     VkFormat&        get_depth_format();
 
-    friend class AgVulkanHandlerTextureImageManager;
+    friend class AgVulkanHandlerTextureManager;
 protected:
     VkImage create_image(
        const VkPhysicalDevice& physical_device,
