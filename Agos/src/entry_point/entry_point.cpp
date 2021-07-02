@@ -22,6 +22,7 @@ Agos::AgApplication::AgApplication()
     m_VulkanGraphicsCommandPoolManager   = std::make_shared<AgVulkanHandlerCommandPoolManager>();
     m_VulkanColorDepthRessourcesManager  = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
     m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
+    m_VulkanTextureImageManager          = std::make_shared<AgVulkanHandlerTextureImageManager>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -107,6 +108,14 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanRenderPass,
         m_VulkanColorDepthRessourcesManager
     );
+    AG_CORE_WARN("Loading texture : " + std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.png..."));
+    m_VulkanTextureImageManager->create_texture_image(
+        std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.png"),
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanColorDepthRessourcesManager,
+        m_VulkanGraphicsCommandPoolManager
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -137,6 +146,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     m_VulkanSwapChain->terminate();
     // descriptor pools
 
+    m_VulkanTextureImageManager->terminate();
     m_VulkanDescriptorManager->terminate();
     m_VulkanGraphicsCommandPoolManager->terminate();
     m_VulkanLogicalDevice->terminate();

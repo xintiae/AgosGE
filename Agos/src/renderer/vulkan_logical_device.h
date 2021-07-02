@@ -38,6 +38,8 @@ public:
     AgResult terminate();
 
     VkDevice& get_device();
+    VkQueue& get_graphics_queue();
+    VkQueue& get_present_queue();
 
 } AgVulkanHandlerLogicalDevice;
 

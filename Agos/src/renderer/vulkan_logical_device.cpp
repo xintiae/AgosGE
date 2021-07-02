@@ -82,7 +82,17 @@ Agos::AgResult Agos::AgVulkanHandlerLogicalDevice::terminate()
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-VkDevice &Agos::AgVulkanHandlerLogicalDevice::get_device()
+VkDevice& Agos::AgVulkanHandlerLogicalDevice::get_device()
 {
     return m_LogicalDevice;
+}
+
+VkQueue& Agos::AgVulkanHandlerLogicalDevice::get_graphics_queue()
+{
+    return m_GraphicsQueue;
+}
+
+VkQueue& Agos::AgVulkanHandlerLogicalDevice::get_present_queue()
+{
+    return m_PresentQueue;
 }

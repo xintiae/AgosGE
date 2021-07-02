@@ -31,7 +31,7 @@ target_include_directories(AgosGE PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}
 
 set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
 
-if(NOT WIN32)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set_target_properties(AgosGE PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
 
     find_package(glfw3 3.3 REQUIRED)

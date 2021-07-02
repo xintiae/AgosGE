@@ -10,7 +10,8 @@
                 "${workspaceFolder}/Agos/vendor/EventBus/lib/src"
             ],
             "defines": [
-                "AG_SHADERS_PATH=\"\""
+                "AG_SHADERS_PATH=\"\"",
+                "AG_MODELS_PATH=\"\""
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",

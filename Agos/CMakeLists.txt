@@ -22,8 +22,8 @@ target_include_directories(Agos PUBLIC  ${CMAKE_SOURCE_DIR}
                                         ${CMAKE_SOURCE_DIR}/Agos/vendor/EventBus/lib/src
                                         ${Vulkan_INCLUDE_DIR})
 
-target_compile_definitions(Agos PUBLIC -DAG_SHADERS_PATH="${CMAKE_SOURCE_DIR}/Agos/shaders")
+target_compile_definitions(Agos PUBLIC -DAG_SHADERS_PATH="${CMAKE_SOURCE_DIR}/Agos/shaders" -DAG_MODELS_PATH="${CMAKE_SOURCE_DIR}/Agos/models")
 
-if (NOT WIN32)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC -fvisibility=hidden")
 endif()

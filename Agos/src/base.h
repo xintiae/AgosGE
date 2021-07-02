@@ -24,9 +24,18 @@
   #define AG_VULKAN_INCLUDE           "vulkan/vulkan.h"
   #define AG_SPDLOG_INCLUDE           "spdlog/spdlog.h"
   #define AG_EVENTBUS_INCLUDE         "dexode/EventBus.hpp"
+
+  #define GLM_FORCE_RADIANS
+  #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+  #define GLM_ENABLE_EXPERIMENTAL
   #define AG_GLM_INCLUDE              "glm/glm/glm.hpp"
+
+  #define TINYOBJLOADER_IMPLEMENTATION
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
+
+  #define STB_IMAGE_IMPLEMENTATION
   #define AG_STB_INCLUDE              "stb/stb.h"
+
   #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".bat"
@@ -40,9 +49,18 @@
   #define AG_VULKAN_INCLUDE           "vulkan/vulkan.h"
   #define AG_SPDLOG_INCLUDE           "spdlog/spdlog.h"
   #define AG_EVENTBUS_INCLUDE         "Agos/vendor/EventBus/lib/src/dexode/EventBus.hpp"
+ 
+  #define GLM_FORCE_RADIANS
+  #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+  #define GLM_ENABLE_EXPERIMENTAL
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
+ 
+  #define TINYOBJLOADER_IMPLEMENTATION
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
-  #define AG_STB_INCLUDE              "stb/stb.h"
+ 
+  #define STB_IMAGE_IMPLEMENTATION
+  #define AG_STB_INCLUDE              "stb/stb_image.h"
+ 
   #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
 
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".sh"

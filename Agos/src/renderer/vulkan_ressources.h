@@ -80,12 +80,12 @@ protected:
         const VkImageAspectFlags& aspectFlags,
         const uint32_t& mipLevels);
 
-private:
     uint32_t find_memory_type(
         const VkPhysicalDevice& physical_device,
         const uint32_t& type_filter,
         const VkMemoryPropertyFlags& properties);
 
+private:
     VkFormat find_depth_format(
         const VkPhysicalDevice& physical_device);
 
