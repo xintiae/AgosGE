@@ -84,13 +84,6 @@ typedef struct AG_API Vertex
         return pos == other.pos && color == other.color && texCoord == other.texCoord;
     }
 } Vertex;
-
-typedef struct AG_API UniformBufferObject
-{
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-} UniformBufferObject;
 }   // namespace VulkanGraphicsPipeline (within namespace Agos)
 
 typedef class AG_API AgVulkanHandlerGraphicsPipelineManager
