@@ -55,7 +55,7 @@
   #define GLM_ENABLE_EXPERIMENTAL
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
  
-  #define TINYOBJLOADER_IMPLEMENTATION
+  // #define TINYOBJLOADER_IMPLEMENTATION
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
  
   #define STB_IMAGE_IMPLEMENTATION
