@@ -10,11 +10,13 @@
 #include "Agos/src/renderer/vulkan_descriptor.h"
 
 #include AG_VULKAN_INCLUDE
+#include AG_GLM_HASH_TYPES
 #include AG_GLM_INCLUDE
 #include <memory>
 #include <array>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 
 namespace Agos
@@ -47,7 +49,7 @@ typedef struct AG_API Vertex
     glm::vec3 color;
     glm::vec2 texCoord;
 
-    static VkVertexInputBindingDescription getBindingDescription()
+    static VkVertexInputBindingDescription get_binding_description()
     {
         VkVertexInputBindingDescription bindingDescription{};
         bindingDescription.binding = 0;
@@ -57,7 +59,7 @@ typedef struct AG_API Vertex
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
+    static std::array<VkVertexInputAttributeDescription, 3> get_attribute_description()
     {
         std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
@@ -85,7 +87,23 @@ typedef struct AG_API Vertex
     }
 } Vertex;
 }   // namespace VulkanGraphicsPipeline (within namespace Agos)
+}   // namespace Agos
 
+namespace std
+{
+    template <>
+    struct hash<Agos::VulkanGraphicsPipeline::Vertex>
+    {
+        size_t operator()(Agos::VulkanGraphicsPipeline::Vertex const &vertex) const
+        {
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+        }
+    };
+}
+
+
+namespace Agos
+{
 typedef class AG_API AgVulkanHandlerGraphicsPipelineManager
 {
 private:

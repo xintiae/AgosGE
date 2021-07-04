@@ -12,8 +12,6 @@ public:
     {
     }
 
-
-
     // wanna set up things? do it here
     Agos::AgResult client_init_application()
     {
@@ -49,7 +47,6 @@ public:
         AG_CLIENT_INFO("Client termination successful!");
         return Agos::AG_SUCCESS;
     }
-
 };
 
 int main(int argc, char** argv)

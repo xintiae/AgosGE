@@ -28,9 +28,10 @@
   #define GLM_FORCE_RADIANS
   #define GLM_FORCE_DEPTH_ZERO_TO_ONE
   #define GLM_ENABLE_EXPERIMENTAL
+  #define AG_GLM_HASH_TYPES           "glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm/glm.hpp"
 
-  #define TINYOBJLOADER_IMPLEMENTATION
+  // #define TINYOBJLOADER_IMPLEMENTATION
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
 
   #define STB_IMAGE_IMPLEMENTATION
@@ -53,6 +54,7 @@
   #define GLM_FORCE_RADIANS
   #define GLM_FORCE_DEPTH_ZERO_TO_ONE
   #define GLM_ENABLE_EXPERIMENTAL
+  #define AG_GLM_HASH_TYPES           "glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
  
   // #define TINYOBJLOADER_IMPLEMENTATION

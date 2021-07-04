@@ -33,7 +33,7 @@ https://www.apache.org/licenses/LICENSE-2.0.html
 Not supported yet
 
 ## Credits and notes
-- A **huge thanks to [Alexander Overvoorde's](https://github.com/Overv)** [Vulkan tutorial](https://vulkan-tutorial.com/), without which we surely wouldn't have been so far (also make sure to checkout his [github's tutorial page](https://github.com/Overv/VulkanTutorial))!
+- A **huge thanks to [Alexander Overvoorde's](https://github.com/Overv) amazing** [Vulkan tutorial](https://vulkan-tutorial.com/), without which we surely wouldn't have been so far (also make sure to checkout his [github's tutorial page](https://github.com/Overv/VulkanTutorial))!
 - Also a **huge thanks to all contributors** : 
     *[Dodopriester](https://github.com/Dodopriester)*,
     *[Blackalpaul](https://github.com/Blackalpaul)*
