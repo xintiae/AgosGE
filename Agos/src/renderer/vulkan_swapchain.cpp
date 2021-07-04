@@ -106,6 +106,8 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate()
             vkDestroyImageView(m_LogicalDeviceReference, it, nullptr);
         }
         vkDestroySwapchainKHR(m_LogicalDeviceReference, m_SwapChain, nullptr);
+
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerSwapChain - terminate] Destroyed swap chain image views ; destroyed swap chain!");
         m_Terminated = true;
         return AG_SUCCESS;
     }

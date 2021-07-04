@@ -24,7 +24,8 @@ Agos::AgApplication::AgApplication()
     m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
     m_VulkanTextureImageManager          = std::make_shared<AgVulkanHandlerTextureManager>();
 
-    m_VikingRoomModel   = std::make_shared<std::pair<AgModelLoader, AgVertexIndexHolder>>();
+    m_VikingRoomModel               = std::make_shared<std::pair<AgModelLoader, AgVertexIndexHolder>>();
+    m_VertexIndexUniformBuffers     = std::make_shared<AgVulkanHandlerBufferManager>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -116,7 +117,8 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice,
         m_VulkanColorDepthRessourcesManager,
-        m_VulkanGraphicsCommandPoolManager
+        m_VulkanGraphicsCommandPoolManager,
+        m_VertexIndexUniformBuffers
     );
     m_VulkanTextureImageManager->create_texture_image_view(
         m_VulkanLogicalDevice,
@@ -126,9 +128,55 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice
     );
-    AG_CORE_WARN("Loading model : " + std::string(AG_MODELS_PATH) + std::string("/vinking_room/viking_room.obj..."));
+    AG_CORE_WARN("Loading model : " + std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.obj..."));
     m_VikingRoomModel->second = m_VikingRoomModel->first.load_model(
-        std::string(AG_MODELS_PATH) + std::string("/vinking_room/viking_room.obj")
+        std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.obj")
+    );
+    AG_CORE_WARN("Creating vertex buffer for viking_room model...");
+    m_VertexIndexUniformBuffers->create_vertex_buffer(
+        m_VikingRoomModel->second.vertices,
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanColorDepthRessourcesManager,
+        m_VulkanGraphicsCommandPoolManager
+    );
+    AG_CORE_WARN("Creating index buffer for viking_room model...");
+    m_VertexIndexUniformBuffers->create_index_buffer(
+        m_VikingRoomModel->second.indices,
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanColorDepthRessourcesManager,
+        m_VulkanGraphicsCommandPoolManager
+    );
+    AG_CORE_WARN("Creating uniform buffers for viking_room model...");
+    m_VertexIndexUniformBuffers->create_uniform_buffers(
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanColorDepthRessourcesManager
+    );
+    AG_CORE_WARN("Creating descriptor pool...");
+    m_VulkanDescriptorManager->create_descritpor_pool(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
+    AG_CORE_WARN("Creating descriptor sets...");
+    m_VulkanDescriptorManager->create_descriptor_sets(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanTextureImageManager,
+        m_VertexIndexUniformBuffers
+    );
+    AG_CORE_WARN("Creating command buffers...");
+    m_VertexIndexUniformBuffers->create_command_buffers(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanSwapChainFrameBuffersManager,
+        m_VulkanGraphicsPipelineManager,
+        m_VulkanDescriptorManager,
+        m_VulkanGraphicsCommandPoolManager,
+        m_VikingRoomModel->second.indices
     );
 
     AG_CORE_INFO("Done initializing Agos core application!");
@@ -154,14 +202,19 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 
     m_VulkanColorDepthRessourcesManager->terminate();
     m_VulkanSwapChainFrameBuffersManager->terminate();
-    // command buffers
+    m_VertexIndexUniformBuffers->terminate_command_buffers();
     m_VulkanGraphicsPipelineManager->terminate();
     m_VulkanRenderPass->terminate();
     m_VulkanSwapChain->terminate();
-    // descriptor pools
+    m_VertexIndexUniformBuffers->terminate_uniform_buffers();
+    m_VulkanDescriptorManager->terminate_descriptor_pool();
 
     m_VulkanTextureImageManager->terminate();
-    m_VulkanDescriptorManager->terminate();
+    m_VulkanDescriptorManager->terminate_descriptor_set_layout();
+    m_VertexIndexUniformBuffers->terminate_index_buffer();
+    m_VertexIndexUniformBuffers->terminate_vertex_buffer();
+    // semaphores
+    // fences
     m_VulkanGraphicsCommandPoolManager->terminate();
     m_VulkanLogicalDevice->terminate();
 
@@ -171,5 +224,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     m_VulkanInstance->destroy();
     m_GLFWInstance->terminate();
 
+    AG_CORE_INFO("Terminated Agos core application!");
+    AG_CORE_WARN("Exiting...");
     return Agos::AG_SUCCESS;
 }

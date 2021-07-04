@@ -22,7 +22,8 @@ Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
-    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager
+    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager
 )
 {
     m_LogicalDeviceReference = logical_device->get_device();
@@ -40,7 +41,7 @@ Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    create_buffer(
+    buffer_manager->create_buffer(
         physical_device->get_device(),
         logical_device->get_device(),
         color_depth_ressources_manager,
@@ -74,6 +75,7 @@ Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
         logical_device->get_device(),
         logical_device->get_graphics_queue(),
         command_pool_manager->get_command_pool(),
+        buffer_manager,
         m_TextureImage,
         VK_FORMAT_R8G8B8A8_SRGB,
         VK_IMAGE_LAYOUT_UNDEFINED,
@@ -84,6 +86,7 @@ Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
         logical_device->get_device(),
         logical_device->get_graphics_queue(),
         command_pool_manager->get_command_pool(),
+        buffer_manager,
         stagingBuffer,
         m_TextureImage,
         static_cast<uint32_t>(texWidth),
@@ -97,6 +100,7 @@ Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
         logical_device->get_device(),
         logical_device->get_graphics_queue(),
         command_pool_manager->get_command_pool(),
+        buffer_manager,
         m_TextureImage,
         VK_FORMAT_R8G8B8A8_SRGB,
         texWidth,
@@ -195,56 +199,18 @@ VkSampler& Agos::AgVulkanHandlerTextureManager::get_texture_sampler()
     return m_TextureSampler;
 }
 
-void Agos::AgVulkanHandlerTextureManager::create_buffer(
-    const VkPhysicalDevice& physical_device,
-    const VkDevice& logical_device,
-    const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
-    const VkDeviceSize& size,
-    const VkBufferUsageFlags& usage,
-    const VkMemoryPropertyFlags& properties,
-    VkBuffer& buffer,
-    VkDeviceMemory& bufferMemory)
-{
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-    {
-        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to create buffer!");
-        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to create buffer!");
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(logical_device, buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = color_depth_ressources_manager->find_memory_type(physical_device, memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-    {
-        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to allocate buffer memory!");
-        throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - create_buffer] Failed to allocate buffer memory!");
-    }
-
-    vkBindBufferMemory(logical_device, buffer, bufferMemory, 0);
-}
-
 void Agos::AgVulkanHandlerTextureManager::transition_image_layout(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
+    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager,
     const VkImage& image,
     const VkFormat& format,
     const VkImageLayout& oldLayout,
     const VkImageLayout& newLayout,
     const uint32_t& mipLevels)
 {
-    VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
+    VkCommandBuffer commandBuffer = buffer_manager->begin_single_time_command(logical_device, command_pool);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -292,7 +258,7 @@ void Agos::AgVulkanHandlerTextureManager::transition_image_layout(
         0, nullptr,
         1, &barrier);
 
-    end_single_time_command(
+    buffer_manager->end_single_time_command(
         logical_device,
         graphics_queue,
         command_pool,        
@@ -303,12 +269,13 @@ void Agos::AgVulkanHandlerTextureManager::copy_buffer_to_image(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
+    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager,
     const VkBuffer& buffer,
     const VkImage& image,
     const uint32_t& width,
     const uint32_t& height)
 {
-    VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
+    VkCommandBuffer commandBuffer = buffer_manager->begin_single_time_command(logical_device, command_pool);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -326,7 +293,7 @@ void Agos::AgVulkanHandlerTextureManager::copy_buffer_to_image(
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-    end_single_time_command(
+    buffer_manager->end_single_time_command(
         logical_device,
         graphics_queue,
         command_pool,        
@@ -338,6 +305,7 @@ void Agos::AgVulkanHandlerTextureManager::generate_mipmaps(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
+    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager,
     const VkImage& image,
     const VkFormat& imageFormat,
     const int32_t& texWidth,
@@ -353,7 +321,7 @@ void Agos::AgVulkanHandlerTextureManager::generate_mipmaps(
         throw std::runtime_error("[Vulkan/AgVulkanHandlerTextureManager - generate_mipmaps] Texture image format does not support linear blitting!");
     }
 
-    VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
+    VkCommandBuffer commandBuffer = buffer_manager->begin_single_time_command(logical_device, command_pool);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -431,52 +399,9 @@ void Agos::AgVulkanHandlerTextureManager::generate_mipmaps(
                          0, nullptr,
                          1, &barrier);
 
-    end_single_time_command(
+    buffer_manager->end_single_time_command(
         logical_device,
         graphics_queue,
         command_pool,
         commandBuffer);
-}
-
-
-VkCommandBuffer Agos::AgVulkanHandlerTextureManager::begin_single_time_command(
-    const VkDevice& logical_device,
-    const VkCommandPool& commandPool
-)
-{
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(logical_device, &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-    return commandBuffer;
-}
-
-void Agos::AgVulkanHandlerTextureManager::end_single_time_command(
-    const VkDevice& logical_device,
-    const VkQueue& graphics_queue,
-    const VkCommandPool& command_pool,
-    const VkCommandBuffer& commandBuffer)
-{
-    vkEndCommandBuffer(commandBuffer);
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    vkQueueSubmit(graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphics_queue);
-
-    vkFreeCommandBuffers(logical_device, command_pool, 1, &commandBuffer);
 }

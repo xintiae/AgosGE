@@ -13,3 +13,4 @@
 #include "Agos/src/renderer/vulkan_framebuffers.h"
 #include "Agos/src/renderer/vulkan_textures.h"
 #include "Agos/src/renderer/model_loader.h"
+#include "Agos/src/renderer/vulkan_buffers.h"

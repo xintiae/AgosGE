@@ -5,10 +5,14 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
-namespace {
+namespace Agos{
     class AgVulkanHandlerTextureManager;
 }
 #include "Agos/src/renderer/vulkan_textures.h"
+namespace Agos{
+    class AgVulkanHandlerBufferManager;
+}
+#include "Agos/src/renderer/vulkan_buffers.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -59,6 +63,7 @@ public:
     VkFormat&        get_depth_format();
 
     friend class AgVulkanHandlerTextureManager;
+    friend class AgVulkanHandlerBufferManager;
 protected:
     VkImage create_image(
        const VkPhysicalDevice& physical_device,

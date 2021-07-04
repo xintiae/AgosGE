@@ -61,8 +61,14 @@ Agos::AgResult Agos::AgVulkanHandlerFramebuffers::terminate()
         {
             vkDestroyFramebuffer(m_LogicalDeviceReference, frame_buffer, nullptr);
         }
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerFramebuffers] Destroyed swap chain framebuffers!");
         m_Terminated = true;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+std::vector<VkFramebuffer>& Agos::AgVulkanHandlerFramebuffers::get_swapchain_framebuffers()
+{
+    return m_SwapChainFramebuffers;
 }

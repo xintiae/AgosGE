@@ -6,6 +6,8 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
+#include "Agos/src/renderer/vulkan_textures.h"
+#include "Agos/src/renderer/vulkan_buffers.h"
 
 #include AG_VULKAN_INCLUDE
 #include AG_GLM_INCLUDE
@@ -17,7 +19,7 @@
 namespace Agos
 {
 
-namespace VulkanDescriptors
+namespace VulkanGraphicsPipeline
 {
 typedef struct AG_API UniformBufferObject
 {
@@ -25,15 +27,21 @@ typedef struct AG_API UniformBufferObject
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
 } UniformBufferObject;
-}   // namespace VulkanDescriptors (within namespace Agos)
+}   // namespace VulkanGraphicsPipeline (within namespace Agos)
 
 typedef class AG_API AgVulkanHandlerDescriptorManager
 {
 private:
     VkDescriptorSetLayout m_DescriptorSetLayout;
+    VkDescriptorPool m_DescriptorPool;
+    std::vector<VkDescriptorSet> m_DescriptorSets;
+
 
     // do I need to repeat myself?... (see Agos/src/renderer/vulkan_swapchain.h)
     VkDevice m_LogicalDeviceReference;
+    bool m_DescriptorSetLayoutTerminated    = false;
+    bool m_DescriptorPoolTerminated         = false;
+    bool m_DescriptorSetsTerminated         = false;
     bool m_Terminated = false;
 
 public:
@@ -42,10 +50,25 @@ public:
     ~AgVulkanHandlerDescriptorManager();
 
     AgResult create_descriptor_set_layout(
-        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device
-    );
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device);
+
+    AgResult create_descritpor_pool(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
+
+    AgResult create_descriptor_sets(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+        const std::shared_ptr<AgVulkanHandlerTextureManager>& texture_manager,
+        const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager);
+
+    AgResult terminate_descriptor_set_layout();
+    AgResult terminate_descriptor_pool();
+    AgResult terminate_descriptor_sets();
     AgResult terminate();
+
     VkDescriptorSetLayout& get_descriptor_set_layout();
+    std::vector<VkDescriptorSet>& get_descriptor_sets();
 
 } AgVulkanHandlerDescriptorManager;
 };

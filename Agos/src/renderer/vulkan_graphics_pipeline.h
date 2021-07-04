@@ -7,6 +7,9 @@
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
 #include "Agos/src/renderer/vulkan_render_pass.h"
+namespace Agos{
+    class AgVulkanHandlerDescriptorManager;
+}
 #include "Agos/src/renderer/vulkan_descriptor.h"
 
 #include AG_VULKAN_INCLUDE
@@ -127,6 +130,9 @@ public:
         const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
         const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor);
     AgResult terminate();
+
+    VkPipeline& get_graphics_pipeline();
+    VkPipelineLayout& get_graphics_pipeline_layout();
 
 private:
     VkShaderModule create_shader_module(

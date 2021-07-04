@@ -44,6 +44,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandPoolManager::terminate()
     if (!m_Terminated)
     {
         vkDestroyCommandPool(m_LogicalDeviceReference, m_CommandPool, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerCommandPoolManager - terminate] Destroyed command pool!");
         m_Terminated = true;
         return AG_SUCCESS;
     }

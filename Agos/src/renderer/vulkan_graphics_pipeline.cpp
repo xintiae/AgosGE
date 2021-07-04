@@ -165,10 +165,21 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::terminate()
     {
         vkDestroyPipeline(m_LogicalDeviceReference, m_GraphicsPipeline, nullptr);
         vkDestroyPipelineLayout(m_LogicalDeviceReference, m_GraphicsPipelineLayout, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - terminate] Destroyed graphics pipeline and graphics pipeline layout!");
         m_Terminated = true;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+VkPipeline& Agos::AgVulkanHandlerGraphicsPipelineManager::get_graphics_pipeline()
+{
+    return m_GraphicsPipeline;
+}
+
+VkPipelineLayout& Agos::AgVulkanHandlerGraphicsPipelineManager::get_graphics_pipeline_layout()
+{
+    return m_GraphicsPipelineLayout;
 }
 
 VkShaderModule Agos::AgVulkanHandlerGraphicsPipelineManager::create_shader_module(

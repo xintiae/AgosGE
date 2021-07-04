@@ -76,6 +76,7 @@ Agos::AgResult Agos::AgVulkanHandlerLogicalDevice::terminate()
     if (!m_Terminated)
     {
         vkDestroyDevice(m_LogicalDevice, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerLogicalDevice - terminate] Destroyed logical device!");
         m_Terminated = true;
         return AG_SUCCESS;
     }

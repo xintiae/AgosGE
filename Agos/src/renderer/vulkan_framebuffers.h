@@ -17,7 +17,6 @@ typedef class AG_API AgVulkanHandlerFramebuffers
 private:
     std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
-
     VkDevice m_LogicalDeviceReference;
     bool m_Terminated = false;
 
@@ -32,6 +31,8 @@ public:
         const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources);
     AgResult terminate();
+
+    std::vector<VkFramebuffer>& get_swapchain_framebuffers();
 
 } AgVulkanHandlerFramebuffers;
 

@@ -73,6 +73,7 @@ Agos::AgResult Agos::AgVulkanHandlerInstance::destroy()
     {
         vkDestroyInstance(m_Instance, nullptr);
         m_Destroyed = true;
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerInstance - destroy] Destroyed Vulkan instance!");
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

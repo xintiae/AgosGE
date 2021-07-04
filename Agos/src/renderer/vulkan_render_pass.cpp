@@ -105,6 +105,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderPass::terminate()
     if (!m_Terminated)
     {
         vkDestroyRenderPass(m_LogicalDeviceReference, m_RenderPass, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerRenderPass - terminate] Destroyed render pass!");
         m_Terminated = true;
         return AG_SUCCESS;
     }
@@ -146,5 +147,5 @@ VkFormat Agos::AgVulkanHandlerRenderPass::find_supported_format(
         }
     }
 
-    throw std::runtime_error("failed to find supported format!");
+    throw std::runtime_error("[Vulkan/AgVulkanHandlerRenderPass - find_supported_format] Failed to find supported format!");
 }

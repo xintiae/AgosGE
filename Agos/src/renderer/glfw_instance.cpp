@@ -62,8 +62,9 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::terminate()
     {
         glfwDestroyWindow(m_ApplicationWindow);
         glfwTerminate();
-        m_Terminated = true;
-        
+
+        AG_CORE_INFO("[GLFW/AgGLFWHandlerInstance - terminat] Terminated GLFW instance!");
+        m_Terminated = true;        
         return AG_SUCCESS;
     }
 

@@ -51,11 +51,137 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descriptor_set_lay
     return AG_SUCCESS;
 }
 
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descritpor_pool(
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain
+)
+{
+    m_LogicalDeviceReference = logical_device->get_device();
+
+    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
+
+    if (vkCreateDescriptorPool(logical_device->get_device(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
+    {
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_pool] Failed to create descriptor pool!");
+        return AG_FAILED_TO_CREATE_DESCRIPTOR_POOL;
+    }
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_pool] Created descriptor pool!");
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descriptor_sets(
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+    const std::shared_ptr<AgVulkanHandlerTextureManager>& texture_manager,
+    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager
+)
+{
+    m_LogicalDeviceReference = logical_device->get_device();
+
+    std::vector<VkDescriptorSetLayout> layouts(swapchain->get_swapchain_images().size(), m_DescriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = m_DescriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
+    allocInfo.pSetLayouts = layouts.data();
+
+    m_DescriptorSets.resize(swapchain->get_swapchain_images().size());
+    if (vkAllocateDescriptorSets(logical_device->get_device(), &allocInfo, m_DescriptorSets.data()) != VK_SUCCESS)
+    {
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_sets] Failed to allocated descriptor sets!");
+        return AG_FAILED_TO_ALLOCATE_DESCRIPTOR_SETS;
+    }
+
+    for (size_t i = 0; i < swapchain->get_swapchain_images().size(); i++)
+    {
+        VkDescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = buffer_manager->get_uniform_buffers()[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(Agos::VulkanGraphicsPipeline::UniformBufferObject);
+
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = texture_manager->get_texture_image_view();
+        imageInfo.sampler = texture_manager->get_texture_sampler();
+
+        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = m_DescriptorSets[i];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet = m_DescriptorSets[i];
+        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pImageInfo = &imageInfo;
+
+        vkUpdateDescriptorSets(logical_device->get_device(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    }
+
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_sets] Created descriptor sets!");
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_set_layout()
+{
+    if (!m_DescriptorSetLayoutTerminated)
+    {
+        vkDestroyDescriptorSetLayout(m_LogicalDeviceReference, m_DescriptorSetLayout, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate_descriptor_set_layout] Destroyed descriptor set layout!");
+        m_Terminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_pool()
+{
+    if (!m_DescriptorPoolTerminated)
+    {
+        vkDestroyDescriptorPool(m_LogicalDeviceReference, m_DescriptorPool, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate_descriptor_pool] Destroyed descriptor pool!");
+        m_DescriptorPoolTerminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_sets()
+{
+    if (!m_DescriptorSetsTerminated)
+    {
+        // no need to destroy it anyway but, heh
+        m_DescriptorSetsTerminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
 Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate()
 {
     if (!m_Terminated)
     {
-        vkDestroyDescriptorSetLayout(m_LogicalDeviceReference, m_DescriptorSetLayout, nullptr);
+        terminate_descriptor_sets();
+        terminate_descriptor_pool();
+        terminate_descriptor_set_layout();
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate] Terminated instance!");
         m_Terminated = true;
         return AG_SUCCESS;
     }
@@ -65,4 +191,9 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate()
 VkDescriptorSetLayout& Agos::AgVulkanHandlerDescriptorManager::get_descriptor_set_layout()
 {
     return m_DescriptorSetLayout;
+}
+
+std::vector<VkDescriptorSet>& Agos::AgVulkanHandlerDescriptorManager::get_descriptor_sets()
+{
+    return m_DescriptorSets;
 }

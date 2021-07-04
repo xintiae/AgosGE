@@ -22,6 +22,7 @@ Agos::AgResult Agos::AgVulkanHandlerDebugLayersManager::terminate()
     if (AG_ENABLE_DEBUG_VALIDATION_LAYER && !m_Terminated)
     {
         destroy_debug_utils_messenger_EXT(m_VulkanInstanceReference->get_instance(), m_DebugMessenger, nullptr);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerDebugLayersManager - terminate] Destroyed debug utils messenger!");
         m_Terminated = true;
         return AG_SUCCESS;
     }
