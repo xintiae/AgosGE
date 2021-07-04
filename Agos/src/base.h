@@ -57,7 +57,7 @@
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
  
   // #define TINYOBJLOADER_IMPLEMENTATION
-  #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
+  #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
  
   #define STB_IMAGE_IMPLEMENTATION
   #define AG_STB_INCLUDE              "stb/stb_image.h"
