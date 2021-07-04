@@ -217,6 +217,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     // fences
     m_VulkanGraphicsCommandPoolManager->terminate();
     m_VulkanLogicalDevice->terminate();
+    m_VertexIndexUniformBuffers->terminate();
 
     m_VulkanDebugLayersManager->terminate();
 
