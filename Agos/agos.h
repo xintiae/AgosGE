@@ -1,8 +1,9 @@
 #pragma once
 // --- include file for AgosGE ---
 
-#include "Agos/src/core.h"
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "Agos/src/base.h"
+#include "Agos/src/core.h"
 #include "Agos/src/debug_layers/debug_layers.h"
 #include "Agos/src/logger/logger.h"
 #include "Agos/src/event_system/event_system.h"

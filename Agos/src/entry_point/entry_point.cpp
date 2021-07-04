@@ -23,6 +23,8 @@ Agos::AgApplication::AgApplication()
     m_VulkanColorDepthRessourcesManager  = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
     m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
     m_VulkanTextureImageManager          = std::make_shared<AgVulkanHandlerTextureManager>();
+
+    m_VikingRoomModel   = std::make_shared<std::pair<AgModelLoader, AgVertexIndexHolder>>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -123,6 +125,10 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     m_VulkanTextureImageManager->create_texture_sampler(
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice
+    );
+    AG_CORE_WARN("Loading model : " + std::string(AG_MODELS_PATH) + std::string("/vinking_room/viking_room.obj..."));
+    m_VikingRoomModel->second = m_VikingRoomModel->first.load_model(
+        std::string(AG_MODELS_PATH) + std::string("/vinking_room/viking_room.obj")
     );
 
     AG_CORE_INFO("Done initializing Agos core application!");

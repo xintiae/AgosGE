@@ -50,8 +50,8 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-    VkVertexInputBindingDescription bindingDescription = Agos::VulkanGraphicsPipeline::Vertex::getBindingDescription();
-    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Agos::VulkanGraphicsPipeline::Vertex::getAttributeDescriptions();
+    VkVertexInputBindingDescription bindingDescription = Agos::VulkanGraphicsPipeline::Vertex::get_binding_description();
+    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Agos::VulkanGraphicsPipeline::Vertex::get_attribute_description();
 
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
