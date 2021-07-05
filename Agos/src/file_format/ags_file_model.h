@@ -9,6 +9,8 @@
 #include <iostream>
 #include <fstream>
 
+#define AG_AGS_MODEL_VERSION 1
+
 namespace Agos {
 
 	typedef class AG_API AGSModelFile

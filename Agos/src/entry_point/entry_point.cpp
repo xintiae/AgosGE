@@ -3,6 +3,7 @@
 #include "Agos/src/logger/logger.h"
 #include "Agos/src/debug_layers/debug_layers.h"
 #include "Agos/src/renderer/renderer.h"
+#include "Agos/src/file_format/ags_file_model.h"
 
 Agos::AgApplication::AgApplication()
 {
@@ -132,6 +133,9 @@ Agos::AgResult Agos::AgApplication::core_init_application()
 Agos::AgResult Agos::AgApplication::core_run_application()
 {
     AG_CORE_WARN("Running Agos core application...");
+
+    AGSModelFile model;
+    model.generate_model_file(std::string(AG_MODELS_PATH) + "/viking_room/viking_room.obj", "viking_room.ags");
 
     while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
     {
