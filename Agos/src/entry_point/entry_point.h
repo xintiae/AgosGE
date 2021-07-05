@@ -34,6 +34,8 @@ private:
     std::shared_ptr<std::pair<AgModelLoader, AgVertexIndexHolder>> m_VikingRoomModel;
     std::shared_ptr<AgVulkanHandlerBufferManager> m_VertexIndexUniformBuffers;
 
+    std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
+
 public:
     AgApplication();
     virtual ~AgApplication();

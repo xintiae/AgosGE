@@ -356,6 +356,11 @@ std::vector<VkDeviceMemory>& Agos::AgVulkanHandlerBufferManager::get_uniform_buf
     return m_UniformBuffersMemory;
 }
 
+std::vector<VkCommandBuffer>& Agos::AgVulkanHandlerBufferManager::get_command_buffers()
+{
+    return m_CommandBuffers;
+}
+
 void Agos::AgVulkanHandlerBufferManager::create_buffer(
     const VkPhysicalDevice& physical_device,
     const VkDevice& logical_device,

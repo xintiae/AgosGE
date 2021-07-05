@@ -30,7 +30,8 @@ typedef enum AgResult {
     AG_VERTEX_BUFFER_ALREADY_FREED                  = 26,
     AG_INDEX_BUFFER_ALREADY_FREED                   = 27,
     AG_UNIFORM_BUFFERS_ALREADY_FREED                = 28,
-    AG_COMMAND_BUFFERS_ALREADY_FREED                = 29
+    AG_COMMAND_BUFFERS_ALREADY_FREED                = 29,
+    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30
 } AgResult;
 
 }   // namespace Agos

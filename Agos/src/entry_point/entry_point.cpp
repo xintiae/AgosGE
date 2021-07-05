@@ -26,6 +26,7 @@ Agos::AgApplication::AgApplication()
 
     m_VikingRoomModel               = std::make_shared<std::pair<AgModelLoader, AgVertexIndexHolder>>();
     m_VertexIndexUniformBuffers     = std::make_shared<AgVulkanHandlerBufferManager>();
+    m_VulkanPresenter               = std::make_shared<AgVulkanHandlerPresenter>();
 }
 
 Agos::AgApplication::~AgApplication()
@@ -178,6 +179,11 @@ Agos::AgResult Agos::AgApplication::core_init_application()
         m_VulkanGraphicsCommandPoolManager,
         m_VikingRoomModel->second.indices
     );
+    AG_CORE_WARN("Creating semaphores and fences...");
+    m_VulkanPresenter->create_semaphores_fences_objs(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain
+    );
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -190,8 +196,14 @@ Agos::AgResult Agos::AgApplication::core_run_application()
     while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
     {
         glfwPollEvents();
-    }
+        m_VulkanPresenter->draw_frame(
+            m_VulkanLogicalDevice,
+            m_VulkanSwapChain,
+            m_VertexIndexUniformBuffers
+        );
 
+        vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
+    }
 
     return Agos::AG_SUCCESS;
 }
@@ -213,8 +225,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     m_VulkanDescriptorManager->terminate_descriptor_set_layout();
     m_VertexIndexUniformBuffers->terminate_index_buffer();
     m_VertexIndexUniformBuffers->terminate_vertex_buffer();
-    // semaphores
-    // fences
+    m_VulkanPresenter->terminate_semaphores_fences_objs();
     m_VulkanGraphicsCommandPoolManager->terminate();
     m_VulkanLogicalDevice->terminate();
     m_VertexIndexUniformBuffers->terminate();

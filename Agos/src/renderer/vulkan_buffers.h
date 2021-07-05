@@ -104,6 +104,8 @@ public:
     std::vector<VkBuffer>& get_uniform_buffers();
     std::vector<VkDeviceMemory>& get_uniform_buffers_memory();
 
+    std::vector<VkCommandBuffer>& get_command_buffers();
+
     friend class AgVulkanHandlerTextureManager;
 
 protected:

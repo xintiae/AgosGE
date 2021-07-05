@@ -7,7 +7,10 @@
 
 #define AG_DEBUG_LAYERS_ENABLED
 #define AG_ENABLE_DEBUG_VALIDATION_LAYER true
+// you know what that means...
+#define AG_LOGGER_TOO_MUCH_TO_SAY
 
+#define AG_VULKAN_MAX_FRAMES_IN_FLIGHT 2
 #define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
 #define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
 #define AG_SHADERS_COMPILE_ANYWAY true
@@ -30,7 +33,6 @@
   #define AG_GLM_HASH_TYPES           "glm/glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm/glm.hpp"
 
-  // #define TINYOBJLOADER_IMPLEMENTATION
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
 
   #define STB_IMAGE_IMPLEMENTATION
@@ -56,7 +58,6 @@
   #define AG_GLM_HASH_TYPES           "glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
  
-  // #define TINYOBJLOADER_IMPLEMENTATION
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
  
   #define STB_IMAGE_IMPLEMENTATION
