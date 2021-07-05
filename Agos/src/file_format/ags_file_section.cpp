@@ -7,6 +7,9 @@ std::string Agos::AGSFileSection::serialize_section()
 	// Start with the name of the section wrapped in hashtags
 	switch (m_Type)
 	{
+	case VERSION:
+		out += "#version#\n";
+		break;
 	case TYPE:
 		out += "#type#\n";
 		break;
@@ -27,16 +30,35 @@ std::string Agos::AGSFileSection::serialize_section()
 		break;
 	}
 
-	for (std::any i : m_Data) {
-		
+	for (auto i : m_Data) {
+		out += i.convert_to_string() + "\n";
 	}
 
 	return out;
 }
 
-void Agos::AGSFileSection::write_to_file(std::ostream& stream)
+std::string Agos::AGSFileSectionDataType::convert_to_string()
 {
-	for (std::any i : m_Data) {
-		stream << i;
-	}
+	return std::string();
+}
+
+Agos::AGSFileSectionDataTypeString::AGSFileSectionDataTypeString(const std::string& data)
+	: m_Data(data)
+{
+
+}
+
+std::string Agos::AGSFileSectionDataTypeString::convert_to_string()
+{
+	return m_Data;
+}
+
+Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt(const int& data)
+	: m_Data(data)
+{
+}
+
+std::string Agos::AGSFileSectionDataTypeInt::convert_to_string()
+{
+	return std::to_string(m_Data);
 }
