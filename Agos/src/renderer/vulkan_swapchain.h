@@ -4,6 +4,9 @@
 #include "Agos/src/core.h"
 #include "Agos/src/renderer/glfw_instance.h"
 #include "Agos/src/renderer/vulkan_instance.h"
+namespace Agos{
+    class AgVulkanHandlerPhysicalDevice;
+}
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 
@@ -22,14 +25,12 @@ private:
     VkFormat m_SwapChainImageFormat;
     VkExtent2D m_SwapChainExtent;
 
-    // need it to destroy the swapchain
-    // it was meant to be a reference, but getting compiler error when repporting it as a ref
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerSwapChain();
-    AgVulkanHandlerSwapChain(const VkDevice& logical_device);
+    AgVulkanHandlerSwapChain(VkDevice& logical_device);
     ~AgVulkanHandlerSwapChain();
 
     AgResult create_swap_chain(

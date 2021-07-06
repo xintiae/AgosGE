@@ -6,6 +6,9 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
+namespace Agos{
+    class AgVulkanHandlerRenderPass;
+}
 #include "Agos/src/renderer/vulkan_render_pass.h"
 #include "Agos/src/renderer/vulkan_ressources.h"
 
@@ -17,12 +20,12 @@ typedef class AG_API AgVulkanHandlerFramebuffers
 private:
     std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerFramebuffers();
-    AgVulkanHandlerFramebuffers(const VkDevice& logical_device);
+    AgVulkanHandlerFramebuffers(VkDevice& logical_device);
     ~AgVulkanHandlerFramebuffers();
 
     AgResult create_framebuffers(

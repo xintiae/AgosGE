@@ -3,13 +3,13 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerFramebuffers::AgVulkanHandlerFramebuffers()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
-    m_LogicalDeviceReference = VK_NULL_HANDLE;
 }
 
-Agos::AgVulkanHandlerFramebuffers::AgVulkanHandlerFramebuffers(const VkDevice& logical_device)
+Agos::AgVulkanHandlerFramebuffers::AgVulkanHandlerFramebuffers(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerFramebuffers::~AgVulkanHandlerFramebuffers()

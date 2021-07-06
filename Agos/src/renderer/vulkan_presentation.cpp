@@ -7,13 +7,13 @@
 
 
 Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
-    m_LogicalDeviceReference = VK_NULL_HANDLE;
 }
 
-Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter(const VkDevice& logical_device)
+Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerPresenter::~AgVulkanHandlerPresenter()
@@ -81,7 +81,8 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
 */
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
-        throw std::runtime_error("failed to acquire swap chain image!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
     }
 
     update_uniform_buffer(
@@ -116,7 +117,8 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
 
     if (vkQueueSubmit(logical_device->get_graphics_queue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to submit draw command buffer!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to submit draw command buffer!");
     }
 
     VkPresentInfoKHR presentInfo{};
@@ -177,6 +179,26 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::terminate()
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+std::vector<VkSemaphore>& Agos::AgVulkanHandlerPresenter::get_image_available_semaphores()
+{
+    return m_ImageAvailableSemaphores;
+}
+
+std::vector<VkSemaphore>& Agos::AgVulkanHandlerPresenter::get_render_finished_semaphores()
+{
+    return m_RenderFinishedSemaphores;
+}
+
+std::vector<VkFence>& Agos::AgVulkanHandlerPresenter::get_in_flight_fences()
+{
+    return m_InFlightFences;
+}
+
+std::vector<VkFence>& Agos::AgVulkanHandlerPresenter::get_images_in_flight()
+{
+    return m_ImagesInFlight;
 }
 
 void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(

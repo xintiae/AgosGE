@@ -17,12 +17,12 @@ typedef class AG_API AgVulkanHandlerCommandPoolManager
 private:
     VkCommandPool m_CommandPool;
 
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerCommandPoolManager();
-    AgVulkanHandlerCommandPoolManager(const VkDevice& logical_device);
+    AgVulkanHandlerCommandPoolManager(VkDevice& logical_device);
     ~AgVulkanHandlerCommandPoolManager();
 
     AgResult create_command_pool(

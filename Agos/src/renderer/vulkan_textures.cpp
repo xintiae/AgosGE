@@ -4,12 +4,13 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerTextureManager::AgVulkanHandlerTextureManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
-Agos::AgVulkanHandlerTextureManager::AgVulkanHandlerTextureManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerTextureManager::AgVulkanHandlerTextureManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerTextureManager::~AgVulkanHandlerTextureManager()

@@ -3,27 +3,23 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
 {
-    m_LogicalDeviceReference = VK_NULL_HANDLE;
-    m_CommandPoolReference = VK_NULL_HANDLE;
 }
 
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
 {
-    m_LogicalDeviceReference = logical_device;
-    m_CommandPoolReference = VK_NULL_HANDLE;
 }
 
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(const VkCommandPool& command_pool)
+Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(VkCommandPool& command_pool)
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(command_pool)
 {
-    m_LogicalDeviceReference = VK_NULL_HANDLE;
-    m_CommandPoolReference = command_pool;
 }
 
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(const VkDevice& logical_device, const VkCommandPool& command_pool)
+Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(VkDevice& logical_device, VkCommandPool& command_pool)
+    : m_LogicalDeviceReference(logical_device), m_CommandPoolReference(command_pool)
 {
-    m_LogicalDeviceReference = logical_device;
-    m_CommandPoolReference = command_pool;
 }
 
 Agos::AgVulkanHandlerBufferManager::~AgVulkanHandlerBufferManager()

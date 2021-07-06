@@ -3,12 +3,13 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerColorDepthRessourcesManager::AgVulkanHandlerColorDepthRessourcesManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
-Agos::AgVulkanHandlerColorDepthRessourcesManager::AgVulkanHandlerColorDepthRessourcesManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerColorDepthRessourcesManager::AgVulkanHandlerColorDepthRessourcesManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerColorDepthRessourcesManager::~AgVulkanHandlerColorDepthRessourcesManager()

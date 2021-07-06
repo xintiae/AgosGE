@@ -20,6 +20,11 @@ namespace Agos{
     class AgVulkanHandlerFramebuffers;
 }
 #include "Agos/src/renderer/vulkan_framebuffers.h"
+#include "Agos/src/renderer/vulkan_command_pool.h"
+namespace Agos{
+    class AgVulkanHandlerDescriptorManager;
+}
+#include "Agos/src/renderer/vulkan_descriptor.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -43,8 +48,8 @@ private:
 
     std::vector<VkCommandBuffer> m_CommandBuffers;
 
-    VkDevice m_LogicalDeviceReference;
-    VkCommandPool m_CommandPoolReference;
+    VkDevice& m_LogicalDeviceReference;
+    VkCommandPool& m_CommandPoolReference;
     bool m_CommandBuffersTerminated = false;
     // buffers simultanés + gestion multiples vertex / index / uniforms buffers
     bool m_VertexBufferTerminated   = false;
@@ -54,9 +59,9 @@ private:
 
 public:
     AgVulkanHandlerBufferManager();
-    AgVulkanHandlerBufferManager(const VkDevice& logical_device);
-    AgVulkanHandlerBufferManager(const VkCommandPool& command_pool);
-    AgVulkanHandlerBufferManager(const VkDevice& logical_device, const VkCommandPool& command_pool);
+    AgVulkanHandlerBufferManager(VkDevice& logical_device);
+    AgVulkanHandlerBufferManager(VkCommandPool& command_pool);
+    AgVulkanHandlerBufferManager(VkDevice& logical_device, VkCommandPool& command_pool);
     ~AgVulkanHandlerBufferManager();
 
     AgResult create_vertex_buffer(

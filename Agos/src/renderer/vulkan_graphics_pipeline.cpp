@@ -7,12 +7,13 @@
 
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
-Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::~AgVulkanHandlerGraphicsPipelineManager()

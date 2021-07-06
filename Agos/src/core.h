@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Agos/src/base.h"
+#include AG_VULKAN_INCLUDE
+
 #define AG_WINDOW_WIDTH 800
 #define AG_WINDOW_HEIGHT 600
 
 namespace Agos
 {
-
 typedef enum AgResult {
     AG_SUCCESS  = 0,
     AG_FAILED   = 1,
@@ -33,5 +35,8 @@ typedef enum AgResult {
     AG_COMMAND_BUFFERS_ALREADY_FREED                = 29,
     AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30
 } AgResult;
+
+static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
+static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE = VK_NULL_HANDLE;
 
 }   // namespace Agos

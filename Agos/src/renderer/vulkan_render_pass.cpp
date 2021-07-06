@@ -3,12 +3,13 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerRenderPass::AgVulkanHandlerRenderPass()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
-Agos::AgVulkanHandlerRenderPass::AgVulkanHandlerRenderPass(const VkDevice& logical_device)
+Agos::AgVulkanHandlerRenderPass::AgVulkanHandlerRenderPass(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerRenderPass::~AgVulkanHandlerRenderPass()

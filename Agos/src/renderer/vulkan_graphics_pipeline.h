@@ -6,6 +6,9 @@
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
 #include "Agos/src/renderer/vulkan_swapchain.h"
+namespace Agos{
+    class AgVulkanHandlerRenderPass;
+}
 #include "Agos/src/renderer/vulkan_render_pass.h"
 namespace Agos{
     class AgVulkanHandlerDescriptorManager;
@@ -113,13 +116,12 @@ private:
     VkPipeline m_GraphicsPipeline;
     VkPipelineLayout m_GraphicsPipelineLayout;
 
-    // do I need to repeat myself?... (see Agos/src/renderer/vulkan_swapchain.h)
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerGraphicsPipelineManager();
-    AgVulkanHandlerGraphicsPipelineManager(const VkDevice& logical_device);
+    AgVulkanHandlerGraphicsPipelineManager(VkDevice& logical_device);
     ~AgVulkanHandlerGraphicsPipelineManager();
 
     AgResult create_graphics_pipeline(

@@ -35,13 +35,12 @@ private:
     VkDeviceMemory  m_DepthImageMemory;
     VkFormat        m_DepthFormat;
 
-    // like the swap chain, we need it to destroy the render pass
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerColorDepthRessourcesManager();
-    AgVulkanHandlerColorDepthRessourcesManager(const VkDevice& logical_device);
+    AgVulkanHandlerColorDepthRessourcesManager(VkDevice& logical_device);
     ~AgVulkanHandlerColorDepthRessourcesManager();
 
     AgResult create_color_ressources(

@@ -32,12 +32,12 @@ private:
     uint32_t m_MipLevels;
     VkSampler m_TextureSampler;
 
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerTextureManager();
-    AgVulkanHandlerTextureManager(const VkDevice& logical_device);
+    AgVulkanHandlerTextureManager(VkDevice& logical_device);
     ~AgVulkanHandlerTextureManager();
 
     AgResult create_texture_image(

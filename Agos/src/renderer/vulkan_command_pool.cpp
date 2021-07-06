@@ -3,13 +3,13 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerCommandPoolManager::AgVulkanHandlerCommandPoolManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
-    m_LogicalDeviceReference = VK_NULL_HANDLE;
 }
 
-Agos::AgVulkanHandlerCommandPoolManager::AgVulkanHandlerCommandPoolManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerCommandPoolManager::AgVulkanHandlerCommandPoolManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerCommandPoolManager::~AgVulkanHandlerCommandPoolManager()

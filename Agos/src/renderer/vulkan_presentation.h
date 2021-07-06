@@ -21,13 +21,13 @@ private:
     std::vector<VkFence> m_ImagesInFlight;
     size_t m_CurrentFrame;
 
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_SemaphoresFencesTerminated = false;
     bool m_Terminated = false;
 
 public:
     AgVulkanHandlerPresenter();
-    AgVulkanHandlerPresenter(const VkDevice& logical_device);
+    AgVulkanHandlerPresenter(VkDevice& logical_device);
     ~AgVulkanHandlerPresenter();
 
     AgResult create_semaphores_fences_objs(
@@ -40,6 +40,11 @@ public:
     AgResult terminate_semaphores_fences_objs();
 
     AgResult terminate();
+
+    std::vector<VkSemaphore>& get_image_available_semaphores();
+    std::vector<VkSemaphore>& get_render_finished_semaphores();
+    std::vector<VkFence>& get_in_flight_fences();
+    std::vector<VkFence>& get_images_in_flight();
 
 protected:
     static void update_uniform_buffer(

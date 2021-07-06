@@ -3,12 +3,13 @@
 #include "Agos/src/logger/logger.h"
 
 Agos::AgVulkanHandlerDescriptorManager::AgVulkanHandlerDescriptorManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
-Agos::AgVulkanHandlerDescriptorManager::AgVulkanHandlerDescriptorManager(const VkDevice& logical_device)
+Agos::AgVulkanHandlerDescriptorManager::AgVulkanHandlerDescriptorManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
-    m_LogicalDeviceReference = logical_device;
 }
 
 Agos::AgVulkanHandlerDescriptorManager::~AgVulkanHandlerDescriptorManager()
@@ -145,7 +146,7 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_set_
     {
         vkDestroyDescriptorSetLayout(m_LogicalDeviceReference, m_DescriptorSetLayout, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate_descriptor_set_layout] Destroyed descriptor set layout!");
-        m_Terminated = true;
+        m_DescriptorSetLayoutTerminated = true;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

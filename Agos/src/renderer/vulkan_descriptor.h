@@ -36,9 +36,7 @@ private:
     VkDescriptorPool m_DescriptorPool;
     std::vector<VkDescriptorSet> m_DescriptorSets;
 
-
-    // do I need to repeat myself?... (see Agos/src/renderer/vulkan_swapchain.h)
-    VkDevice m_LogicalDeviceReference;
+    VkDevice& m_LogicalDeviceReference;
     bool m_DescriptorSetLayoutTerminated    = false;
     bool m_DescriptorPoolTerminated         = false;
     bool m_DescriptorSetsTerminated         = false;
@@ -46,7 +44,7 @@ private:
 
 public:
     AgVulkanHandlerDescriptorManager();
-    AgVulkanHandlerDescriptorManager(const VkDevice& logical_device);
+    AgVulkanHandlerDescriptorManager(VkDevice& logical_device);
     ~AgVulkanHandlerDescriptorManager();
 
     AgResult create_descriptor_set_layout(

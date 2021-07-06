@@ -2,17 +2,18 @@
 
 #include "Agos/src/logger/logger.h"
 
-Agos::AgGLFWHandlerInstance::AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus)
-    : m_EventBusListener{event_bus}
+Agos::AgGLFWHandlerInstance::AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus, const AgVulkanHandlerRenderer* renderer)
+    : m_EventBusListener{event_bus}, m_RendererReference(renderer)
 {
 }
 
 Agos::AgGLFWHandlerInstance::~AgGLFWHandlerInstance()
 {
-    this->terminate();
+    terminate();
 }
 
-Agos::AgResult Agos::AgGLFWHandlerInstance::init(const std::shared_ptr<AgGLFWHandlerEvents>& event_handler)
+Agos::AgResult Agos::AgGLFWHandlerInstance::init(
+    const std::shared_ptr<AgGLFWHandlerEvents>& event_handler)
 {
     m_EventBusListener.listen<Agos::Events::AgGLFWHandlerEvent>(
         [this](const Agos::Events::AgGLFWHandlerEvent& event) -> void
@@ -52,8 +53,13 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::setup_vulkan_surface(const std::shar
 
 Agos::AgResult Agos::AgGLFWHandlerInstance::terminate_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance)
 {
-    vkDestroySurfaceKHR(vulkan_instance->get_instance(), m_ApplicationSurface, nullptr);
-    return AG_SUCCESS;
+    if (!m_ApplicationSurfaceTerminated)
+    {
+        vkDestroySurfaceKHR(vulkan_instance->get_instance(), m_ApplicationSurface, nullptr);
+        m_ApplicationSurfaceTerminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
 Agos::AgResult Agos::AgGLFWHandlerInstance::terminate()
@@ -86,7 +92,7 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
     switch (event.type)
     {
     case Agos::Events::framebufferResizeCallback:
-        // resize rendering and swapchain...
+        
         break;
     
     case Agos::Events::mouseButtonCallback:
@@ -98,7 +104,7 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
         break;
 
     default:
-        AG_CORE_WARN("[GLFW/HandlerInstance] noticed unkown event");
+        AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - on_event_process] Noticed unkown event!");
         break;
     }
 }
