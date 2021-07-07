@@ -11,24 +11,24 @@
 
 namespace Agos {
 
-	struct AG_API AGSFileSectionDataType
+	typedef struct AG_API AGSFileSectionDataType
 	{
 		// Note: Do NOT append \n at the end!
-		virtual std::string convert_to_string();
+		virtual std::string convert_to_string() = 0;
 	};
 
-	typedef struct AGSFileSectionDataTypeString : AGSFileSectionDataType
+	typedef struct AG_API AGSFileSectionDataTypeString : AGSFileSectionDataType
 	{
 		std::string m_Data;
-		std::string convert_to_string();
+		std::string AGSFileSectionDataType::convert_to_string() { return m_Data; };
 
 		AGSFileSectionDataTypeString(const std::string& data);
 	};
 
-	typedef struct AGSFileSectionDataTypeInt : AGSFileSectionDataType
+	typedef struct AG_API AGSFileSectionDataTypeInt : AGSFileSectionDataType
 	{
 		int m_Data;
-		std::string convert_to_string();
+		std::string AGSFileSectionDataType::convert_to_string() { return std::to_string(m_Data); };
 
 		AGSFileSectionDataTypeInt(const int& data);
 	};
@@ -47,7 +47,7 @@ namespace Agos {
 	typedef struct AG_API AGSFileSection
 	{
 		Agos::AGSFileSectionType m_Type;
-		std::vector<AGSFileSectionDataType> m_Data;
+		std::vector<std::shared_ptr<AGSFileSectionDataType>> m_Data;
 
 		std::string serialize_section();
 	};

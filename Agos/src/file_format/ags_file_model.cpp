@@ -19,7 +19,7 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 
 	// Add the current version of the AGS Model Format
 	AGSFileSection version = AGSFileSection{ VERSION };
-	version.m_Data.push_back(AGSFileSectionDataTypeInt(AG_AGS_MODEL_VERSION));
+	version.m_Data.push_back(std::make_shared<AGSFileSectionDataTypeInt>(AGSFileSectionDataTypeInt(AG_AGS_MODEL_VERSION)));
 
 	AGSFileSection vertices = AGSFileSection{ VERTICES };
 	AGSFileSection vertex_textures = AGSFileSection{ VERTICES_TEXTURES };
@@ -31,19 +31,19 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 
 		// Populate data for the vertices
 		if (line.find("v ") != std::string::npos) {
-			vertices.m_Data.push_back(AGSFileSectionDataTypeString(line.substr(2)));
+			vertices.m_Data.push_back(std::make_shared<AGSFileSectionDataTypeString>(line.substr(2)));
 		}
 
 		if (line.find("vt") != std::string::npos) {
-			vertex_textures.m_Data.push_back(AGSFileSectionDataTypeString(line.substr(3)));
+			vertex_textures.m_Data.push_back(std::make_shared<AGSFileSectionDataTypeString>(line.substr(3)));
 		}
 
 		if (line.find("vn") != std::string::npos) {
-			vertices_normals.m_Data.push_back(AGSFileSectionDataTypeString(line.substr(3)));
+			vertices_normals.m_Data.push_back(std::make_shared<AGSFileSectionDataTypeString>(line.substr(3)));
 		}
 
 		if (line.find("f") != std::string::npos) {
-			faces.m_Data.push_back(AGSFileSectionDataTypeString(line.substr(2)));
+			faces.m_Data.push_back(std::make_shared<AGSFileSectionDataTypeString>(line.substr(2)));
 		}
 
 	}
