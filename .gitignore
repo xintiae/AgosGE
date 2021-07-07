@@ -17,6 +17,7 @@ CMakeSettings.json
 # Build output
 Testing
 build
+out
 *.sln
 *vcxproj
 *vcxproj.filters
