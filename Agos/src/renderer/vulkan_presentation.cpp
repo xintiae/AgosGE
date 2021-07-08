@@ -7,12 +7,12 @@
 
 
 Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter()
-    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CurrentFrame(0)
 {
 }
 
 Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter(VkDevice& logical_device)
-    : m_LogicalDeviceReference(logical_device)
+    : m_LogicalDeviceReference(logical_device), m_CurrentFrame(0)
 {
 }
 
