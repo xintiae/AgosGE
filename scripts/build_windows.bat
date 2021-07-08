@@ -2,7 +2,7 @@
 
 echo Updating submodules...
 git submodule init
-git submodule update
+git submodule update --remote
 
 FOR /F "tokens=* USEBACKQ" %%F IN (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) DO (
 SET MSBuildPath=%%F
