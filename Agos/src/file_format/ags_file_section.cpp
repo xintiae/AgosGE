@@ -37,9 +37,19 @@ std::string Agos::AGSFileSection::serialize_section()
 	return out;
 }
 
+std::string Agos::AGSFileSectionDataTypeString::convert_to_string()
+{
+	return m_Data;
+}
+
 Agos::AGSFileSectionDataTypeString::AGSFileSectionDataTypeString(const std::string& data)
 	: m_Data(data)
 {
+}
+
+std::string Agos::AGSFileSectionDataTypeInt::convert_to_string()
+{
+	return std::to_string(m_Data);
 }
 
 Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt(const int& data)
