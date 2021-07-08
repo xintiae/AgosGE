@@ -2,7 +2,7 @@
 
 echo Updating submodules...
 git submodule init
-git submodule update
+git submodule update --remote
 
 echo Cleaning build directory...
 if exist build del build/*.*

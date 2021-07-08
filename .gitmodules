@@ -1,6 +1,7 @@
 [submodule "Agos/vendor/spdlog"]
 	path = Agos/vendor/spdlog
 	url = https://github.com/gabime/spdlog
+	branch = v1.x
 [submodule "Agos/vendor/tiny_obj_loader"]
 	path = Agos/vendor/tiny_obj_loader
 	url = https://github.com/tinyobjloader/tinyobjloader
