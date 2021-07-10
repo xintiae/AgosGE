@@ -13,15 +13,23 @@
 
 namespace Agos
 {
-typedef struct AG_API AgVertexIndexHolder
+typedef struct AG_API AgModelData
 {
     std::vector<VulkanGraphicsPipeline::Vertex> vertices;
     std::vector<uint32_t> indices;
-} AgVertexIndexHolder;
+} AgModelData;
+
+typedef struct AG_API AgModel
+{
+    std::string id;
+    std::string path_to_obj_file;
+    std::string path_to_texture_file;
+    AgModelData model_data;
+} AgModel;
 
 typedef struct AG_API AgModelLoader
 {
-    static AgVertexIndexHolder load_model(const std::string& file_path);
+    static AgModelData load_model(const std::string& file_path);
 };
 } // namespace Agos
 

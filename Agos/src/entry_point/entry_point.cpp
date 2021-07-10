@@ -20,7 +20,30 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     Agos::ag_init_loggers();
     AG_CORE_WARN("Initializing Agos core application...");
 
-    m_Renderer->init_vulkan();
+    /**
+     * ==== @b IMPORTANT ====
+     * @b this is still @c WIP
+     * 
+     * Do @b NOT @c SETUP MORE THAN ONE MODEL TO RENDER
+    */
+
+    // setup here your data for the renderer to render
+    m_Rendered_Models.resize(1);
+    m_Rendered_Models[0].id                     = std::move(std::string("viking_room"));
+    m_Rendered_Models[0].path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.png"));
+    m_Rendered_Models[0].path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.obj"));
+
+    // m_Rendered_Models[0].id                     = std::move(std::string("cube"));
+    // m_Rendered_Models[0].path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/cube.png"));
+    // m_Rendered_Models[0].path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/cube.obj"));
+
+    for (size_t i = 0; i < m_Rendered_Models.size(); i++)
+    {
+        AG_CORE_WARN("Loading model : " + m_Rendered_Models[i].id + " (obj file path : " + m_Rendered_Models[i].path_to_obj_file);
+        m_Rendered_Models[i].model_data = Agos::AgModelLoader::load_model(m_Rendered_Models[i].path_to_obj_file);
+    }
+
+    m_Renderer->init_vulkan(m_Rendered_Models);
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -30,8 +53,9 @@ Agos::AgResult Agos::AgApplication::core_run_application()
 {
     AG_CORE_WARN("Running Agos core application...");
 
-    // m_Renderer->run(std::function<void()>());
-    m_Renderer->run();
+    m_Renderer->run<void()>(
+        std::function<void()>([&](void) -> void {})
+    );
 
     return Agos::AG_SUCCESS;
 }

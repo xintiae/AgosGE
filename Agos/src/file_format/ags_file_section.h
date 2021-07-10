@@ -20,7 +20,7 @@ namespace Agos {
 	typedef struct AG_API AGSFileSectionDataTypeString : AGSFileSectionDataType
 	{
 		std::string m_Data;
-		std::string AGSFileSectionDataType::convert_to_string() { return m_Data; };
+		std::string convert_to_string() override { return m_Data; };
 
 		AGSFileSectionDataTypeString(const std::string& data);
 	};
@@ -28,7 +28,7 @@ namespace Agos {
 	typedef struct AG_API AGSFileSectionDataTypeInt : AGSFileSectionDataType
 	{
 		int m_Data;
-		std::string AGSFileSectionDataType::convert_to_string() { return std::to_string(m_Data); };
+		std::string convert_to_string() override { return std::to_string(m_Data); };
 
 		AGSFileSectionDataTypeInt(const int& data);
 	};

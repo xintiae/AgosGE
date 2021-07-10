@@ -83,7 +83,7 @@ Agos::AgResult Agos::AgVulkanHandlerColorDepthRessourcesManager::terminate()
         vkFreeMemory(m_LogicalDeviceReference, m_ColorImageMemory, nullptr);
 
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerColorDepthRessourcesManager - terminate]" + std::string(
-            "Destroyed depth image, depth image view, color image, color image view ; Freed depth image memory, color image memory"));
+            " Destroyed depth image, depth image view, color image, color image view ; Freed depth image memory, color image memory"));
 
         m_Terminated = true;
         return AG_SUCCESS;
