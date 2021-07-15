@@ -88,6 +88,7 @@ private:
     void recreate_swapchain();
     void terminate_swapchain();
     void draw_frame();
+    AgModel merge_models(const std::vector<AgModel>& models);
 } AgVulkanHandlerRenderer;
 
 }   // namespace Agos

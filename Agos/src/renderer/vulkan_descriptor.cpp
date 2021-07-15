@@ -69,7 +69,8 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descritpor_pool(
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
+    poolInfo.maxSets = static_cast<uint32_t>(AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS);
+    // poolInfo.maxSets = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
 
     if (vkCreateDescriptorPool(logical_device->get_device(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
     {
@@ -96,10 +97,12 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descriptor_sets(
     allocInfo.descriptorSetCount = static_cast<uint32_t>(swapchain->get_swapchain_images().size());
     allocInfo.pSetLayouts = layouts.data();
 
+    // std::vector<std::vector<VkDescriptorSet>> m_DescriptorSSets
+
     m_DescriptorSets.resize(swapchain->get_swapchain_images().size());
     if (vkAllocateDescriptorSets(logical_device->get_device(), &allocInfo, m_DescriptorSets.data()) != VK_SUCCESS)
     {
-        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_sets] Failed to allocated descriptor sets!");
+        AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_sets] Failed to allocate descriptor sets!");
         return AG_FAILED_TO_ALLOCATE_DESCRIPTOR_SETS;
     }
 

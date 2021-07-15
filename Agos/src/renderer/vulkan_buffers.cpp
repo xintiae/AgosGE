@@ -189,7 +189,7 @@ Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_command_buffers(
 
     if (vkAllocateCommandBuffers(logical_device->get_device(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate command buffers!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerBufferManager - create_command_buffers] Failed to allocate command buffers!");
     }
 
     for (size_t i = 0; i < m_CommandBuffers.size(); i++)
@@ -199,7 +199,7 @@ Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_command_buffers(
 
         if (vkBeginCommandBuffer(m_CommandBuffers[i], &beginInfo) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to begin recording command buffer!");
+            throw std::runtime_error("[Vulkan/AgVulkanHandlerBufferManager - create_command_buffers] Failed to begin recording command buffer!");
         }
 
         VkRenderPassBeginInfo renderPassInfo{};

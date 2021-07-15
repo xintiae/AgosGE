@@ -174,10 +174,6 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
             m_VulkanTextureImageManager[i],
             m_VertexIndexUniformBuffers
         );
-    }
-
-    for (size_t i = 0; i < m_Models.size(); i++)
-    {
         AG_CORE_WARN("Creating command buffers for model : \"" + m_Models[i].id + "\"...");
         m_VertexIndexUniformBuffers->create_command_buffers(
             m_VulkanLogicalDevice,

@@ -46,7 +46,7 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::create_semaphores_fences_objs(
                 vkCreateSemaphore(logical_device->get_device(), &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i])  != VK_SUCCESS ||
                 vkCreateFence(logical_device->get_device(), &fenceInfo, nullptr, &m_InFlightFences[i])                    != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
+            throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - create_semaphores_fences_objs] Failed to create synchronization objects for a frame!");
         }
     }
 
@@ -145,7 +145,7 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
 */
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to present swap chain image!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to present swap chain image!");
     }
 
     m_CurrentFrame = (m_CurrentFrame + 1) % AG_VULKAN_MAX_FRAMES_IN_FLIGHT;
