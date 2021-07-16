@@ -134,9 +134,6 @@ Agos::AgResult Agos::AgApplication::core_run_application()
 {
     AG_CORE_WARN("Running Agos core application...");
 
-    AGSModelFile model;
-    model.generate_model_file(std::string(AG_MODELS_PATH) + "/viking_room/viking_room.obj", "viking_room.ags");
-
     while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
     {
         glfwPollEvents();
