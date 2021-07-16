@@ -18,6 +18,8 @@
 #define AGOS_SYMBOLS_EXPORT
 // #define AGOS_SYMBOLS_IMPORT
 
+#define AG_AGS_MODEL_VERSION 1
+
 #if defined _WIN32 || defined __CYGWIN__
   #define AG_GLFW_INCLUDE             "GLFW/glfw3.h"
   #define AG_VULKAN_INCLUDE           "vulkan/vulkan.h"
