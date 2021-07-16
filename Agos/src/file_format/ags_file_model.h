@@ -7,9 +7,9 @@
 #include "Agos/src/file_format/ags_file_section.h"
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
-
-#define AG_AGS_MODEL_VERSION 1
+#include <filesystem>
 
 namespace Agos {
 
@@ -17,9 +17,50 @@ namespace Agos {
 	{
 	private:
 
+		std::ifstream m_Stream;
+
 	public:
 
-		void generate_model_file(const std::string& path, const std::string& output);
+		static void generate_model_file(const std::string& path, const std::string& output);
+		
+		template <typename T>
+		AGSFileSection<T> read_model_file(AGSFileSectionType type)
+		{
+			bool isInSection = false;
+			std::string line;
+			AGSFileSection<T> section{ type };
+
+			// Iterate through every line of the file
+			while (std::getline(m_Stream, line)) {
+
+				if (AGSFileSection<T>::get_section_type(line) != AGSFileSectionType::NONE) {
+					
+					if (AGSFileSection<T>::get_section_type(line) == type) {
+						isInSection = true;
+						continue;
+					}
+					else {
+						// Stops the loop as soon as the next section is reached
+						break;
+					}
+
+				}
+
+				if (isInSection) {
+					
+					T data;
+					data.set_data_from_string(line);
+
+					section.add_data(data);
+				}
+
+			}
+
+			return section;
+		};
+
+		AGSModelFile(const std::string& path);
+		~AGSModelFile();
 
 	};
 
