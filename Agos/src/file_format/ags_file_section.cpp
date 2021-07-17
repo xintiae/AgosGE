@@ -25,11 +25,6 @@ Agos::AGSFileSectionDataTypeString::AGSFileSectionDataTypeString()
 {
 }
 
-std::string Agos::AGSFileSectionDataTypeString::convert_to_string()
-{
-	return m_Data;
-}
-
 Agos::AGSFileSectionDataTypeString::AGSFileSectionDataTypeString(const std::string& data)
 	: AGSFileSectionDataType(data)
 {
@@ -47,11 +42,6 @@ std::string Agos::AGSFileSectionDataTypeInt::convert_to_string()
 
 Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt()
 {
-}
-
-std::string Agos::AGSFileSectionDataTypeInt::convert_to_string()
-{
-	return std::to_string(m_Data);
 }
 
 Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt(const int& data)
