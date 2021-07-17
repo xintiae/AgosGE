@@ -37,6 +37,9 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 
 	std::string line;
 
+	AGSFileSection file_type = AGSFileSection<AGSFileSectionDataTypeString>{ TYPE };
+	file_type.add_data(std::string("model"));
+
 	// Add the current version of the AGS Model Format
 	AGSFileSection version = AGSFileSection<AGSFileSectionDataTypeInt>{ VERSION };
 	version.add_data(AG_AGS_MODEL_VERSION);
@@ -73,6 +76,7 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 		return;
 	}
 
+	out_stream << file_type.serialize_section();
 	out_stream << version.serialize_section();
 	out_stream << vertices.serialize_section();
 	out_stream << vertex_textures.serialize_section();
