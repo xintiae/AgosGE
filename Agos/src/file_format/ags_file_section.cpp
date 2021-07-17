@@ -73,12 +73,46 @@ Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2()
 {
 }
 
-Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2(const glm::vec2 data)
+Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2(const glm::vec2& data)
 	: AGSFileSectionDataType(data)
 {
 }
 
 Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2(const float& x, const float& y)
 	: AGSFileSectionDataType(glm::vec2(x, y))
+{
+}
+
+void Agos::AGSFileSectionDataTypeVector3::set_data_from_string(const std::string& data)
+{
+	std::stringstream stream;
+	stream << data;
+
+	std::string segment;
+	std::vector<std::string> list;
+
+	while (std::getline(stream, segment, ' ')) {
+		list.push_back(segment);
+	}
+
+	m_Data = glm::vec3(std::stof(list[0]), std::stof(list[1]), std::stof(list[2]));
+}
+
+std::string Agos::AGSFileSectionDataTypeVector3::convert_to_string()
+{
+	return glm::to_string<glm::vec3>(m_Data);
+}
+
+Agos::AGSFileSectionDataTypeVector3::AGSFileSectionDataTypeVector3()
+{
+}
+
+Agos::AGSFileSectionDataTypeVector3::AGSFileSectionDataTypeVector3(const glm::vec3& data)
+	: AGSFileSectionDataType(data)
+{
+}
+
+Agos::AGSFileSectionDataTypeVector3::AGSFileSectionDataTypeVector3(const float& x, const float& y, const float& z)
+	: AGSFileSectionDataType(glm::vec3(x, y, z))
 {
 }

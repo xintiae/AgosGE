@@ -58,8 +58,18 @@ namespace Agos {
 		std::string convert_to_string();
 
 		AGSFileSectionDataTypeVector2();
-		AGSFileSectionDataTypeVector2(const glm::vec2 data);
+		AGSFileSectionDataTypeVector2(const glm::vec2& data);
 		AGSFileSectionDataTypeVector2(const float& x, const float& y);
+	};
+
+	typedef struct AG_API AGSFileSectionDataTypeVector3 : AGSFileSectionDataType<glm::vec3>
+	{
+		void set_data_from_string(const std::string& data);
+		std::string convert_to_string();
+
+		AGSFileSectionDataTypeVector3();
+		AGSFileSectionDataTypeVector3(const glm::vec3& data);
+		AGSFileSectionDataTypeVector3(const float& x, const float& y, const float& z);
 	};
 
 	typedef enum AG_API AGSFileSectionType
