@@ -62,7 +62,7 @@ void Agos::AgVulkanHandlerDebugLayersManager::populate_debug_messenger_create_in
     debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debugMessengerCreateInfo.pfnUserCallback = ag_debug_callback;
+    debugMessengerCreateInfo.pfnUserCallback = Agos::ag_debug_callback;
 }
 
 VkResult Agos::AgVulkanHandlerDebugLayersManager::create_debug_utils_messenger_EXT(
@@ -140,7 +140,7 @@ std::vector<const char *> Agos::AgVulkanHandlerDebugLayersManager::get_required_
     return extensions;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
+static VKAPI_ATTR VkBool32 VKAPI_CALL Agos::ag_debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
@@ -148,28 +148,51 @@ VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
 {
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
     {
-        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + Agos::ag_debug_callback_message_type(messageType) + " " + std::string(pCallbackData->pMessage));
     }
     else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
     {
-        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + Agos::ag_debug_callback_message_type(messageType) + " "  + std::string(pCallbackData->pMessage));
     }
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
     {
-        AG_CORE_WARN(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+        AG_CORE_WARN(std::string("[Vulkan/debug callback] ") + Agos::ag_debug_callback_message_type(messageType) + " "  + std::string(pCallbackData->pMessage));
     }
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
     {
-        AG_CORE_ERROR(std::string("[Vulkan/debug callback] ") + std::string(pCallbackData->pMessage));
+        AG_CORE_ERROR(std::string("[Vulkan/debug callback] ") + Agos::ag_debug_callback_message_type(messageType) + " " + std::string(pCallbackData->pMessage));
     }
     else
     {
         std::string callbackMessage = std::move(
-            std::string("Received vulkan debug layer callback message, but severity (which is ") +
-            std::to_string(messageSeverity) + std::string(") is unrecognized!\nMessage : \"") +
-            std::string(pCallbackData->pMessage) + "\"");
+            std::string("Received vulkan debug layer callback message, but message severity (which is ") +
+            std::to_string(messageSeverity) + std::string(") is unrecognized!\nMessage type : ") + Agos::ag_debug_callback_message_type(messageType) +
+            std::string("\nMessage : \"") + std::string(pCallbackData->pMessage) + "\"");
         AG_CORE_WARN(callbackMessage);
     }
-
+    AG_MARK_AS_USED(pUserData);
     return VK_FALSE;
+}
+
+static std::string Agos::ag_debug_callback_message_type(const VkDebugUtilsMessageTypeFlagsEXT& messageType)
+{
+    switch (messageType)
+    {
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+        return std::move(std::string("[general]"));
+        break;
+
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+        return std::move(std::string("[perormance]"));
+        break;
+
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+        return std::move(std::string("[validation]"));
+        break;
+
+    default:
+        return std::move(std::string("[message type unknown]"));
+        break;
+    }
+    return std::move(std::string("[message type unknown]"));
 }

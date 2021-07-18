@@ -42,4 +42,5 @@ void Agos::AgGLFWHandlerEvents::mouseButtonCallback(GLFWwindow* window, int butt
         &data
     });
     m_EventBus->process();
+    AG_MARK_AS_USED(mods);
 }

@@ -12,7 +12,7 @@
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerCommandPoolManager
+class AG_API AgVulkanHandlerCommandPoolManager
 {
 private:
     VkCommandPool m_CommandPool;
@@ -33,7 +33,7 @@ public:
     AgResult terminate();
 
     VkCommandPool& get_command_pool();
-};
+};  // class AgVulkanHandlerCommandPoolManager
 
 }   // namespace Agos
 

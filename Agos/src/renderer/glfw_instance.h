@@ -16,20 +16,20 @@ namespace Agos{
 
 namespace Agos
 {
-typedef class AG_API AgGLFWHandlerInstance
+class AG_API AgGLFWHandlerInstance
 {
 private:
     dexode::EventBus::Listener m_EventBusListener;
     GLFWwindow* m_ApplicationWindow;
     VkSurfaceKHR m_ApplicationSurface;
 
-    const AgVulkanHandlerRenderer* m_RendererReference;
+    AgVulkanHandlerRenderer* m_RendererReference;
 
     bool m_ApplicationSurfaceTerminated = false;
     bool m_Terminated = false;
 
 public:
-    AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus, const AgVulkanHandlerRenderer* renderer);
+    AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus, AgVulkanHandlerRenderer* renderer);
     ~AgGLFWHandlerInstance();
 
     AgGLFWHandlerInstance(const AgGLFWHandlerInstance& other)   = delete;
@@ -45,6 +45,6 @@ public:
     VkSurfaceKHR& get_surface();
 private:
     void on_event_process(const Agos::Events::AgGLFWHandlerEvent& event);
-} AgGLFWHandlerInstance;
+};  // class AgGLFWHandlerInstance
 
 } // namespace Agos

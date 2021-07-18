@@ -2,7 +2,6 @@
 
 #include "Agos/src/logger/logger.h"
 
-
 Agos::AgVulkanHandlerVIUBufferManager::AgVulkanHandlerVIUBufferManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
@@ -156,33 +155,33 @@ Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::create_uniform_buffers(
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_vertex_buffer()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_vertex_buffer(const bool& mark_as_terminated)
 {
     if (!m_VertexBufferTerminated)
     {
         vkDestroyBuffer(m_LogicalDeviceReference, m_VertexBuffer, nullptr);
         vkFreeMemory(m_LogicalDeviceReference, m_VertexBufferMemory, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_vertex_buffer] Destroyed vertex buffer; freed vertex buffer memory!");
-        m_VertexBufferTerminated = true;
+        m_VertexBufferTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_VERTEX_BUFFER_ALREADY_FREED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_index_buffer()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_index_buffer(const bool& mark_as_terminated)
 {
     if (!m_IndexBufferTerminated)
     {
         vkDestroyBuffer(m_LogicalDeviceReference, m_IndexBuffer, nullptr);
         vkFreeMemory(m_LogicalDeviceReference, m_IndexBufferMemory, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_index_buffer] Destroyed index buffer; freed index buffer memory!");
-        m_IndexBufferTerminated = true;
+        m_IndexBufferTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INDEX_BUFFER_ALREADY_FREED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_uniform_buffers()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_uniform_buffers(const bool& mark_as_terminated)
 {
     if (!m_UniformBufferTerminated)
     {
@@ -192,21 +191,21 @@ Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_uniform_buffers(
             vkFreeMemory(m_LogicalDeviceReference, m_UniformBuffersMemory[i], nullptr);
         }
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_uniform_buffers] Destroyed uniform buffers; freed uniform buffers memory!");
-        m_UniformBufferTerminated = true;
+        m_UniformBufferTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_UNIFORM_BUFFERS_ALREADY_FREED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
-        terminate_uniform_buffers();
-        terminate_index_buffer();
-        terminate_vertex_buffer();
+        terminate_uniform_buffers(mark_as_terminated);
+        terminate_index_buffer(mark_as_terminated);
+        terminate_vertex_buffer(mark_as_terminated);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - terminate] Terminated instance!");
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
@@ -467,12 +466,12 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate(const bool& mark_as_terminated)
 {
-    return terminate_command_buffers();
+    return terminate_command_buffers(mark_as_terminated);
 }
 
-Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buffers()
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buffers(const bool& mark_as_terminated)
 {
     if (!m_CommandBuffersTerminated)
     {
@@ -482,7 +481,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buff
             static_cast<uint32_t>(m_CommandBuffers.size()),
             m_CommandBuffers.data());
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_command_buffers] Freed command buffers!");
-        m_CommandBuffersTerminated = true;
+        m_CommandBuffersTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_COMMAND_BUFFERS_ALREADY_FREED;

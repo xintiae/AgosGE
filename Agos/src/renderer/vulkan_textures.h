@@ -23,7 +23,7 @@ namespace Agos{
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerTextureManager
+class AG_API AgVulkanHandlerTextureManager
 {
 private:
     VkImage m_TextureImage;
@@ -97,6 +97,6 @@ private:
         const int32_t& texWidth,
         const int32_t& texHeight,
         const uint32_t& mipLevels);
-};
+};  // class AgVulkanHandlerTextureManager
 } // namespace Agos
 

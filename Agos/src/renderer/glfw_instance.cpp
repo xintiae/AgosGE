@@ -2,7 +2,7 @@
 
 #include "Agos/src/logger/logger.h"
 
-Agos::AgGLFWHandlerInstance::AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus, const AgVulkanHandlerRenderer* renderer)
+Agos::AgGLFWHandlerInstance::AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus, AgVulkanHandlerRenderer* renderer)
     : m_EventBusListener{event_bus}, m_RendererReference(renderer)
 {
 }
@@ -92,7 +92,8 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
     switch (event.type)
     {
     case Agos::Events::framebufferResizeCallback:
-        
+        m_RendererReference->m_FramebufferResized = true;
+        m_RendererReference->recreate_swapchain(false);
         break;
     
     case Agos::Events::mouseButtonCallback:

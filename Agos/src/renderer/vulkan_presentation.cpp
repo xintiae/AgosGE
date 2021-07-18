@@ -5,6 +5,8 @@
 #include AG_GLM_INCLUDE
 #include <chrono>
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
 
 Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CurrentFrame(0)
@@ -58,7 +60,8 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
     const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniform_command_bufffers,
-    const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager
+    const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager,
+    AgVulkanHandlerRenderer* renderer
 )
 {
     vkWaitForFences(logical_device->get_device(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
@@ -72,14 +75,12 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
         VK_NULL_HANDLE,
         &imageIndex);
 
-/*
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        recreateSwapChain();
-        return;
+        renderer->recreate_swapchain(false);
+        return AG_RECREATED_SWAPCHAIN;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-*/
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
@@ -139,14 +140,12 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
 
     result = vkQueuePresentKHR(logical_device->get_present_queue(), &presentInfo);
 
-/*
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || renderer->m_FramebufferResized)
     {
-        framebufferResized = false;
-        recreateSwapChain();
+        renderer->m_FramebufferResized = false;
+        renderer->recreate_swapchain(false);
     }
     else if (result != VK_SUCCESS)
-*/
     if (result != VK_SUCCESS)
     {
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to present swap chain image!");

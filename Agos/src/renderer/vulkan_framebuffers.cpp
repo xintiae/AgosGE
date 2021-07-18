@@ -2,6 +2,9 @@
 
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
+
 Agos::AgVulkanHandlerFramebuffers::AgVulkanHandlerFramebuffers()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
@@ -53,7 +56,7 @@ Agos::AgResult Agos::AgVulkanHandlerFramebuffers::create_framebuffers(
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerFramebuffers::terminate()
+Agos::AgResult Agos::AgVulkanHandlerFramebuffers::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
@@ -62,7 +65,7 @@ Agos::AgResult Agos::AgVulkanHandlerFramebuffers::terminate()
             vkDestroyFramebuffer(m_LogicalDeviceReference, frame_buffer, nullptr);
         }
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerFramebuffers] Destroyed swap chain framebuffers!");
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

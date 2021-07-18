@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Agos/src/base.h"
-#include AG_VULKAN_INCLUDE
 
 #define AG_WINDOW_WIDTH 800
 #define AG_WINDOW_HEIGHT 600
+
+#define AG_MARK_AS_USED(X)  ( (void*)(&(X)) )
 
 namespace Agos
 {
@@ -33,10 +34,8 @@ typedef enum AgResult {
     AG_INDEX_BUFFER_ALREADY_FREED                   = 27,
     AG_UNIFORM_BUFFERS_ALREADY_FREED                = 28,
     AG_COMMAND_BUFFERS_ALREADY_FREED                = 29,
-    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30
+    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30,
+    AG_RECREATED_SWAPCHAIN                          = 31
 } AgResult;
-
-static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
-static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE = VK_NULL_HANDLE;
 
 }   // namespace Agos

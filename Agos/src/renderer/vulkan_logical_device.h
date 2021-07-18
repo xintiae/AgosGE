@@ -16,7 +16,7 @@ namespace Agos{
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerLogicalDevice
+class AG_API AgVulkanHandlerLogicalDevice
 {
 private:
     VkDevice m_LogicalDevice;
@@ -41,6 +41,6 @@ public:
     VkQueue& get_graphics_queue();
     VkQueue& get_present_queue();
 
-} AgVulkanHandlerLogicalDevice;
+};  // class AgVulkanHandlerLogicalDevice
 
 }   // namespace Agos

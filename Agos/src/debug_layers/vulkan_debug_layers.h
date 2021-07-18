@@ -53,9 +53,13 @@ private:
 
 } // namespace Agos
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData
-);
+namespace Agos{
+    static VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+        void *pUserData
+    );
+
+    static std::string ag_debug_callback_message_type(const VkDebugUtilsMessageTypeFlagsEXT& messageType);
+}

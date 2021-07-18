@@ -204,7 +204,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
 
 Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate_vulkan()
 {
-    this->terminate_swapchain();
+    this->terminate_swapchain(true);
 
     for (size_t i = 0; i < m_VulkanTextureImageManager.size(); i++)
     {
@@ -245,7 +245,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate()
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
+void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instances_terminated)
 {
     int width = 0, height = 0;
     glfwGetFramebufferSize(m_GLFWInstance->get_window(), &width, &height);
@@ -257,25 +257,25 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
 
     vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
 
-    this->terminate_swapchain();
+    this->terminate_swapchain(false);
 
-    AG_CORE_WARN("Recreating swap chain...");
+    AG_CORE_INFO("Recreating swap chain...");
     m_VulkanSwapChain->create_swap_chain(
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice,
         m_GLFWInstance
     );
-    AG_CORE_WARN("Recreating swap chain image views...");
+    AG_CORE_INFO("Recreating swap chain image views...");
     m_VulkanSwapChain->create_image_views(
         m_VulkanLogicalDevice
     );
-    AG_CORE_WARN("Recreating render pass...");
+    AG_CORE_INFO("Recreating render pass...");
     m_VulkanRenderPass->create_render_pass(
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
     );
-    AG_CORE_WARN("Recreating graphics pipeline...");
+    AG_CORE_INFO("Recreating graphics pipeline...");
     m_VulkanGraphicsPipelineManager->create_graphics_pipeline(
         std::string(AG_SHADERS_PATH) + '/',
         m_VulkanPhysicalDevice,
@@ -284,7 +284,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
         m_VulkanRenderPass,
         m_VulkanDescriptorManager
     );
-    AG_CORE_WARN("Recreating color and depths ressources...");
+    AG_CORE_INFO("Recreating color and depths ressources...");
     m_VulkanColorDepthRessourcesManager->create_color_ressources(
         m_VulkanPhysicalDevice,
         m_VulkanLogicalDevice,
@@ -295,7 +295,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
     );
-    AG_CORE_WARN("Recreating swap chain frame buffers...");
+    AG_CORE_INFO("Recreating swap chain frame buffers...");
     m_VulkanSwapChainFrameBuffersManager->create_framebuffers(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
@@ -304,7 +304,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
     );
     for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
     {
-        AG_CORE_WARN("Recreating uniform buffers for for model : \"" + m_Models[i].id + "\"...");
+        AG_CORE_INFO("Recreating uniform buffers for for model : \"" + m_Models[i].id + "\"...");
         m_VertexIndexUniformBuffers[i]->create_uniform_buffers(
             m_VulkanPhysicalDevice,
             m_VulkanLogicalDevice,
@@ -312,7 +312,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
             m_VulkanColorDepthRessourcesManager
         );
     }
-    AG_CORE_WARN("Recreating descriptor pool...");
+    AG_CORE_INFO("Recreating descriptor pool...");
     m_VulkanDescriptorManager->create_descritpor_pool(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
@@ -320,7 +320,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
 
     for (size_t i = 0; i < m_VulkanTextureImageManager.size(); i++)
     {
-        AG_CORE_WARN("Recreating descriptor sets for model : \"" + m_Models[i].id + "\"...");
+        AG_CORE_INFO("Recreating descriptor sets for model : \"" + m_Models[i].id + "\"...");
         m_VulkanDescriptorManager->create_descriptor_sets(
             m_VulkanLogicalDevice,
             m_VulkanSwapChain,
@@ -329,7 +329,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
             i
         );
     }
-    AG_CORE_WARN("Recreating command buffers...");
+    AG_CORE_INFO("Recreating command buffers...");
     m_VulkanCommandBuffer->create_command_buffers(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
@@ -345,19 +345,19 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
     m_VulkanPresenter->get_images_in_flight().resize(m_VulkanSwapChain->get_swapchain_images().size(), VK_NULL_HANDLE);
 }
 
-void Agos::AgVulkanHandlerRenderer::terminate_swapchain()
+void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instances_terminated)
 {
-    m_VulkanColorDepthRessourcesManager->terminate();
-    m_VulkanSwapChainFrameBuffersManager->terminate();
-    m_VulkanCommandBuffer->terminate_command_buffers();
-    m_VulkanGraphicsPipelineManager->terminate();
-    m_VulkanRenderPass->terminate();
-    m_VulkanSwapChain->terminate();
+    m_VulkanColorDepthRessourcesManager->terminate(mark_instances_terminated);
+    m_VulkanSwapChainFrameBuffersManager->terminate(mark_instances_terminated);
+    m_VulkanCommandBuffer->terminate_command_buffers(mark_instances_terminated);
+    m_VulkanGraphicsPipelineManager->terminate(mark_instances_terminated);
+    m_VulkanRenderPass->terminate(mark_instances_terminated);
+    m_VulkanSwapChain->terminate(mark_instances_terminated);
     for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
     {
-        m_VertexIndexUniformBuffers[i]->terminate_uniform_buffers();
+        m_VertexIndexUniformBuffers[i]->terminate_uniform_buffers(mark_instances_terminated);
     }
-    m_VulkanDescriptorManager->terminate_descriptor_pool();
+    m_VulkanDescriptorManager->terminate_descriptor_pool(mark_instances_terminated);
 }
 
 void Agos::AgVulkanHandlerRenderer::draw_frame()
@@ -367,7 +367,8 @@ void Agos::AgVulkanHandlerRenderer::draw_frame()
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
         m_VertexIndexUniformBuffers,
-        m_VulkanCommandBuffer
+        m_VulkanCommandBuffer,
+        this
     );
     vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
 }

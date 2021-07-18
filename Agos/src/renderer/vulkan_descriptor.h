@@ -29,7 +29,7 @@ typedef struct AG_API UniformBufferObject
 } UniformBufferObject;
 }   // namespace VulkanGraphicsPipeline (within namespace Agos)
 
-typedef class AG_API AgVulkanHandlerDescriptorManager
+class AG_API AgVulkanHandlerDescriptorManager
 {
 private:
     VkDescriptorSetLayout m_DescriptorSetLayout;
@@ -61,13 +61,13 @@ public:
         const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
         const uint32_t& model_index);
 
-    AgResult terminate_descriptor_set_layout();
-    AgResult terminate_descriptor_pool();
-    AgResult terminate_descriptor_sets();
-    AgResult terminate();
+    AgResult terminate_descriptor_set_layout(const bool& mark_as_terminated = true);
+    AgResult terminate_descriptor_pool(const bool& mark_as_terminated = true);
+    AgResult terminate_descriptor_sets(const bool& mark_as_terminated = true);
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkDescriptorSetLayout& get_descriptor_set_layout();
     std::vector<VkDescriptorSet>& get_descriptor_sets(const uint32_t& model_index);
 
-} AgVulkanHandlerDescriptorManager;
+};  // class AgVulkanHandlerDescriptorManager
 };

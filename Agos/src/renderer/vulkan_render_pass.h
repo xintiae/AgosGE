@@ -14,7 +14,7 @@
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerRenderPass
+class AG_API AgVulkanHandlerRenderPass
 {
 private:
     VkRenderPass m_RenderPass;
@@ -33,7 +33,7 @@ public:
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
-    AgResult terminate();
+    AgResult terminate(const bool& mark_as_terminated = true);
     VkRenderPass& get_render_pass();
 
 private:
@@ -46,6 +46,6 @@ private:
         const VkFormatFeatureFlags& features,
         const VkPhysicalDevice& physical_device
     );
-} AgVulkanHandlerRenderPass;
+};  // class AgVulkanHandlerRenderPass
 
 }   // namespace Agos

@@ -110,7 +110,7 @@ namespace std
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerGraphicsPipelineManager
+class AG_API AgVulkanHandlerGraphicsPipelineManager
 {
 private:
     VkPipeline m_GraphicsPipeline;
@@ -131,7 +131,7 @@ public:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
         const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor);
-    AgResult terminate();
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkPipeline& get_graphics_pipeline();
     VkPipelineLayout& get_graphics_pipeline_layout();
@@ -142,6 +142,6 @@ private:
         const VkDevice& logical_device);
     VulkanGraphicsPipeline::Shader compile_shader(const std::string& shader_folder_path);
     AgResult clear_compiled_shader(const VulkanGraphicsPipeline::Shader& shader);
-};
+};  // class AgVulkanHandlerGraphicsPipelineManager
 
 }   // namespace Agos

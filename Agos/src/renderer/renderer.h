@@ -4,6 +4,13 @@
 #include "Agos/src/base.h"
 
 #include AG_EVENTBUS_INCLUDE
+#include AG_GLFW_INCLUDE
+#include AG_VULKAN_INCLUDE
+
+// see file Agos/src/renderer/vulkan_buffers.cpp
+// static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
+// static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE = VK_NULL_HANDLE;
+
 
 namespace Agos{
     class AgGLFWHandlerInstance;
@@ -33,12 +40,11 @@ namespace Agos{
 #include "Agos/src/renderer/vulkan_presentation.h"
 
 #include <functional>
-
 #include <thread>
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerRenderer
+class AG_API AgVulkanHandlerRenderer
 {
 private:
     std::shared_ptr<dexode::EventBus> m_EventBus;
@@ -66,6 +72,7 @@ private:
 
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
 
+    bool m_FramebufferResized = false;
     bool m_RendererTerminated = false;
 
 public:
@@ -84,14 +91,15 @@ public:
     AgResult terminate();
 
     friend class AgGLFWHandlerInstance;
+    friend class AgVulkanHandlerPresenter;
 
-private:
+protected:
     // voids because we're throwing a std::runtime_error if something fails
-    void recreate_swapchain();
-    void terminate_swapchain();
+    void recreate_swapchain(const bool& mark_instances_terminated = true);
+    void terminate_swapchain(const bool& mark_instances_terminated = true);
     void draw_frame();
     AgModel merge_models(const std::vector<AgModel>& models);
-} AgVulkanHandlerRenderer;
+};  // class AgVulkanHandlerRenderer
 
 }   // namespace Agos
 

@@ -35,10 +35,13 @@ namespace Agos{
 #include <vector>
 #include <cstdint>
 
+static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
+static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE   = VK_NULL_HANDLE;
+
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerVIUBufferManager
+class AG_API AgVulkanHandlerVIUBufferManager
 {
 private:
     VkBuffer m_VertexBuffer;
@@ -82,10 +85,10 @@ public:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager);
 
-    AgResult terminate_vertex_buffer();
-    AgResult terminate_index_buffer();
-    AgResult terminate_uniform_buffers();
-    AgResult terminate();
+    AgResult terminate_vertex_buffer(const bool& mark_as_terminated = true);
+    AgResult terminate_index_buffer(const bool& mark_as_terminated = true);
+    AgResult terminate_uniform_buffers(const bool& mark_as_terminated = true);
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkBuffer& get_vertex_buffer();
     VkDeviceMemory& get_vertex_buffer_memory();
@@ -125,9 +128,9 @@ public:
         const VkCommandPool& command_pool,
         const VkCommandBuffer& commandBuffer);
 
-} AgVulkanHandlerVIUBufferManager;
+};  // class AgVulkanHandlerVIUBufferManager
 
-typedef class AG_API AgVulkanHandlerCommandBufferManager
+class AG_API AgVulkanHandlerCommandBufferManager
 {
 private:
     static std::vector<VkCommandBuffer> m_CommandBuffers;
@@ -154,11 +157,11 @@ public:
         const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
         const std::vector<AgModel>& models);
 
-    AgResult terminate_command_buffers();
-    AgResult terminate();
+    AgResult terminate_command_buffers(const bool& mark_as_terminated = true);
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     std::vector<VkCommandBuffer>& get_command_buffers();
 
-} AgVulkanHandlerCommandBufferManager;
+};  // AgVulkanHandlerCommandBufferManager
 
 } // namespace Agos

@@ -16,7 +16,7 @@ namespace Agos{
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerPresenter
+class AG_API AgVulkanHandlerPresenter
 {
 private:
     std::vector<VkSemaphore> m_ImageAvailableSemaphores;
@@ -41,7 +41,8 @@ public:
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniform_command_bufffers,
-        const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager);
+        const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager,
+        AgVulkanHandlerRenderer* renderer);
     AgResult terminate_semaphores_fences_objs();
 
     AgResult terminate();
@@ -58,7 +59,6 @@ protected:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers);
         
-} AgVulkanHandlerPresenter;
+};  // class AgVulkanHandlerPresenter
+
 } // namespace Agos
-
-

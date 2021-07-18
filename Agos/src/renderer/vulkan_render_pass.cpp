@@ -2,6 +2,9 @@
 
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
+
 Agos::AgVulkanHandlerRenderPass::AgVulkanHandlerRenderPass()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
@@ -101,13 +104,13 @@ Agos::AgResult Agos::AgVulkanHandlerRenderPass::create_render_pass(
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerRenderPass::terminate()
+Agos::AgResult Agos::AgVulkanHandlerRenderPass::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
         vkDestroyRenderPass(m_LogicalDeviceReference, m_RenderPass, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerRenderPass - terminate] Destroyed render pass!");
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

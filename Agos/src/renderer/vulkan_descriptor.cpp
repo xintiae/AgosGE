@@ -2,6 +2,9 @@
 
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
+
 Agos::AgVulkanHandlerDescriptorManager::AgVulkanHandlerDescriptorManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
@@ -145,42 +148,42 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descriptor_sets(
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_set_layout()
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_set_layout(const bool& mark_as_terminated)
 {
     if (!m_DescriptorSetLayoutTerminated)
     {
         vkDestroyDescriptorSetLayout(m_LogicalDeviceReference, m_DescriptorSetLayout, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate_descriptor_set_layout] Destroyed descriptor set layout!");
-        m_DescriptorSetLayoutTerminated = true;
+        m_DescriptorSetLayoutTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_pool()
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_pool(const bool& mark_as_terminated)
 {
     if (!m_DescriptorPoolTerminated)
     {
         vkDestroyDescriptorPool(m_LogicalDeviceReference, m_DescriptorPool, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate_descriptor_pool] Destroyed descriptor pool!");
-        m_DescriptorPoolTerminated = true;
+        m_DescriptorPoolTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_sets()
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate_descriptor_sets(const bool& mark_as_terminated)
 {
     if (!m_DescriptorsSetsTerminated)
     {
         // no need to destroy it anyway but, heh
-        m_DescriptorsSetsTerminated = true;
+        m_DescriptorsSetsTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
@@ -188,7 +191,7 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::terminate()
         terminate_descriptor_pool();
         terminate_descriptor_set_layout();
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerDescriptorManager - terminate] Terminated instance!");
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

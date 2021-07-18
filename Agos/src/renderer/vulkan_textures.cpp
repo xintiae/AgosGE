@@ -3,6 +3,8 @@
 #include AG_STB_INCLUDE
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
 Agos::AgVulkanHandlerTextureManager::AgVulkanHandlerTextureManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {

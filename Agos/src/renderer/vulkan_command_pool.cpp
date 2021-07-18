@@ -2,6 +2,9 @@
 
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
+
 Agos::AgVulkanHandlerCommandPoolManager::AgVulkanHandlerCommandPoolManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {

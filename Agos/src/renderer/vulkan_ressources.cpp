@@ -2,6 +2,8 @@
 
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
 Agos::AgVulkanHandlerColorDepthRessourcesManager::AgVulkanHandlerColorDepthRessourcesManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
@@ -70,7 +72,7 @@ Agos::AgResult Agos::AgVulkanHandlerColorDepthRessourcesManager::create_depth_re
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerColorDepthRessourcesManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerColorDepthRessourcesManager::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
@@ -85,7 +87,7 @@ Agos::AgResult Agos::AgVulkanHandlerColorDepthRessourcesManager::terminate()
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerColorDepthRessourcesManager - terminate]" + std::string(
             " Destroyed depth image, depth image view, color image, color image view ; Freed depth image memory, color image memory"));
 
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
