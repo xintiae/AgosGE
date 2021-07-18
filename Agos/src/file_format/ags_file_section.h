@@ -11,7 +11,7 @@
 #include <vector>
 #include <any>
 
-#include "glm/glm/gtx/string_cast.hpp"
+#include AG_GLM_STRING_CAST
 
 namespace Agos {
 

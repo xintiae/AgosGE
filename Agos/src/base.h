@@ -35,6 +35,7 @@
   #define GLM_FORCE_RADIANS
   #define GLM_FORCE_DEPTH_ZERO_TO_ONE
   #define GLM_ENABLE_EXPERIMENTAL
+  #define AG_GLM_STRING_CAST          "glm/glm/gtx/string_cast.hpp"
   #define AG_GLM_HASH_TYPES           "glm/glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm/glm.hpp"
 
@@ -60,10 +61,11 @@
   #define GLM_FORCE_RADIANS
   #define GLM_FORCE_DEPTH_ZERO_TO_ONE
   #define GLM_ENABLE_EXPERIMENTAL
+  #define AG_GLM_STRING_CAST          "glm/gtx/string_cast.hpp"
   #define AG_GLM_HASH_TYPES           "glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
  
-  #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
+  #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
  
   #define STB_IMAGE_IMPLEMENTATION
   #define AG_STB_INCLUDE              "stb/stb_image.h"
