@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 
-Agos::AgVertexIndexHolder Agos::AgModelLoader::load_model(const std::string& file_path)
+Agos::AgModelData Agos::AgModelLoader::load_model(const std::string& file_path)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -15,7 +15,7 @@ Agos::AgVertexIndexHolder Agos::AgModelLoader::load_model(const std::string& fil
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, file_path.c_str()))
     {
         AG_CORE_ERROR("[ModelLoader/AgModelLoader - load_model] " + warn + err);
-        return std::move(Agos::AgVertexIndexHolder{});
+        return std::move(Agos::AgModelData{});
     }
 
     std::vector<VulkanGraphicsPipeline::Vertex> vertices;
@@ -50,5 +50,5 @@ Agos::AgVertexIndexHolder Agos::AgModelLoader::load_model(const std::string& fil
     }
 
     AG_CORE_INFO("[ModelLoader/AgModelLoader - load_model] Successfully loaded model : " + file_path);
-    return std::move(AgVertexIndexHolder{vertices, indices});
+    return std::move(AgModelData{vertices, indices});
 }

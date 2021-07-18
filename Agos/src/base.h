@@ -14,6 +14,9 @@
 #define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
 #define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
 #define AG_SHADERS_COMPILE_ANYWAY true
+#define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 20
+#define AG_DEFAULT_MODEL_TEXTURE_PATH               "/primitives/no_textures.png"
+#define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL_PATH  "/primitives/no_textures_opacity_null.png"
 
 // #define AGOS_COMPILED_STATIC
 #define AGOS_COMPILED_SHARED

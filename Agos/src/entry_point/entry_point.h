@@ -15,6 +15,7 @@ typedef class AG_API AgApplication
 private:
     std::shared_ptr<dexode::EventBus> m_EventBus;
     std::shared_ptr<AgVulkanHandlerRenderer> m_Renderer;
+    std::vector<Agos::AgModel> m_Rendered_Models;
 
 public:
     AgApplication();

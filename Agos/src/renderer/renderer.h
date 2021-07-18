@@ -22,7 +22,8 @@ namespace Agos{
 #include "Agos/src/renderer/vulkan_textures.h"
 namespace Agos{
     struct AgModelLoader;
-    struct AgVertexIndexHolder;
+    struct AgModelData;
+    struct AgModel;
 }
 #include "Agos/src/renderer/model_loader.h"
 #include "Agos/src/renderer/vulkan_buffers.h"
@@ -32,6 +33,8 @@ namespace Agos{
 #include "Agos/src/renderer/vulkan_presentation.h"
 
 #include <functional>
+
+#include <thread>
 
 namespace Agos
 {
@@ -56,9 +59,10 @@ private:
     std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager> m_VulkanColorDepthRessourcesManager;
     std::shared_ptr<AgVulkanHandlerFramebuffers> m_VulkanSwapChainFrameBuffersManager;
 
-    std::shared_ptr<AgVulkanHandlerTextureManager> m_VulkanTextureImageManager;
-    std::shared_ptr<std::pair<AgModelLoader, AgVertexIndexHolder>> m_Model;
-    std::shared_ptr<AgVulkanHandlerBufferManager> m_VertexIndexUniformBuffers;
+    std::vector<std::shared_ptr<AgVulkanHandlerTextureManager>> m_VulkanTextureImageManager;
+    std::vector<AgModel> m_Models;
+    std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>> m_VertexIndexUniformBuffers;
+    std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
 
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
 
@@ -73,19 +77,37 @@ public:
     AgVulkanHandlerRenderer& operator=(const AgVulkanHandlerRenderer& other)    = delete;
     AgVulkanHandlerRenderer& operator=(AgVulkanHandlerRenderer&& other)         = delete;
 
-    AgResult init_vulkan();
-    // template <typename __Function_Signature>
-    // AgResult run(const std::function<__Function_Signature>& to_do);     // our main loop
-    AgResult run();
+    AgResult init_vulkan(const std::vector<AgModel>& to_render_models);
+    template <typename __Function_Signature>
+    AgResult run(const std::function<__Function_Signature>& to_do);     // our main loop
     AgResult terminate_vulkan();
     AgResult terminate();
 
     friend class AgGLFWHandlerInstance;
 
-protected:
+private:
     // voids because we're throwing a std::runtime_error if something fails
     void recreate_swapchain();
     void terminate_swapchain();
+    void draw_frame();
+    AgModel merge_models(const std::vector<AgModel>& models);
 } AgVulkanHandlerRenderer;
 
 }   // namespace Agos
+
+/* * * * * * * template member function Agos::AgVulkanHandlerRenderer::run definition * * * * * * */
+
+template <typename __Function_Signature>
+Agos::AgResult Agos::AgVulkanHandlerRenderer::run(
+    const std::function<__Function_Signature>& to_do)
+{
+    while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
+    {
+        this->draw_frame();
+        // https://www.youtube.com/watch?v=NzishIREebw
+        to_do();
+    }
+
+    return AG_SUCCESS;
+}
+

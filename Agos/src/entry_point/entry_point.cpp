@@ -20,7 +20,27 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     Agos::ag_init_loggers();
     AG_CORE_WARN("Initializing Agos core application...");
 
-    m_Renderer->init_vulkan();
+    // setup here your data for the renderer to render OR specify which models AgosGE should load by default
+    // keep in mind that your models may overlap on each others
+    m_Rendered_Models.resize(2);
+    m_Rendered_Models[0].id                     = std::move(std::string("viking_room"));
+    m_Rendered_Models[0].path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.obj"));
+    m_Rendered_Models[0].path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.png"));
+
+    m_Rendered_Models[1].id                     = std::move(std::string("arrow"));
+    m_Rendered_Models[1].path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/arrow.obj"));
+    m_Rendered_Models[1].path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE_PATH));
+
+    // you have to load your models' data here
+    for (size_t i = 0; i < m_Rendered_Models.size(); i++)
+    {
+        AG_CORE_WARN("Loading model : " + m_Rendered_Models[i].id + " (obj file path : " + m_Rendered_Models[i].path_to_obj_file);
+        m_Rendered_Models[i].model_data = Agos::AgModelLoader::load_model(m_Rendered_Models[i].path_to_obj_file);
+        // NOTE : you can't load directly your texture here; this operation is done when initialyzing vulkan
+    }
+
+    /*** init vulkan @c WITH your models */
+    m_Renderer->init_vulkan(m_Rendered_Models);
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -30,8 +50,9 @@ Agos::AgResult Agos::AgApplication::core_run_application()
 {
     AG_CORE_WARN("Running Agos core application...");
 
-    // m_Renderer->run(std::function<void()>());
-    m_Renderer->run();
+    m_Renderer->run<void()>(
+        std::function<void()>([&](void) -> void {})
+    );
 
     return Agos::AG_SUCCESS;
 }

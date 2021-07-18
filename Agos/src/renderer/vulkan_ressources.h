@@ -62,7 +62,7 @@ public:
     VkFormat&        get_depth_format();
 
     friend class AgVulkanHandlerTextureManager;
-    friend class AgVulkanHandlerBufferManager;
+    friend class AgVulkanHandlerVIUBufferManager;
 protected:
     VkImage create_image(
        const VkPhysicalDevice& physical_device,
