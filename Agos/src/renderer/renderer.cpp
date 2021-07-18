@@ -20,8 +20,8 @@ Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dex
     m_VulkanGraphicsCommandPoolManager   = std::make_shared<AgVulkanHandlerCommandPoolManager>();
     m_VulkanColorDepthRessourcesManager  = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
     m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
+    m_VulkanCommandBuffer                = std::make_shared<AgVulkanHandlerCommandBufferManager>();
 
-    m_VertexIndexUniformBuffers     = std::make_shared<AgVulkanHandlerBufferManager>();
     m_VulkanPresenter               = std::make_shared<AgVulkanHandlerPresenter>();
 }
 
@@ -37,6 +37,11 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
     for (size_t i = 0; i < m_VulkanTextureImageManager.size(); i++)
     {
         m_VulkanTextureImageManager[i] = std::make_shared<AgVulkanHandlerTextureManager>();
+    }
+    m_VertexIndexUniformBuffers.resize(m_Models.size());
+    for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
+    {
+        m_VertexIndexUniformBuffers[i] = std::make_shared<AgVulkanHandlerVIUBufferManager>();
     }
 
     AG_CORE_WARN("Initializing GLFW instance...");
@@ -123,7 +128,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
             m_VulkanLogicalDevice,
             m_VulkanColorDepthRessourcesManager,
             m_VulkanGraphicsCommandPoolManager,
-            m_VertexIndexUniformBuffers
+            m_VertexIndexUniformBuffers[i]
         );
         m_VulkanTextureImageManager[i]->create_texture_image_view(
             m_VulkanLogicalDevice,
@@ -133,38 +138,35 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
             m_VulkanPhysicalDevice,
             m_VulkanLogicalDevice
         );
-        AG_CORE_WARN("Creating models' vertex buffers...");
-        // ==== WIP
-        m_VertexIndexUniformBuffers->create_vertex_buffer(
+        AG_CORE_WARN("Creating model : \"" + m_Models[i].id + "\" vertex buffer...");
+        m_VertexIndexUniformBuffers[i]->create_vertex_buffer(
             m_Models[i].model_data.vertices,
             m_VulkanPhysicalDevice,
             m_VulkanLogicalDevice,
             m_VulkanColorDepthRessourcesManager,
             m_VulkanGraphicsCommandPoolManager
         );
-        AG_CORE_WARN("Creating models' index buffers...");
-        m_VertexIndexUniformBuffers->create_index_buffer(
+        AG_CORE_WARN("Creating model : \"" + m_Models[i].id + "\" index buffer...");
+        m_VertexIndexUniformBuffers[i]->create_index_buffer(
             m_Models[i].model_data.indices,
             m_VulkanPhysicalDevice,
             m_VulkanLogicalDevice,
             m_VulkanColorDepthRessourcesManager,
             m_VulkanGraphicsCommandPoolManager
         );
+        AG_CORE_WARN("Creating model : \"" + m_Models[i].id + "\" uniform buffers...");
+        m_VertexIndexUniformBuffers[i]->create_uniform_buffers(
+            m_VulkanPhysicalDevice,
+            m_VulkanLogicalDevice,
+            m_VulkanSwapChain,
+            m_VulkanColorDepthRessourcesManager
+        );
     }
-
-    AG_CORE_WARN("Creating uniform buffers...");
-    m_VertexIndexUniformBuffers->create_uniform_buffers(
-        m_VulkanPhysicalDevice,
-        m_VulkanLogicalDevice,
-        m_VulkanSwapChain,
-        m_VulkanColorDepthRessourcesManager
-    );
     AG_CORE_WARN("Creating descriptor pool...");
     m_VulkanDescriptorManager->create_descritpor_pool(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
     );
-
     for (size_t i = 0; i < m_Models.size(); i++)
     {
         AG_CORE_WARN("Creating descriptor sets for model : \"" + m_Models[i].id + "\"...");
@@ -172,28 +174,29 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
             m_VulkanLogicalDevice,
             m_VulkanSwapChain,
             m_VulkanTextureImageManager[i],
-            m_VertexIndexUniformBuffers
-        );
-        AG_CORE_WARN("Creating command buffers for model : \"" + m_Models[i].id + "\"...");
-        m_VertexIndexUniformBuffers->create_command_buffers(
-            m_VulkanLogicalDevice,
-            m_VulkanSwapChain,
-            m_VulkanRenderPass,
-            m_VulkanSwapChainFrameBuffersManager,
-            m_VulkanGraphicsPipelineManager,
-            m_VulkanDescriptorManager,
-            m_VulkanGraphicsCommandPoolManager,
-            m_Models[i].model_data.indices
+            m_VertexIndexUniformBuffers[i],
+            i
         );
     }
-
+    AG_CORE_WARN("Creating command buffers...");
+    m_VulkanCommandBuffer->create_command_buffers(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanSwapChainFrameBuffersManager,
+        m_VulkanGraphicsPipelineManager,
+        m_VulkanGraphicsCommandPoolManager,
+        m_VulkanDescriptorManager,
+        m_VertexIndexUniformBuffers,
+        m_Models
+    );
     AG_CORE_WARN("Creating semaphores and fences...");
     m_VulkanPresenter->create_semaphores_fences_objs(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
     );
 
-    return AG_SUCCESS;AG_CORE_CRITICAL("");
+    return AG_SUCCESS;
 }
 
 // Agos::AgResult Agos::AgVulkanHandlerRenderer::run(const std::function<__Function_Signature>& to_do)
@@ -209,12 +212,18 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate_vulkan()
     }
 
     m_VulkanDescriptorManager->terminate_descriptor_set_layout();
-    m_VertexIndexUniformBuffers->terminate_index_buffer();
-    m_VertexIndexUniformBuffers->terminate_vertex_buffer();
+    for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
+    {
+        m_VertexIndexUniformBuffers[i]->terminate_index_buffer();
+        m_VertexIndexUniformBuffers[i]->terminate_vertex_buffer();
+    }
     m_VulkanPresenter->terminate_semaphores_fences_objs();
     m_VulkanGraphicsCommandPoolManager->terminate();
     m_VulkanLogicalDevice->terminate();
-    m_VertexIndexUniformBuffers->terminate();
+    for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
+    {
+        m_VertexIndexUniformBuffers[i]->terminate();
+    }
 
     m_VulkanDebugLayersManager->terminate();
 
@@ -293,14 +302,17 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
         m_VulkanRenderPass,
         m_VulkanColorDepthRessourcesManager
     );
-    AG_CORE_WARN("Creating uniform buffers for viking_room model...");
-    m_VertexIndexUniformBuffers->create_uniform_buffers(
-        m_VulkanPhysicalDevice,
-        m_VulkanLogicalDevice,
-        m_VulkanSwapChain,
-        m_VulkanColorDepthRessourcesManager
-    );
-    AG_CORE_WARN("Creating descriptor pool...");
+    for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
+    {
+        AG_CORE_WARN("Recreating uniform buffers for for model : \"" + m_Models[i].id + "\"...");
+        m_VertexIndexUniformBuffers[i]->create_uniform_buffers(
+            m_VulkanPhysicalDevice,
+            m_VulkanLogicalDevice,
+            m_VulkanSwapChain,
+            m_VulkanColorDepthRessourcesManager
+        );
+    }
+    AG_CORE_WARN("Recreating descriptor pool...");
     m_VulkanDescriptorManager->create_descritpor_pool(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain
@@ -308,29 +320,27 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain()
 
     for (size_t i = 0; i < m_VulkanTextureImageManager.size(); i++)
     {
-        AG_CORE_WARN("Creating descriptor sets...");
+        AG_CORE_WARN("Recreating descriptor sets for model : \"" + m_Models[i].id + "\"...");
         m_VulkanDescriptorManager->create_descriptor_sets(
             m_VulkanLogicalDevice,
             m_VulkanSwapChain,
             m_VulkanTextureImageManager[i],
-            m_VertexIndexUniformBuffers
+            m_VertexIndexUniformBuffers[i],
+            i
         );
     }
-
-    for (const Agos::AgModel& model : m_Models)
-    {
-        AG_CORE_WARN("Creating models' command buffers...");
-        m_VertexIndexUniformBuffers->create_command_buffers(
-            m_VulkanLogicalDevice,
-            m_VulkanSwapChain,
-            m_VulkanRenderPass,
-            m_VulkanSwapChainFrameBuffersManager,
-            m_VulkanGraphicsPipelineManager,
-            m_VulkanDescriptorManager,
-            m_VulkanGraphicsCommandPoolManager,
-            model.model_data.indices
-        );
-    }
+    AG_CORE_WARN("Recreating command buffers...");
+    m_VulkanCommandBuffer->create_command_buffers(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanSwapChainFrameBuffersManager,
+        m_VulkanGraphicsPipelineManager,
+        m_VulkanGraphicsCommandPoolManager,
+        m_VulkanDescriptorManager,
+        m_VertexIndexUniformBuffers,
+        m_Models
+    );
 
     m_VulkanPresenter->get_images_in_flight().resize(m_VulkanSwapChain->get_swapchain_images().size(), VK_NULL_HANDLE);
 }
@@ -339,11 +349,14 @@ void Agos::AgVulkanHandlerRenderer::terminate_swapchain()
 {
     m_VulkanColorDepthRessourcesManager->terminate();
     m_VulkanSwapChainFrameBuffersManager->terminate();
-    m_VertexIndexUniformBuffers->terminate_command_buffers();
+    m_VulkanCommandBuffer->terminate_command_buffers();
     m_VulkanGraphicsPipelineManager->terminate();
     m_VulkanRenderPass->terminate();
     m_VulkanSwapChain->terminate();
-    m_VertexIndexUniformBuffers->terminate_uniform_buffers();
+    for (size_t i = 0; i < m_VertexIndexUniformBuffers.size(); i++)
+    {
+        m_VertexIndexUniformBuffers[i]->terminate_uniform_buffers();
+    }
     m_VulkanDescriptorManager->terminate_descriptor_pool();
 }
 
@@ -353,7 +366,8 @@ void Agos::AgVulkanHandlerRenderer::draw_frame()
     m_VulkanPresenter->draw_frame(
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
-        m_VertexIndexUniformBuffers
+        m_VertexIndexUniformBuffers,
+        m_VulkanCommandBuffer
     );
     vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
 }

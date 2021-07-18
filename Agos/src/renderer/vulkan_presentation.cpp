@@ -57,7 +57,8 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::create_semaphores_fences_objs(
 Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-    const std::shared_ptr<AgVulkanHandlerBufferManager>& uniform_command_bufffers
+    const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniform_command_bufffers,
+    const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager
 )
 {
     vkWaitForFences(logical_device->get_device(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
@@ -85,11 +86,14 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
     }
 
-    update_uniform_buffer(
-        imageIndex,
-        logical_device,
-        swapchain,
-        uniform_command_bufffers);
+    for (size_t i = 0; i < uniform_command_bufffers.size(); i++)
+    {
+        update_uniform_buffer(
+            imageIndex,
+            logical_device,
+            swapchain,
+            uniform_command_bufffers[i]);
+    }
 
     if (m_ImagesInFlight[imageIndex] != VK_NULL_HANDLE)
     {
@@ -97,8 +101,10 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
     }
     m_ImagesInFlight[imageIndex] = m_InFlightFences[m_CurrentFrame];
 
-    VkSubmitInfo submitInfo{};
+
+    VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = NULL;
 
     VkSemaphore waitSemaphores[] = {m_ImageAvailableSemaphores[m_CurrentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -106,31 +112,29 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &uniform_command_bufffers->get_command_buffers()[imageIndex];
-
     VkSemaphore signalSemaphores[] = {m_RenderFinishedSemaphores[m_CurrentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkResetFences(logical_device->get_device(), 1, &m_InFlightFences[m_CurrentFrame]);
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &command_buffers_manager->get_command_buffers()[imageIndex];
 
+    vkResetFences(logical_device->get_device(), 1, &m_InFlightFences[m_CurrentFrame]);
     if (vkQueueSubmit(logical_device->get_graphics_queue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS)
     {
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to submit draw command buffer!");
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to submit draw command buffer!");
     }
 
+
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
     VkSwapchainKHR swapChains[] = {swapchain->get_swapchain()};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
-
     presentInfo.pImageIndices = &imageIndex;
 
     result = vkQueuePresentKHR(logical_device->get_present_queue(), &presentInfo);
@@ -205,7 +209,7 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     const uint32_t& current_image,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-    const std::shared_ptr<AgVulkanHandlerBufferManager>& uniform_buffers
+    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers
 )
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -220,7 +224,7 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     ubo.proj[1][1] *= -1;
 
     void *data;
-    vkMapMemory(logical_device->get_device(),     uniform_buffers->get_uniform_buffers_memory()[current_image], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(logical_device->get_device(), uniform_buffers->get_uniform_buffers_memory()[current_image], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(logical_device->get_device(),     uniform_buffers->get_uniform_buffers_memory()[current_image]);
+    vkUnmapMemory(logical_device->get_device(), uniform_buffers->get_uniform_buffers_memory()[current_image]);
 }

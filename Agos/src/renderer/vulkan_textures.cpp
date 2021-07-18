@@ -24,7 +24,7 @@ Agos::AgResult Agos::AgVulkanHandlerTextureManager::create_texture_image(
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
     const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
-    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager
+    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager
 )
 {
     m_LogicalDeviceReference = logical_device->get_device();
@@ -204,7 +204,7 @@ void Agos::AgVulkanHandlerTextureManager::transition_image_layout(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
-    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager,
+    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
     const VkImage& image,
     const VkFormat& format,
     const VkImageLayout& oldLayout,
@@ -270,7 +270,7 @@ void Agos::AgVulkanHandlerTextureManager::copy_buffer_to_image(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
-    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager,
+    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
     const VkBuffer& buffer,
     const VkImage& image,
     const uint32_t& width,
@@ -306,7 +306,7 @@ void Agos::AgVulkanHandlerTextureManager::generate_mipmaps(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
-    const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager,
+    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
     const VkImage& image,
     const VkFormat& imageFormat,
     const int32_t& texWidth,

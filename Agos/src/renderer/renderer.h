@@ -34,6 +34,8 @@ namespace Agos{
 
 #include <functional>
 
+#include <thread>
+
 namespace Agos
 {
 typedef class AG_API AgVulkanHandlerRenderer
@@ -59,10 +61,10 @@ private:
 
     std::vector<std::shared_ptr<AgVulkanHandlerTextureManager>> m_VulkanTextureImageManager;
     std::vector<AgModel> m_Models;
-    std::shared_ptr<AgVulkanHandlerBufferManager> m_VertexIndexUniformBuffers;
+    std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>> m_VertexIndexUniformBuffers;
+    std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
 
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
-
 
     bool m_RendererTerminated = false;
 
