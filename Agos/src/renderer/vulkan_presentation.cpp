@@ -95,7 +95,7 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
             swapchain,
             uniform_command_bufffers[i],
             renderer->m_Camera->m_CameraPosition,
-            renderer->m_Camera->m_CameraTarget,
+            renderer->m_Camera->m_CameraPosition - renderer->m_Camera->m_CameraOppositeDirection,
             // renderer->m_Camera->m_CameraUp,
             renderer->m_Camera->m_Up,
             glm::vec3(5.0f));
@@ -220,14 +220,14 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     const glm::vec3& light_position
 )
 {
+/*
     static auto startTime = std::chrono::high_resolution_clock::now();
-
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
+    // ubo.model = glm::rotate( glm::mat4(1.0f), time * glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)) );
+*/
     Agos::VulkanGraphicsPipeline::UniformBufferObject ubo{};
 
-    // ubo.model = glm::rotate( glm::mat4(1.0f), time * glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)) );
     ubo.model = glm::mat4(1.0f);
     ubo.view = glm::lookAt(camera_position, camera_target, camera_orientation);
     ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->get_swapchain_extent().width / (float)swapchain->get_swapchain_extent().height, 0.1f, 100.0f);

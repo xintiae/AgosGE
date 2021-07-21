@@ -47,18 +47,23 @@ private:
     void on_event_process(const Agos::Events::AgGLFWHandlerEvent& event);
 };  // class AgGLFWHandlerInstance
 
-class AG_API AgGLFWHandlerKeyboardEventHandler
+struct AG_API AgGLFWHandlerKeyboardEventHandler
 {
-private:
-
-public:
-    AgGLFWHandlerKeyboardEventHandler();
-    ~AgGLFWHandlerKeyboardEventHandler();
-
     static void process(
         const Agos::Events::AgGLFWEventKeyboardCallback& event,
-        AgVulkanHandlerRenderer* renderer);
+        AgVulkanHandlerRenderer* renderer
+    );
+};  // struct AgGLFWHandlerKeyboardEventHandler
 
-};  // class AgGLFWHandlerKeyboardEventHandler
+struct AG_API AgGLFWHandlerCursorPosEventHandler
+{
+    static bool firstMouse;
+    static float lastX, lastY;
+
+    static void process(
+        const Agos::Events::AgGLFWEventCursorPosCallback& event,
+        AgVulkanHandlerRenderer* renderer
+    );
+};  // struct AgGLFWHandlerKeyboardEventHandler
 
 } // namespace Agos

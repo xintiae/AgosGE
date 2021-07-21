@@ -2,8 +2,11 @@
 
 #include "Agos/src/base.h"
 
-#define AG_WINDOW_WIDTH 800
-#define AG_WINDOW_HEIGHT 600
+#define AG_DEFAUT_WINDOW_WIDTH 800
+#define AG_DEFAUT_WINDOW_HEIGHT 600
+
+#define AG_MAX_WINDOW_WIDTH 1920
+#define AG_MAX_WINDOW_HEIGHT 1280
 
 #define AG_MARK_AS_USED(X)  ( (void*)(&(X)) )
 

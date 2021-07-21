@@ -23,9 +23,8 @@ Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dex
     m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
     m_VulkanCommandBuffer                = std::make_shared<AgVulkanHandlerCommandBufferManager>();
 
-    m_VulkanPresenter               = std::make_shared<AgVulkanHandlerPresenter>();
-    // m_Camera                        = std::make_shared<AgCameraObject>(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    m_Camera                        = std::make_shared<AgCameraObject>(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f));
+    m_VulkanPresenter   = std::make_shared<AgVulkanHandlerPresenter>();
+    m_Camera            = std::make_shared<AgCameraObject>(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 Agos::AgVulkanHandlerRenderer::~AgVulkanHandlerRenderer()

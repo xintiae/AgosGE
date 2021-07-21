@@ -95,7 +95,8 @@ public:
 
     friend class AgGLFWHandlerInstance;
     friend class AgVulkanHandlerPresenter;
-    friend class AgGLFWHandlerKeyboardEventHandler;
+    friend struct AgGLFWHandlerKeyboardEventHandler;
+    friend struct AgGLFWHandlerCursorPosEventHandler;
 
 protected:
     std::shared_ptr<AgCameraObject> m_Camera;
