@@ -13,7 +13,7 @@
 
 namespace Agos {
 
-	typedef class AG_API AGSModelFile
+	class AG_API AGSModelFile
 	{
 	private:
 

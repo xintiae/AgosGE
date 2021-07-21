@@ -34,7 +34,7 @@ namespace Agos {
 		AGSFileSectionDataType(const T& data);
 	};
 
-	typedef struct AG_API AGSFileSectionDataTypeString : AGSFileSectionDataType<std::string>
+	struct AG_API AGSFileSectionDataTypeString : AGSFileSectionDataType<std::string>
 	{
 		void set_data_from_string(const std::string& data);
 		std::string convert_to_string();
@@ -43,7 +43,7 @@ namespace Agos {
 		AGSFileSectionDataTypeString(const std::string& data);
 	};
 
-	typedef struct AG_API AGSFileSectionDataTypeInt : AGSFileSectionDataType<int>
+	struct AG_API AGSFileSectionDataTypeInt : AGSFileSectionDataType<int>
 	{
 		void set_data_from_string(const std::string& data);
 		std::string convert_to_string();
@@ -52,7 +52,7 @@ namespace Agos {
 		AGSFileSectionDataTypeInt(const int& data);
 	};
 
-	typedef struct AG_API AGSFileSectionDataTypeVector2 : AGSFileSectionDataType<glm::vec2>
+	struct AG_API AGSFileSectionDataTypeVector2 : AGSFileSectionDataType<glm::vec2>
 	{
 		void set_data_from_string(const std::string& data);
 		std::string convert_to_string();
@@ -62,7 +62,7 @@ namespace Agos {
 		AGSFileSectionDataTypeVector2(const float& x, const float& y);
 	};
 
-	typedef enum AG_API AGSFileSectionType
+	enum AG_API AGSFileSectionType
 	{
 		NONE,
 		TYPE,

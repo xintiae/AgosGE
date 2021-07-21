@@ -93,7 +93,12 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
             imageIndex,
             logical_device,
             swapchain,
-            uniform_command_bufffers[i]);
+            uniform_command_bufffers[i],
+            renderer->m_Camera->m_CameraPosition,
+            renderer->m_Camera->m_CameraTarget,
+            // renderer->m_Camera->m_CameraUp,
+            renderer->m_Camera->m_Up,
+            glm::vec3(5.0f));
     }
 
     if (m_ImagesInFlight[imageIndex] != VK_NULL_HANDLE)
@@ -208,7 +213,11 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     const uint32_t& current_image,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers
+    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers,
+    const glm::vec3& camera_position,
+    const glm::vec3& camera_target,
+    const glm::vec3& camera_orientation,
+    const glm::vec3& light_position
 )
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -217,10 +226,14 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
     Agos::VulkanGraphicsPipeline::UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->get_swapchain_extent().width / (float)(swapchain->get_swapchain_extent().height), 0.1f, 10.0f);
+
+    // ubo.model = glm::rotate( glm::mat4(1.0f), time * glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)) );
+    ubo.model = glm::mat4(1.0f);
+    ubo.view = glm::lookAt(camera_position, camera_target, camera_orientation);
+    ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->get_swapchain_extent().width / (float)swapchain->get_swapchain_extent().height, 0.1f, 100.0f);
     ubo.proj[1][1] *= -1;
+
+    ubo.lightPos = light_position;
 
     void *data;
     vkMapMemory(logical_device->get_device(), uniform_buffers->get_uniform_buffers_memory()[current_image], 0, sizeof(ubo), 0, &data);

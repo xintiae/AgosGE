@@ -47,4 +47,18 @@ private:
     void on_event_process(const Agos::Events::AgGLFWHandlerEvent& event);
 };  // class AgGLFWHandlerInstance
 
+class AG_API AgGLFWHandlerKeyboardEventHandler
+{
+private:
+
+public:
+    AgGLFWHandlerKeyboardEventHandler();
+    ~AgGLFWHandlerKeyboardEventHandler();
+
+    static void process(
+        const Agos::Events::AgGLFWEventKeyboardCallback& event,
+        AgVulkanHandlerRenderer* renderer);
+
+};  // class AgGLFWHandlerKeyboardEventHandler
+
 } // namespace Agos

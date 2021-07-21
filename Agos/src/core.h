@@ -7,6 +7,27 @@
 
 #define AG_MARK_AS_USED(X)  ( (void*)(&(X)) )
 
+#define AG_DEBUG_LAYERS_ENABLED
+#define AG_ENABLE_DEBUG_VALIDATION_LAYER true
+
+// you know what that means...
+#define AG_LOGGER_TOO_MUCH_TO_SAY
+
+
+#define AG_VULKAN_MAX_FRAMES_IN_FLIGHT 2
+
+#define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
+#define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
+#define AG_SHADERS_COMPILE_ANYWAY true
+
+#define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 20
+
+#define AG_DEFAULT_MODEL_TEXTURE               "/primitives/no_textures.png"
+#define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL  "/primitives/no_textures_opacity_null.png"
+
+#define AG_AGS_MODEL_VERSION 1
+
+
 namespace Agos
 {
 typedef enum AgResult {

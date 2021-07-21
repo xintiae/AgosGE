@@ -57,8 +57,11 @@ protected:
         const uint32_t& current_image,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers);
-        
+        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers,
+        const glm::vec3& camera_position,
+        const glm::vec3& camera_look_at_position,
+        const glm::vec3& camera_orientation,
+        const glm::vec3& light_position = glm::vec3(0.0f));
 };  // class AgVulkanHandlerPresenter
 
 } // namespace Agos

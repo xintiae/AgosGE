@@ -27,20 +27,23 @@ namespace Agos{
 #include "Agos/src/renderer/vulkan_ressources.h"
 #include "Agos/src/renderer/vulkan_framebuffers.h"
 #include "Agos/src/renderer/vulkan_textures.h"
-namespace Agos{
-    struct AgModelLoader;
-    struct AgModelData;
-    struct AgModel;
-}
-#include "Agos/src/renderer/model_loader.h"
 #include "Agos/src/renderer/vulkan_buffers.h"
 namespace Agos{
     class AgVulkanHandlerPresenter;
 }
 #include "Agos/src/renderer/vulkan_presentation.h"
+namespace Agos{
+    struct AgModelLoader;
+    struct AgModelData;
+    struct AgModel;
+}
+#include "Agos/src/renderer/model.h"
+#include "Agos/src/renderer/camera.h"
+
 
 #include <functional>
 #include <thread>
+
 
 namespace Agos
 {
@@ -92,13 +95,17 @@ public:
 
     friend class AgGLFWHandlerInstance;
     friend class AgVulkanHandlerPresenter;
+    friend class AgGLFWHandlerKeyboardEventHandler;
 
 protected:
+    std::shared_ptr<AgCameraObject> m_Camera;
+
     // voids because we're throwing a std::runtime_error if something fails
-    void recreate_swapchain(const bool& mark_instances_terminated = true);
+    void recreate_swapchain(const bool& mark_instances_terminated = false);
+
+private:
     void terminate_swapchain(const bool& mark_instances_terminated = true);
     void draw_frame();
-    AgModel merge_models(const std::vector<AgModel>& models);
 };  // class AgVulkanHandlerRenderer
 
 }   // namespace Agos

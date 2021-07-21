@@ -1,6 +1,7 @@
 #include "Agos/src/renderer/renderer.h"
 
 #include "Agos/src/logger/logger.h"
+#include <chrono>
 
 Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dexode::EventBus>& event_bus)
     : m_EventBus(event_bus)
@@ -23,6 +24,8 @@ Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dex
     m_VulkanCommandBuffer                = std::make_shared<AgVulkanHandlerCommandBufferManager>();
 
     m_VulkanPresenter               = std::make_shared<AgVulkanHandlerPresenter>();
+    // m_Camera                        = std::make_shared<AgCameraObject>(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    m_Camera                        = std::make_shared<AgCameraObject>(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f));
 }
 
 Agos::AgVulkanHandlerRenderer::~AgVulkanHandlerRenderer()
@@ -257,7 +260,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instance
 
     vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
 
-    this->terminate_swapchain(false);
+    this->terminate_swapchain(mark_instances_terminated);
 
     AG_CORE_INFO("Recreating swap chain...");
     m_VulkanSwapChain->create_swap_chain(
@@ -362,6 +365,7 @@ void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instanc
 
 void Agos::AgVulkanHandlerRenderer::draw_frame()
 {
+    std::chrono::_V2::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
     glfwPollEvents();
     m_VulkanPresenter->draw_frame(
         m_VulkanLogicalDevice,
@@ -371,4 +375,5 @@ void Agos::AgVulkanHandlerRenderer::draw_frame()
         this
     );
     vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
+    this->m_Camera->calculate_adequate_camera_speed(start_time);
 }

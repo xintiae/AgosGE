@@ -5,26 +5,11 @@
  * Contains any required Agos Api members macros
 */
 
-#define AG_DEBUG_LAYERS_ENABLED
-#define AG_ENABLE_DEBUG_VALIDATION_LAYER true
-// you know what that means...
-#define AG_LOGGER_TOO_MUCH_TO_SAY
-
-#define AG_VULKAN_MAX_FRAMES_IN_FLIGHT 2
-#define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
-#define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
-#define AG_SHADERS_COMPILE_ANYWAY true
-#define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 20
-#define AG_DEFAULT_MODEL_TEXTURE_PATH               "/primitives/no_textures.png"
-#define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL_PATH  "/primitives/no_textures_opacity_null.png"
-
-// #define AGOS_COMPILED_STATIC
-#define AGOS_COMPILED_SHARED
+#define AGOS_COMPILED_STATIC
+// #define AGOS_COMPILED_SHARED
 
 #define AGOS_SYMBOLS_EXPORT
 // #define AGOS_SYMBOLS_IMPORT
-
-#define AG_AGS_MODEL_VERSION 1
 
 #if defined _WIN32 || defined __CYGWIN__
   #define AG_GLFW_INCLUDE             "GLFW/glfw3.h"
@@ -52,6 +37,8 @@
   #define AGOS_HELPER_SHARED_IMPORT __declspec(dllimport)
   #define AGOS_HELPER_SHARED_EXPORT __declspec(dllexport)
   #define AGOS_HELPER_SHARED_LOCAL
+  #define AGOS_HELPER_ATTRIBUTE_UNUSED
+
 #else
   #define AG_GLFW_INCLUDE             "GLFW/glfw3.h"
   #define AG_VULKAN_INCLUDE           "vulkan/vulkan.h"
@@ -76,13 +63,15 @@
   #define AG_SHADER_DELETE_COMPILED_SHADER_COMMAND "rm -f"
 
   #if __GNUC__ >= 4
-    #define AGOS_HELPER_SHARED_IMPORT __attribute__( (visibility ("default")) )
-    #define AGOS_HELPER_SHARED_EXPORT __attribute__( (visibility ("default")) )
-    #define AGOS_HELPER_SHARED_LOCAL  __attribute__( (visibility ("hidden"))  )
+    #define AGOS_HELPER_SHARED_IMPORT     __attribute__( (visibility ("default")) )
+    #define AGOS_HELPER_SHARED_EXPORT     __attribute__( (visibility ("default")) )
+    #define AGOS_HELPER_SHARED_LOCAL      __attribute__( (visibility ("hidden"))  )
+    #define AGOS_HELPER_ATTRIBUTE_UNUSED  __attribute__( (unused) )
   #else
     #define AGOS_HELPER_SHARED_IMPORT
     #define AGOS_HELPER_SHARED_EXPORT
     #define AGOS_HELPER_SHARED_LOCAL
+    #define AGOS_HELPER_ATTRIBUTE_UNUSED
   #endif
 #endif
 

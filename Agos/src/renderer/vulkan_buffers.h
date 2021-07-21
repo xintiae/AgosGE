@@ -28,7 +28,7 @@ namespace Agos{
 namespace Agos{
     class AgModel;
 }
-#include "Agos/src/renderer/model_loader.h"
+#include "Agos/src/renderer/model.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -38,6 +38,11 @@ namespace Agos{
 static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
 static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE   = VK_NULL_HANDLE;
 
+static inline void ag_f_cking_warning()
+{
+    AG_MARK_AS_USED(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE);
+    AG_MARK_AS_USED(AG_DEFAULT_COMMAND_POOL_REFERENCE);
+}
 
 namespace Agos
 {

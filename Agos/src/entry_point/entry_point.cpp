@@ -22,14 +22,32 @@ Agos::AgResult Agos::AgApplication::core_init_application()
 
     // setup here your data for the renderer to render OR specify which models AgosGE should load by default
     // keep in mind that your models may overlap on each others
-    m_Rendered_Models.resize(2);
-    m_Rendered_Models[0].id                     = std::move(std::string("viking_room"));
-    m_Rendered_Models[0].path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.obj"));
-    m_Rendered_Models[0].path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.png"));
 
-    m_Rendered_Models[1].id                     = std::move(std::string("arrow"));
-    m_Rendered_Models[1].path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/arrow.obj"));
-    m_Rendered_Models[1].path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE_PATH));
+    Agos::AgModel model;
+    // model.id                     = std::move(std::string("cube"));
+    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/cube.obj"));
+    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
+    // m_Rendered_Models.push_back(std::move(model));
+
+    model.id                     = std::move(std::string("axis"));
+    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/axis.obj"));
+    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
+    m_Rendered_Models.push_back(std::move(model));
+
+    model.id                     = std::move(std::string("teapot"));
+    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/teapot.obj"));
+    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
+    m_Rendered_Models.push_back(std::move(model));
+
+    // model.id                     = std::move(std::string("viking_room"));
+    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.obj"));
+    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string("/viking_room/viking_room.png"));
+    // m_Rendered_Models.push_back(std::move(model));
+
+    // model.id                     = std::move(std::string("arrow"));
+    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/wallSingle.obj"));
+    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
+    // m_Rendered_Models.push_back(std::move(model));
 
     // you have to load your models' data here
     for (size_t i = 0; i < m_Rendered_Models.size(); i++)

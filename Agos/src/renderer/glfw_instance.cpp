@@ -37,6 +37,7 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::init(
 
     glfwSetMouseButtonCallback(m_ApplicationWindow, event_handler->mouseButtonCallback);
     glfwSetCursorPosCallback(m_ApplicationWindow, event_handler->cursorPosCallback);
+    glfwSetKeyCallback(m_ApplicationWindow, event_handler->keyboardCallback);
 
     return AG_SUCCESS;
 }
@@ -91,21 +92,88 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
 {
     switch (event.type)
     {
-    case Agos::Events::framebufferResizeCallback:
-        m_RendererReference->m_FramebufferResized = true;
-        m_RendererReference->recreate_swapchain(false);
-        break;
-    
-    case Agos::Events::mouseButtonCallback:
-        // clicky stuff over here
-        break;
-    
-    case Agos::Events::cursorPosCallback:
-        // do stuff with your mouse or something...
-        break;
+        case Agos::Events::framebufferResizeCallback:
+        {
+            m_RendererReference->m_FramebufferResized = true;
+            m_RendererReference->recreate_swapchain(false);
+            break;
+        }
+        case Agos::Events::mouseButtonCallback:
+        {
+            // clicky stuff over here
+            break;
+        }
+        case Agos::Events::cursorPosCallback:
+        {
+            // do stuff with your mouse or something...
+            break;
+        }
+        case Agos::Events::keyboardCallback:
+        {
+            // ach was für Tatsatur
+            Agos::Events::AgGLFWEventKeyboardCallback* event_data = reinterpret_cast<Agos::Events::AgGLFWEventKeyboardCallback*>(event.event_data);
+            Agos::AgGLFWHandlerKeyboardEventHandler::process(*event_data, m_RendererReference);
+            break;
+        }
+        case Agos::Events::undefined:
+        {
+            AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - on_event_process] Tryied to process undefined event!");
+            break;
+        }
+    }
+}
 
+void Agos::AgGLFWHandlerKeyboardEventHandler::process(
+    const Agos::Events::AgGLFWEventKeyboardCallback& event_data,
+    AgVulkanHandlerRenderer* renderer)
+{
+    switch (event_data.key)
+    {
+    case GLFW_KEY_W:
+    {
+        renderer->m_Camera->compute_all();
+        renderer->m_Camera->m_CameraLastPosition = renderer->m_Camera->m_CameraPosition;
+        renderer->m_Camera->m_CameraPosition += renderer->m_Camera->m_CameraSpeed * (-renderer->m_Camera->m_CameraOppositeDirection);
+        renderer->m_Camera->m_CameraTarget += renderer->m_Camera->m_CameraSpeed * (-renderer->m_Camera->m_CameraOppositeDirection);
+        renderer->m_Camera->compute_all();
+        break;
+    }
+    case GLFW_KEY_S:
+    {
+        renderer->m_Camera->compute_all();
+        renderer->m_Camera->m_CameraLastPosition = renderer->m_Camera->m_CameraPosition;
+        renderer->m_Camera->m_CameraPosition -= renderer->m_Camera->m_CameraSpeed * (-renderer->m_Camera->m_CameraOppositeDirection);
+        renderer->m_Camera->m_CameraTarget -= renderer->m_Camera->m_CameraSpeed * (-renderer->m_Camera->m_CameraOppositeDirection);
+        renderer->m_Camera->compute_all();
+        break;
+    }
+    case GLFW_KEY_D:
+    {
+        renderer->m_Camera->compute_all();
+        renderer->m_Camera->m_CameraPosition += renderer->m_Camera->m_CameraRight * renderer->m_Camera->m_CameraSpeed;
+        renderer->m_Camera->m_CameraTarget += renderer->m_Camera->m_CameraRight * renderer->m_Camera->m_CameraSpeed;
+        renderer->m_Camera->compute_all();
+
+        // renderer->m_Camera->compute_all();
+        // renderer->m_Camera->m_CameraTarget += glm::normalize(renderer->m_Camera->m_CameraRight) * renderer->m_Camera->m_CameraSpeed;
+        // renderer->m_Camera->compute_all();
+        break;
+    }
+    case GLFW_KEY_A:
+    {
+        renderer->m_Camera->compute_all();
+        renderer->m_Camera->m_CameraPosition -= renderer->m_Camera->m_CameraRight * renderer->m_Camera->m_CameraSpeed;
+        renderer->m_Camera->m_CameraTarget -= renderer->m_Camera->m_CameraRight * renderer->m_Camera->m_CameraSpeed;
+        renderer->m_Camera->compute_all();
+
+        // renderer->m_Camera->compute_all();
+        // renderer->m_Camera->m_CameraTarget -= glm::normalize(renderer->m_Camera->m_CameraRight) * renderer->m_Camera->m_CameraSpeed;
+        // renderer->m_Camera->compute_all();
+        break;
+    }
+    
     default:
-        AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - on_event_process] Noticed unkown event!");
+        AG_CORE_INFO("[GLFW/AgGLFWHandlerKeyboardEventHandler - process] Unkown key pressed!");
         break;
     }
 }

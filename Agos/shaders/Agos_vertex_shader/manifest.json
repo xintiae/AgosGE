@@ -1,6 +1,6 @@
 {
     "type" : "vertex",
-    "id" : "shader.vert",
-    "id_compiled" : "vert.spv",
-    "compile" : "glslc -o vert.spv shader.vert"
+    "id" : "basic_shader.vert",
+    "id_compiled" : "basic_vert.spv",
+    "compile" : "glslc -o basic_vert.spv basic_shader.vert"
 }

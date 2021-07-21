@@ -25,5 +25,6 @@ target_include_directories(Agos PUBLIC  ${CMAKE_SOURCE_DIR}
 target_compile_definitions(Agos PUBLIC -DAG_SHADERS_PATH="${CMAKE_SOURCE_DIR}/Agos/shaders" -DAG_MODELS_PATH="${CMAKE_SOURCE_DIR}/Agos/models")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC -fvisibility=hidden")
+#    set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-fPIC -fvisibility=hidden")
+    set_target_properties(Agos PROPERTIES COMPILE_FLAGS "-Wall -Wextra -Wno-unused-function -fPIC -fvisibility=hidden")
 endif()

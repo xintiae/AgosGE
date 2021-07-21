@@ -140,7 +140,7 @@ std::vector<const char *> Agos::AgVulkanHandlerDebugLayersManager::get_required_
     return extensions;
 }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL Agos::ag_debug_callback(
+inline static VKAPI_ATTR VkBool32 VKAPI_CALL Agos::ag_debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
@@ -174,7 +174,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL Agos::ag_debug_callback(
     return VK_FALSE;
 }
 
-static std::string Agos::ag_debug_callback_message_type(const VkDebugUtilsMessageTypeFlagsEXT& messageType)
+inline static std::string Agos::ag_debug_callback_message_type(const VkDebugUtilsMessageTypeFlagsEXT& messageType)
 {
     switch (messageType)
     {

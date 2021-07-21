@@ -15,36 +15,46 @@ namespace Events
 typedef int AgGLFWHandlerMouseButton;
 typedef int AgGLFWHandlerMouseAction;
 
-typedef enum AgGLFWHandlerEventType : uint8_t {
+enum AgGLFWHandlerEventType : uint8_t {
     undefined                   = 0,
     framebufferResizeCallback   = 1,
     cursorPosCallback           = 2,
-    mouseButtonCallback         = 3
-} AgGLFWHandlerEventType;
+    mouseButtonCallback         = 3,
+    keyboardCallback            = 4
+};  // enum AgGLFWHandlerEventType
 
-typedef struct AG_API AgGLFWEventFramebufferResizeCallback {
+struct AG_API AgGLFWEventFramebufferResizeCallback {
     GLFWwindow* window;
     int new_width;
     int new_height;
-} AgGLFWHandlerEventFramebufferResizeCallback;
+};  // struct AgGLFWHandlerEventFramebufferResizeCallback
 
-typedef struct AG_API AgGLFWEventCursorPosCallback {
+struct AG_API AgGLFWEventCursorPosCallback {
     GLFWwindow* window;
     double xpos;
     double ypos;
-} AgGLFWHandlerEventCursorPosCallback;
+};  // struct AgGLFWHandlerEventCursorPosCallback;
 
-typedef struct AG_API AgGLFWEventMouseButtonCallback {
+struct AG_API AgGLFWEventMouseButtonCallback {
     GLFWwindow* window;
     AgGLFWHandlerMouseButton button;
     AgGLFWHandlerMouseAction action;
-} AgGLFWHandlerEventMouseButtonCallback;
+};  // struct AgGLFWHandlerEventMouseButtonCallback;
 
-typedef struct AG_API AgGLFWHandlerEvent
+struct AG_API AgGLFWEventKeyboardCallback {
+    GLFWwindow* window; 
+    int key;
+    int scancode;
+    int action;
+    int mods;
+};  // struct AgGLFWEventKeyboardCallback
+
+
+struct AG_API AgGLFWHandlerEvent
 {
     AgGLFWHandlerEventType type = AgGLFWHandlerEventType::undefined;
     void* event_data;
-} AgGLFWHandlerEvent;
+};  // struct AgGLFWHandlerEvent
 }   // namespace Events (within namespace Agos)
 
 
@@ -60,6 +70,7 @@ public:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
     static void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 } AgGLFWHandlerEvents;
 
 } // namespace Agos
