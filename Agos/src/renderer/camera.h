@@ -35,7 +35,7 @@ struct AG_API AgCameraObject
         const glm::vec3& camera_direction,
         const float& camera_speed = AG_CAMERA_DEFAULT_ABSOLUTE_SPEED,
         const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f),
-        const float& init_yaw = -90.0f,
+        const float& init_yaw = 0.0f,
         const float& init_pitch = 0.0f);
     ~AgCameraObject();
 

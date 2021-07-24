@@ -37,7 +37,8 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::init(
 
     glfwSetMouseButtonCallback(m_ApplicationWindow, event_handler->mouseButtonCallback);
     glfwSetCursorPosCallback(m_ApplicationWindow, event_handler->cursorPosCallback);
-    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    m_CursorState = GLFW_CURSOR_DISABLED;
     glfwSetKeyCallback(m_ApplicationWindow, event_handler->keyboardCallback);
 
     return AG_SUCCESS;
@@ -89,6 +90,11 @@ VkSurfaceKHR& Agos::AgGLFWHandlerInstance::get_surface()
     return m_ApplicationSurface;
 }
 
+size_t& Agos::AgGLFWHandlerInstance::get_cursor_state()
+{
+    return m_CursorState;
+}
+
 void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHandlerEvent& event)
 {
     switch (event.type)
@@ -113,7 +119,7 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
         case Agos::Events::keyboardCallback:
         {
             Agos::Events::AgGLFWEventKeyboardCallback* event_data = reinterpret_cast<Agos::Events::AgGLFWEventKeyboardCallback*>(event.event_data);
-            Agos::AgGLFWHandlerKeyboardEventHandler::process(*event_data, m_RendererReference);
+            Agos::AgGLFWHandlerKeyboardEventHandler::process(*event_data, this, m_RendererReference);
             break;
         }
         case Agos::Events::undefined:
@@ -126,6 +132,7 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
 
 void Agos::AgGLFWHandlerKeyboardEventHandler::process(
     const Agos::Events::AgGLFWEventKeyboardCallback& event_data,
+    AgGLFWHandlerInstance* glfw_instance,
     AgVulkanHandlerRenderer* renderer)
 {
     switch (event_data.key)
@@ -152,6 +159,20 @@ void Agos::AgGLFWHandlerKeyboardEventHandler::process(
     {
         renderer->m_Camera->compute_camera_basis();
         renderer->m_Camera->m_CameraPosition -= renderer->m_Camera->m_CameraRight * renderer->m_Camera->m_CameraSpeed;
+        break;
+    }
+    case GLFW_KEY_Z:
+    {
+        if (glfw_instance->get_cursor_state() == GLFW_CURSOR_DISABLED)
+        {
+            glfwSetInputMode(glfw_instance->get_window(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfw_instance->get_cursor_state() = GLFW_CURSOR_NORMAL;
+        }
+        else if (glfw_instance->get_cursor_state() == GLFW_CURSOR_NORMAL)
+        {
+            glfwSetInputMode(glfw_instance->get_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfw_instance->get_cursor_state() = GLFW_CURSOR_DISABLED;
+        }
         break;
     }
     

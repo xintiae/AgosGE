@@ -2,19 +2,19 @@
 
 #include "Agos/src/logger/logger.h"
 #include "Agos/src/renderer/vulkan_descriptor.h"
+
 #include AG_GLM_INCLUDE
-#include <chrono>
 
 extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
 
 
 Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter()
-    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CurrentFrame(0)
+    : m_CurrentFrame(0), m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
 Agos::AgVulkanHandlerPresenter::AgVulkanHandlerPresenter(VkDevice& logical_device)
-    : m_LogicalDeviceReference(logical_device), m_CurrentFrame(0)
+    : m_CurrentFrame(0), m_LogicalDeviceReference(logical_device)
 {
 }
 
@@ -59,7 +59,8 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::create_semaphores_fences_objs(
 Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-    const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniform_command_bufffers,
+    const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_uniform_command_bufffers,
+    const std::vector<AgModel>& models,
     const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager,
     AgVulkanHandlerRenderer* renderer
 )
@@ -87,19 +88,15 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
     }
 
-    for (size_t i = 0; i < uniform_command_bufffers.size(); i++)
-    {
-        update_uniform_buffer(
-            imageIndex,
-            logical_device,
-            swapchain,
-            uniform_command_bufffers[i],
-            renderer->m_Camera->m_CameraPosition,
-            renderer->m_Camera->m_CameraPosition - renderer->m_Camera->m_CameraOppositeDirection,
-            // renderer->m_Camera->m_CameraUp,
-            renderer->m_Camera->m_Up,
-            glm::vec3(5.0f));
-    }
+    update_uniform_buffer(
+        imageIndex,
+        logical_device,
+        swapchain,
+        models_uniform_command_bufffers,
+        renderer->m_Camera->m_CameraPosition,
+        renderer->m_Camera->m_CameraPosition - renderer->m_Camera->m_CameraOppositeDirection,
+        renderer->m_Camera->m_Up,
+        models);
 
     if (m_ImagesInFlight[imageIndex] != VK_NULL_HANDLE)
     {
@@ -213,30 +210,69 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     const uint32_t& current_image,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-    const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers,
+    const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniforms_buffers,
     const glm::vec3& camera_position,
     const glm::vec3& camera_target,
     const glm::vec3& camera_orientation,
-    const glm::vec3& light_position
+    const std::vector<AgModel>& models
 )
 {
-/*
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-    // ubo.model = glm::rotate( glm::mat4(1.0f), time * glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)) );
-*/
     Agos::VulkanGraphicsPipeline::UniformBufferObject ubo{};
 
+    // * "I'm an uniform MVP "
     ubo.model = glm::mat4(1.0f);
     ubo.view = glm::lookAt(camera_position, camera_target, camera_orientation);
-    ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->get_swapchain_extent().width / (float)swapchain->get_swapchain_extent().height, 0.1f, 100.0f);
+    ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->get_swapchain_extent().width / (float)swapchain->get_swapchain_extent().height, 0.0625f, 500.0f);
     ubo.proj[1][1] *= -1;
 
-    ubo.lightPos = light_position;
+    std::vector<size_t> light_models;
+    Agos::AgModelExtensionDataLight* extension_data;
+    bool no_light_source_among_models = true;
 
-    void *data;
-    vkMapMemory(logical_device->get_device(), uniform_buffers->get_uniform_buffers_memory()[current_image], 0, sizeof(ubo), 0, &data);
-    memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(logical_device->get_device(), uniform_buffers->get_uniform_buffers_memory()[current_image]);
+    light_models.reserve(models.size());
+    for (size_t i = 0; i < models.size(); i++)
+    {
+        if (models[i].extension_type == Agos::AgModelExtensionDataType::light_source)
+        {
+            light_models.push_back(i);
+            no_light_source_among_models = false;
+        }
+    }
+    light_models.shrink_to_fit();
+
+    if (no_light_source_among_models)
+    {
+        extension_data = new(Agos::AgModelExtensionDataLight);
+        extension_data->light_position   = glm::vec3(1.0f);
+        extension_data->light_color      = glm::vec3(1.0f, 0.0f, 0.0f);
+    }
+    else
+    {
+        extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(models[light_models[0]].pExtensionData);
+    }
+
+    for (size_t model = 0; model < models.size(); model++)
+    {
+        // - "all that glitters is _a light source_ " 
+        if (models[model].extension_type == Agos::AgModelExtensionDataType::light_source)
+        {
+            ubo.lightPos    = extension_data->light_position;
+            ubo.lightColor  = extension_data->light_color * 1.0f/0.125f;    // see float ambientStrengt = 0.125f in basic_shader.frag
+        }
+        else
+        {
+            ubo.lightPos    = extension_data->light_position;
+            ubo.lightColor  = extension_data->light_color;
+        }
+
+        void *data;
+        vkMapMemory(logical_device->get_device(), uniforms_buffers[model]->get_uniform_buffers_memory()[current_image], 0, sizeof(ubo), 0, &data);
+        memcpy(data, &ubo, sizeof(ubo));
+        vkUnmapMemory(logical_device->get_device(), uniforms_buffers[model]->get_uniform_buffers_memory()[current_image]);
+    }
+
+    if (no_light_source_among_models)
+    {
+        delete (extension_data);
+    }
 }

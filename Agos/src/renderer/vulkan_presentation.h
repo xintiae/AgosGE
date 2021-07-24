@@ -9,6 +9,7 @@ namespace Agos{
     class AgVulkanHandlerCommandBufferManager;
 }
 #include "Agos/src/renderer/vulkan_buffers.h"
+#include "Agos/src/renderer/model.h"
 
 #include AG_VULKAN_INCLUDE
 #include <cstdint>
@@ -41,6 +42,7 @@ public:
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniform_command_bufffers,
+        const std::vector<AgModel>& models,
         const std::shared_ptr<AgVulkanHandlerCommandBufferManager>& command_buffers_manager,
         AgVulkanHandlerRenderer* renderer);
     AgResult terminate_semaphores_fences_objs();
@@ -57,11 +59,11 @@ protected:
         const uint32_t& current_image,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& uniform_buffers,
+        const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& uniforms_buffers,
         const glm::vec3& camera_position,
-        const glm::vec3& camera_look_at_position,
+        const glm::vec3& camera_target,
         const glm::vec3& camera_orientation,
-        const glm::vec3& light_position = glm::vec3(0.0f));
+        const std::vector<AgModel>& models);
 };  // class AgVulkanHandlerPresenter
 
 } // namespace Agos

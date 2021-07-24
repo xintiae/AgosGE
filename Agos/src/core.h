@@ -2,6 +2,12 @@
 
 #include "Agos/src/base.h"
 
+#define AG_MAKE_VERSION(major, minor, patch)\
+    ((uint32_t)(major << 28) | (uint32_t)(minor << 14) | (uint32_t)(patch << 0))
+#define AG_CURRENT_VERSION      AG_MAKE_VERSION(1, 0, 0)
+#define AG_AGS_MODEL_VERSION    1
+
+
 #define AG_DEFAUT_WINDOW_WIDTH 800
 #define AG_DEFAUT_WINDOW_HEIGHT 600
 
@@ -23,13 +29,10 @@
 #define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
 #define AG_SHADERS_COMPILE_ANYWAY true
 
-#define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 20
+#define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 100
 
 #define AG_DEFAULT_MODEL_TEXTURE               "/primitives/no_textures.png"
 #define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL  "/primitives/no_textures_opacity_null.png"
-
-#define AG_AGS_MODEL_VERSION 1
-
 
 namespace Agos
 {

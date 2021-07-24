@@ -68,11 +68,13 @@ private:
     std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager> m_VulkanColorDepthRessourcesManager;
     std::shared_ptr<AgVulkanHandlerFramebuffers> m_VulkanSwapChainFrameBuffersManager;
 
+    // all those three helpers are models-dependent
     std::vector<std::shared_ptr<AgVulkanHandlerTextureManager>> m_VulkanTextureImageManager;
     std::vector<AgModel> m_Models;
     std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>> m_VertexIndexUniformBuffers;
-    std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
 
+
+    std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
 
     bool m_FramebufferResized = false;

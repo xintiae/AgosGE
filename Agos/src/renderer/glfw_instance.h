@@ -23,6 +23,8 @@ private:
     GLFWwindow* m_ApplicationWindow;
     VkSurfaceKHR m_ApplicationSurface;
 
+    size_t m_CursorState;
+
     AgVulkanHandlerRenderer* m_RendererReference;
 
     bool m_ApplicationSurfaceTerminated = false;
@@ -43,6 +45,8 @@ public:
 
     GLFWwindow*& get_window();
     VkSurfaceKHR& get_surface();
+
+    size_t& get_cursor_state();
 private:
     void on_event_process(const Agos::Events::AgGLFWHandlerEvent& event);
 };  // class AgGLFWHandlerInstance
@@ -50,7 +54,8 @@ private:
 struct AG_API AgGLFWHandlerKeyboardEventHandler
 {
     static void process(
-        const Agos::Events::AgGLFWEventKeyboardCallback& event,
+        const Agos::Events::AgGLFWEventKeyboardCallback& event_data,
+        AgGLFWHandlerInstance* glfw_instance,
         AgVulkanHandlerRenderer* renderer
     );
 };  // struct AgGLFWHandlerKeyboardEventHandler

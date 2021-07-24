@@ -24,7 +24,7 @@ Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dex
     m_VulkanCommandBuffer                = std::make_shared<AgVulkanHandlerCommandBufferManager>();
 
     m_VulkanPresenter   = std::make_shared<AgVulkanHandlerPresenter>();
-    m_Camera            = std::make_shared<AgCameraObject>(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    m_Camera            = std::make_shared<AgCameraObject>(glm::vec3(-5.0f, 5.0f, 5.0f), -glm::vec3(1.0f, -1.0f, -1.0f));
 }
 
 Agos::AgVulkanHandlerRenderer::~AgVulkanHandlerRenderer()
@@ -99,8 +99,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
     m_VulkanGraphicsCommandPoolManager->create_command_pool(
         m_GLFWInstance,
         m_VulkanPhysicalDevice,
-        m_VulkanLogicalDevice,
-        m_VulkanSwapChain
+        m_VulkanLogicalDevice
     );
     AG_CORE_WARN("Creating color and depths ressources...");
     m_VulkanColorDepthRessourcesManager->create_color_ressources(
@@ -370,6 +369,7 @@ void Agos::AgVulkanHandlerRenderer::draw_frame()
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
         m_VertexIndexUniformBuffers,
+        m_Models,
         m_VulkanCommandBuffer,
         this
     );

@@ -8,7 +8,7 @@ Agos::AgCameraObject::AgCameraObject(
     const float& init_yaw,
     const float& init_pitch)
     : m_CameraPosition              (camera_pos),
-    m_CameraOppositeDirection       (camera_direction),
+    m_CameraOppositeDirection       (glm::normalize(camera_direction)),
     m_Up                            (up),
     m_CameraRight                   ( glm::normalize(glm::cross(m_Up, m_CameraOppositeDirection)) ),
     m_CameraUp                      ( glm::normalize(glm::cross(m_CameraOppositeDirection, m_CameraRight)) ),

@@ -20,19 +20,19 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
     vec3 lightPos;
+    vec3 lightColor;
 } ubo;
 
 
 void main()
 {
     gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-    fragColor = inColor;
+    fragColor = inColor * ubo.lightColor;
     fragTexCoord = inTexCoord;
-
 
     vec4 worldPos = ubo.model * vec4(inPosition, 1.0);
 
     fragNormal = mat3(ubo.model) * inNormal;
     fragView = (ubo.view * worldPos).xyz;
-    fragLight = ubo.lightPos - vec3(worldPos);
+    fragLight = (ubo.lightPos - vec3(worldPos));
 }

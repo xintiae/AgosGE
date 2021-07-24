@@ -105,7 +105,8 @@ Agos::AgResult Agos::AgVulkanHandlerDescriptorManager::create_descriptor_sets(
 
     m_DescriptorsSets.resize(model_index + 1);
     m_DescriptorsSets[model_index].resize(swapchain->get_swapchain_images().size());
-    if (vkAllocateDescriptorSets(logical_device->get_device(), &allocInfo, m_DescriptorsSets[model_index].data()) != VK_SUCCESS)
+    VkResult allocResult = vkAllocateDescriptorSets(logical_device->get_device(), &allocInfo, m_DescriptorsSets[model_index].data());
+    if (allocResult != VK_SUCCESS)
     {
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerDescriptorManager - create_descriptor_sets] Failed to allocate descriptor sets!");
         return AG_FAILED_TO_ALLOCATE_DESCRIPTOR_SETS;
