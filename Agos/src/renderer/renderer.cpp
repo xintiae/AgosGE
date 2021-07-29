@@ -363,7 +363,7 @@ void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instanc
 
 void Agos::AgVulkanHandlerRenderer::draw_frame()
 {
-    std::chrono::_V2::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
     glfwPollEvents();
     m_VulkanPresenter->draw_frame(
         m_VulkanLogicalDevice,
