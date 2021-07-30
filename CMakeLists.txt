@@ -22,43 +22,58 @@ set(LIBRARY_OUTPUT_PATH lib)
 
 file(GLOB_RECURSE AGOSGE_CPPS examples/*.cpp examples/*/*.cpp)
 
-add_executable(AgosGE "${AGOSGE_CPPS}")
-
-target_link_libraries(AgosGE PRIVATE Agos)
-target_link_directories(AgosGE PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_BINARY_DIR}) 
-target_include_directories(AgosGE PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(AgosGE PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/Agos ${CMAKE_SOURCE_DIR}/Agos/vendor ${PROJECT_BINARY_DIR})
-
-set_target_properties(AgosGE PROPERTIES LINKER_LANGUAGE CXX)
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	set_target_properties(AgosGE PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
-
-    find_package(glfw3 3.3 REQUIRED)
-    target_include_directories(AgosGE PRIVATE glfw3::glfw)
-    target_link_libraries(AgosGE PRIVATE glfw)
-else()
-    add_subdirectory(Agos/vendor/GLFW)
-
-    set( ENKITS_BUILD_EXAMPLES OFF CACHE BOOL "Build basic example applications" )
-    set( GLFW_BUILD_EXAMPLES OFF CACHE BOOL  "GLFW lib only" )
-    set( GLFW_BUILD_TESTS OFF CACHE BOOL  "GLFW lib only" )
-    set( GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only" )
-    set( GLFW_BUILD_INSTALL OFF CACHE BOOL  "GLFW lib only" )
-
-    include_directories("Agos/vendor/GLFW/include")
-    target_link_libraries(AgosGE PUBLIC glfw)
-endif()
-
 find_package(OpenGL REQUIRED)
-target_include_directories(AgosGE PRIVATE OpenGL::GL)
-target_link_libraries(AgosGE PRIVATE OpenGL::GL)
-
 find_package(Vulkan REQUIRED)
-target_include_directories(AgosGE PRIVATE ${Vulkan_INCLUDE_DIR})
-target_link_libraries(AgosGE PRIVATE ${Vulkan_LIBRARIES})
-
 find_package(Threads REQUIRED)
-target_link_libraries(AgosGE PUBLIC Threads::Threads)
 
-target_link_libraries(AgosGE PRIVATE Dexode::EventBus)
+add_subdirectory(Agos/vendor/GLFW)
+
+foreach(EXECS ${AGOSGE_CPPS})
+
+    # Not yet used because it doesn't remove the filename extension
+    #if(${CMAKE_VERSION} VERSION_LESS "3.20.0") 
+    #    message("Please consider to switch to CMake 3.20.0")
+    #else()
+    #    cmake_path(GET EXECS FILENAME EXEC_NAME)
+    #endif()
+    
+    get_filename_component(EXEC_NAME "${EXECS}" NAME_WE)
+    
+    add_executable(${EXEC_NAME} ${EXECS})
+    
+    target_link_libraries(${EXEC_NAME} PRIVATE Agos)
+    target_link_directories(${EXEC_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${PROJECT_BINARY_DIR}) 
+    target_include_directories(${EXEC_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_include_directories(${EXEC_NAME} PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/Agos ${CMAKE_SOURCE_DIR}/Agos/vendor ${PROJECT_BINARY_DIR})
+
+    set_target_properties(${EXEC_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	    set_target_properties(${EXEC_NAME} PROPERTIES COMPILE_FLAGS "-Wall -Wextra -fPIC")
+
+        find_package(glfw3 3.3 REQUIRED)
+        target_include_directories(${EXEC_NAME} PRIVATE glfw3::glfw)
+        target_link_libraries(${EXEC_NAME} PRIVATE glfw)
+    else()
+       
+        set( ENKITS_BUILD_EXAMPLES OFF CACHE BOOL "Build basic example applications" )
+        set( GLFW_BUILD_EXAMPLES OFF CACHE BOOL  "GLFW lib only" )
+        set( GLFW_BUILD_TESTS OFF CACHE BOOL  "GLFW lib only" )
+        set( GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only" )
+        set( GLFW_BUILD_INSTALL OFF CACHE BOOL  "GLFW lib only" )
+
+        include_directories("Agos/vendor/GLFW/include")
+        target_link_libraries(${EXEC_NAME} PUBLIC glfw)
+    endif()
+    
+    target_include_directories(${EXEC_NAME} PRIVATE OpenGL::GL)
+    target_link_libraries(${EXEC_NAME} PRIVATE OpenGL::GL)
+
+    target_include_directories(${EXEC_NAME} PRIVATE ${Vulkan_INCLUDE_DIR})
+    target_link_libraries(${EXEC_NAME} PRIVATE ${Vulkan_LIBRARIES})
+
+    target_link_libraries(${EXEC_NAME} PUBLIC Threads::Threads)
+
+    target_link_libraries(${EXEC_NAME} PRIVATE Dexode::EventBus)
+
+endforeach()
