@@ -4,6 +4,13 @@
 #include "Agos/src/base.h"
 
 #include AG_EVENTBUS_INCLUDE
+#include AG_GLFW_INCLUDE
+#include AG_VULKAN_INCLUDE
+
+// see file Agos/src/renderer/vulkan_buffers.cpp
+// static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
+// static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE = VK_NULL_HANDLE;
+
 
 namespace Agos{
     class AgGLFWHandlerInstance;
@@ -20,22 +27,27 @@ namespace Agos{
 #include "Agos/src/renderer/vulkan_ressources.h"
 #include "Agos/src/renderer/vulkan_framebuffers.h"
 #include "Agos/src/renderer/vulkan_textures.h"
-namespace Agos{
-    struct AgModelLoader;
-    struct AgVertexIndexHolder;
-}
-#include "Agos/src/renderer/model_loader.h"
 #include "Agos/src/renderer/vulkan_buffers.h"
 namespace Agos{
     class AgVulkanHandlerPresenter;
 }
 #include "Agos/src/renderer/vulkan_presentation.h"
+namespace Agos{
+    struct AgModelLoader;
+    struct AgModelData;
+    struct AgModel;
+}
+#include "Agos/src/renderer/model.h"
+#include "Agos/src/renderer/camera.h"
+
 
 #include <functional>
+#include <thread>
+
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerRenderer
+class AG_API AgVulkanHandlerRenderer
 {
 private:
     std::shared_ptr<dexode::EventBus> m_EventBus;
@@ -56,12 +68,16 @@ private:
     std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager> m_VulkanColorDepthRessourcesManager;
     std::shared_ptr<AgVulkanHandlerFramebuffers> m_VulkanSwapChainFrameBuffersManager;
 
-    std::shared_ptr<AgVulkanHandlerTextureManager> m_VulkanTextureImageManager;
-    std::shared_ptr<std::pair<AgModelLoader, AgVertexIndexHolder>> m_Model;
-    std::shared_ptr<AgVulkanHandlerBufferManager> m_VertexIndexUniformBuffers;
+    // all those three helpers are models-dependent
+    std::vector<std::shared_ptr<AgVulkanHandlerTextureManager>> m_VulkanTextureImageManager;
+    std::vector<AgModel> m_Models;
+    std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>> m_VertexIndexUniformBuffers;
 
+
+    std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
 
+    bool m_FramebufferResized = false;
     bool m_RendererTerminated = false;
 
 public:
@@ -73,19 +89,43 @@ public:
     AgVulkanHandlerRenderer& operator=(const AgVulkanHandlerRenderer& other)    = delete;
     AgVulkanHandlerRenderer& operator=(AgVulkanHandlerRenderer&& other)         = delete;
 
-    AgResult init_vulkan();
-    // template <typename __Function_Signature>
-    // AgResult run(const std::function<__Function_Signature>& to_do);     // our main loop
-    AgResult run();
+    AgResult init_vulkan(const std::vector<AgModel>& to_render_models);
+    template <typename __Function_Signature>
+    AgResult run(const std::function<__Function_Signature>& to_do);     // our main loop
     AgResult terminate_vulkan();
     AgResult terminate();
 
     friend class AgGLFWHandlerInstance;
+    friend class AgVulkanHandlerPresenter;
+    friend struct AgGLFWHandlerKeyboardEventHandler;
+    friend struct AgGLFWHandlerCursorPosEventHandler;
 
 protected:
+    std::shared_ptr<AgCameraObject> m_Camera;
+
     // voids because we're throwing a std::runtime_error if something fails
-    void recreate_swapchain();
-    void terminate_swapchain();
-} AgVulkanHandlerRenderer;
+    void recreate_swapchain(const bool& mark_instances_terminated = false);
+
+private:
+    void terminate_swapchain(const bool& mark_instances_terminated = true);
+    void draw_frame();
+};  // class AgVulkanHandlerRenderer
 
 }   // namespace Agos
+
+/* * * * * * * template member function Agos::AgVulkanHandlerRenderer::run definition * * * * * * */
+
+template <typename __Function_Signature>
+Agos::AgResult Agos::AgVulkanHandlerRenderer::run(
+    const std::function<__Function_Signature>& to_do)
+{
+    while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
+    {
+        this->draw_frame();
+        // https://www.youtube.com/watch?v=NzishIREebw
+        to_do();
+    }
+
+    return AG_SUCCESS;
+}
+

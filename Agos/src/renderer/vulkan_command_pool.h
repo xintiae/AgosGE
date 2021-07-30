@@ -12,7 +12,7 @@
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerCommandPoolManager
+class AG_API AgVulkanHandlerCommandPoolManager
 {
 private:
     VkCommandPool m_CommandPool;
@@ -28,12 +28,11 @@ public:
     AgResult create_command_pool(
         const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance,
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
-        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
-        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device);
     AgResult terminate();
 
     VkCommandPool& get_command_pool();
-};
+};  // class AgVulkanHandlerCommandPoolManager
 
 }   // namespace Agos
 

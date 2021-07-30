@@ -41,13 +41,13 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 	file_type.add_data(std::string("model"));
 
 	// Add the current version of the AGS Model Format
-	AGSFileSection version = AGSFileSection<AGSFileSectionDataTypeInt>{ VERSION };
+	AGSFileSection version = AGSFileSection<AGSFileSectionDataTypeInt>{ VERSION, std::vector<std::shared_ptr<AGSFileSectionDataTypeInt>>() };
 	version.add_data(AG_AGS_MODEL_VERSION);
 
-	AGSFileSection vertices = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES };
-	AGSFileSection vertex_textures = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES_TEXTURES };
-	AGSFileSection vertices_normals = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES_NORMALS };
-	AGSFileSection faces = AGSFileSection<AGSFileSectionDataTypeString>{ FACES };
+	AGSFileSection vertices = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
+	AGSFileSection vertex_textures = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES_TEXTURES, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
+	AGSFileSection vertices_normals = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES_NORMALS, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
+	AGSFileSection faces = AGSFileSection<AGSFileSectionDataTypeString>{ FACES, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
 
 	// Loop through every line of the file
 	while (std::getline(in_stream, line)) {

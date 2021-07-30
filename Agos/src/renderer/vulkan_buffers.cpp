@@ -2,32 +2,22 @@
 
 #include "Agos/src/logger/logger.h"
 
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager()
-    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
+Agos::AgVulkanHandlerVIUBufferManager::AgVulkanHandlerVIUBufferManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
 }
 
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(VkDevice& logical_device)
-    : m_LogicalDeviceReference(logical_device), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
+Agos::AgVulkanHandlerVIUBufferManager::AgVulkanHandlerVIUBufferManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device)
 {
 }
 
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(VkCommandPool& command_pool)
-    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(command_pool)
-{
-}
-
-Agos::AgVulkanHandlerBufferManager::AgVulkanHandlerBufferManager(VkDevice& logical_device, VkCommandPool& command_pool)
-    : m_LogicalDeviceReference(logical_device), m_CommandPoolReference(command_pool)
-{
-}
-
-Agos::AgVulkanHandlerBufferManager::~AgVulkanHandlerBufferManager()
+Agos::AgVulkanHandlerVIUBufferManager::~AgVulkanHandlerVIUBufferManager()
 {
     terminate();
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_vertex_buffer(
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::create_vertex_buffer(
     const std::vector<Agos::VulkanGraphicsPipeline::Vertex>& vertices,
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
@@ -77,11 +67,11 @@ Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_vertex_buffer(
     vkDestroyBuffer(logical_device->get_device(), stagingBuffer, nullptr);
     vkFreeMemory(logical_device->get_device(), stagingBufferMemory, nullptr);
 
-    AG_CORE_INFO("[Vulkan/AgVulkanHandlerBufferManager - create_vertex_buffer] Created vertex buffer!");
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_vertex_buffer] Created vertex buffer!");
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_index_buffer(
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::create_index_buffer(
     const std::vector<uint32_t>& indices,
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
@@ -131,11 +121,11 @@ Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_index_buffer(
     vkDestroyBuffer(logical_device->get_device(), stagingBuffer, nullptr);
     vkFreeMemory(logical_device->get_device(), stagingBufferMemory, nullptr);
 
-    AG_CORE_INFO("[Vulkan/AgVulkanHandlerBufferManager - create_index_buffer] Created index buffer!");
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_index_buffer] Created index buffer!");
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_uniform_buffers(
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::create_uniform_buffers(
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
@@ -161,121 +151,37 @@ Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_uniform_buffers(
             m_UniformBuffers[i],
             m_UniformBuffersMemory[i]);
     }
-    AG_CORE_INFO("[Vulkan/AgVulkanHandlerBufferManager - create_uniform_buffer] Created uniform buffer!");
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_uniform_buffer] Created uniform buffer!");
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::create_command_buffers(
-    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
-    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-    const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-    const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
-    const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
-    const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
-    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
-    const std::vector<uint32_t>& indices
-)
-{
-    m_LogicalDeviceReference = logical_device->get_device();
-    m_CommandPoolReference = command_pool_manager->get_command_pool();
-
-    m_CommandBuffers.resize(framebuffers_manager->get_swapchain_framebuffers().size());
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = command_pool_manager->get_command_pool();
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
-
-    if (vkAllocateCommandBuffers(logical_device->get_device(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
-
-    for (size_t i = 0; i < m_CommandBuffers.size(); i++)
-    {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        if (vkBeginCommandBuffer(m_CommandBuffers[i], &beginInfo) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to begin recording command buffer!");
-        }
-
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = render_pass->get_render_pass();
-        renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[i];
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
-
-        std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
-        clearValues[1].depthStencil = {1.0f, 0};
-
-        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassInfo.pClearValues = clearValues.data();
-
-        vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        vkCmdBindPipeline(m_CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_manager->get_graphics_pipeline());
-
-        VkBuffer vertexBuffers[] = {m_VertexBuffer};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(m_CommandBuffers[i], 0, 1, vertexBuffers, offsets);
-
-        vkCmdBindIndexBuffer(m_CommandBuffers[i], m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-        vkCmdBindDescriptorSets(
-            m_CommandBuffers[i],
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphics_pipeline_manager->get_graphics_pipeline_layout(),
-            0, 1,
-            &descriptor_manager->get_descriptor_sets()[i],
-            0, nullptr);
-
-        vkCmdDrawIndexed(m_CommandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
-        vkCmdEndRenderPass(m_CommandBuffers[i]);
-
-        if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS)
-        {
-            AG_CORE_CRITICAL("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
-            throw std::runtime_error("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
-        }
-    }
-
-    AG_CORE_INFO("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Recored command buffers");
-    return AG_SUCCESS;
-}
-
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::terminate_vertex_buffer()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_vertex_buffer(const bool& mark_as_terminated)
 {
     if (!m_VertexBufferTerminated)
     {
         vkDestroyBuffer(m_LogicalDeviceReference, m_VertexBuffer, nullptr);
         vkFreeMemory(m_LogicalDeviceReference, m_VertexBufferMemory, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_vertex_buffer] Destroyed vertex buffer; freed vertex buffer memory!");
-        m_VertexBufferTerminated = true;
+        m_VertexBufferTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_VERTEX_BUFFER_ALREADY_FREED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::terminate_index_buffer()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_index_buffer(const bool& mark_as_terminated)
 {
     if (!m_IndexBufferTerminated)
     {
         vkDestroyBuffer(m_LogicalDeviceReference, m_IndexBuffer, nullptr);
         vkFreeMemory(m_LogicalDeviceReference, m_IndexBufferMemory, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_index_buffer] Destroyed index buffer; freed index buffer memory!");
-        m_IndexBufferTerminated = true;
+        m_IndexBufferTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INDEX_BUFFER_ALREADY_FREED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::terminate_uniform_buffers()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_uniform_buffers(const bool& mark_as_terminated)
 {
     if (!m_UniformBufferTerminated)
     {
@@ -285,79 +191,57 @@ Agos::AgResult Agos::AgVulkanHandlerBufferManager::terminate_uniform_buffers()
             vkFreeMemory(m_LogicalDeviceReference, m_UniformBuffersMemory[i], nullptr);
         }
         AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_uniform_buffers] Destroyed uniform buffers; freed uniform buffers memory!");
-        m_UniformBufferTerminated = true;
+        m_UniformBufferTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_UNIFORM_BUFFERS_ALREADY_FREED;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::terminate_command_buffers()
-{
-    if (!m_CommandBuffersTerminated)
-    {
-        vkFreeCommandBuffers(
-            m_LogicalDeviceReference,
-            m_CommandPoolReference,
-            static_cast<uint32_t>(m_CommandBuffers.size()),
-            m_CommandBuffers.data());
-        AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_command_buffers] Freed command buffers!");
-        m_CommandBuffersTerminated = true;
-        return AG_SUCCESS;
-    }
-    return AG_COMMAND_BUFFERS_ALREADY_FREED;
-}
-
-Agos::AgResult Agos::AgVulkanHandlerBufferManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
-        terminate_command_buffers();
-        terminate_uniform_buffers();
-        terminate_index_buffer();
-        terminate_vertex_buffer();
-        AG_CORE_INFO("[Vulkan/AgVulkanHandlerBufferManager - terminate] Terminated instance!");
-        m_Terminated = true;
+        terminate_uniform_buffers(mark_as_terminated);
+        terminate_index_buffer(mark_as_terminated);
+        terminate_vertex_buffer(mark_as_terminated);
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - terminate] Terminated instance!");
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-VkBuffer& Agos::AgVulkanHandlerBufferManager::get_vertex_buffer()
+VkBuffer& Agos::AgVulkanHandlerVIUBufferManager::get_vertex_buffer()
 {
     return m_VertexBuffer;
 }
 
-VkDeviceMemory& Agos::AgVulkanHandlerBufferManager::get_vertex_buffer_memory()
+VkDeviceMemory& Agos::AgVulkanHandlerVIUBufferManager::get_vertex_buffer_memory()
 {
     return m_VertexBufferMemory;
 }
 
-VkBuffer& Agos::AgVulkanHandlerBufferManager::get_index_buffer()
+VkBuffer& Agos::AgVulkanHandlerVIUBufferManager::get_index_buffer()
 {
     return m_IndexBuffer;
 }
 
-VkDeviceMemory& Agos::AgVulkanHandlerBufferManager::get_index_buffer_memory()
+VkDeviceMemory& Agos::AgVulkanHandlerVIUBufferManager::get_index_buffer_memory()
 {
     return m_IndexBufferMemory;
 }
 
-std::vector<VkBuffer>& Agos::AgVulkanHandlerBufferManager::get_uniform_buffers()
+std::vector<VkBuffer>& Agos::AgVulkanHandlerVIUBufferManager::get_uniform_buffers()
 {
     return m_UniformBuffers;
 }
 
-std::vector<VkDeviceMemory>& Agos::AgVulkanHandlerBufferManager::get_uniform_buffers_memory()
+std::vector<VkDeviceMemory>& Agos::AgVulkanHandlerVIUBufferManager::get_uniform_buffers_memory()
 {
     return m_UniformBuffersMemory;
 }
 
-std::vector<VkCommandBuffer>& Agos::AgVulkanHandlerBufferManager::get_command_buffers()
-{
-    return m_CommandBuffers;
-}
-
-void Agos::AgVulkanHandlerBufferManager::create_buffer(
+void Agos::AgVulkanHandlerVIUBufferManager::create_buffer(
     const VkPhysicalDevice& physical_device,
     const VkDevice& logical_device,
     const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
@@ -375,8 +259,8 @@ void Agos::AgVulkanHandlerBufferManager::create_buffer(
 
     if (vkCreateBuffer(logical_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
     {
-        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerBufferManager - create_buffer] Failed to create buffer!");
-        throw std::runtime_error("[Vulkan/AgVulkanHandlerBufferManager - create_buffer] Failed to create buffer!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerVIUBufferManager - create_buffer] Failed to create buffer!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerVIUBufferManager - create_buffer] Failed to create buffer!");
     }
 
     VkMemoryRequirements memRequirements;
@@ -389,14 +273,14 @@ void Agos::AgVulkanHandlerBufferManager::create_buffer(
 
     if (vkAllocateMemory(logical_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
     {
-        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerBufferManager - create_buffer] Failed to allocate buffer memory!");
-        throw std::runtime_error("[Vulkan/AgVulkanHandlerBufferManager - create_buffer] Failed to allocate buffer memory!");
+        AG_CORE_ERROR("[Vulkan/AgVulkanHandlerVIUBufferManager - create_buffer] Failed to allocate buffer memory!");
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerVIUBufferManager - create_buffer] Failed to allocate buffer memory!");
     }
 
     vkBindBufferMemory(logical_device, buffer, bufferMemory, 0);
 }
 
-void Agos::AgVulkanHandlerBufferManager::copy_buffer(
+void Agos::AgVulkanHandlerVIUBufferManager::copy_buffer(
     const VkDevice& logical_device,
     const VkQueue& queue,
     const VkCommandPool& command_pool,
@@ -417,7 +301,7 @@ void Agos::AgVulkanHandlerBufferManager::copy_buffer(
         commandBuffer);
 }
 
-VkCommandBuffer Agos::AgVulkanHandlerBufferManager::begin_single_time_command(
+VkCommandBuffer Agos::AgVulkanHandlerVIUBufferManager::begin_single_time_command(
     const VkDevice& logical_device,
     const VkCommandPool& commandPool
 )
@@ -440,7 +324,7 @@ VkCommandBuffer Agos::AgVulkanHandlerBufferManager::begin_single_time_command(
     return commandBuffer;
 }
 
-void Agos::AgVulkanHandlerBufferManager::end_single_time_command(
+void Agos::AgVulkanHandlerVIUBufferManager::end_single_time_command(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
@@ -457,4 +341,148 @@ void Agos::AgVulkanHandlerBufferManager::end_single_time_command(
     vkQueueWaitIdle(graphics_queue);
 
     vkFreeCommandBuffers(logical_device, command_pool, 1, &commandBuffer);
+}
+
+
+std::vector<VkCommandBuffer> Agos::AgVulkanHandlerCommandBufferManager::m_CommandBuffers;
+bool Agos::AgVulkanHandlerCommandBufferManager::m_CommandBuffersTerminated = false;
+
+Agos::AgVulkanHandlerCommandBufferManager::AgVulkanHandlerCommandBufferManager()
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
+{
+}
+
+Agos::AgVulkanHandlerCommandBufferManager::AgVulkanHandlerCommandBufferManager(VkDevice& logical_device)
+    : m_LogicalDeviceReference(logical_device), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
+{
+}
+
+Agos::AgVulkanHandlerCommandBufferManager::AgVulkanHandlerCommandBufferManager(VkCommandPool& command_pool)
+    : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(command_pool)
+{
+}
+
+Agos::AgVulkanHandlerCommandBufferManager::AgVulkanHandlerCommandBufferManager(VkDevice& logical_device, VkCommandPool& command_pool)
+    : m_LogicalDeviceReference(logical_device), m_CommandPoolReference(command_pool)
+{
+}
+
+Agos::AgVulkanHandlerCommandBufferManager::~AgVulkanHandlerCommandBufferManager()
+{
+    terminate();
+}
+
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers(
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+    const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
+    const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
+    const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
+    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+    const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
+    const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
+    const std::vector<AgModel>& models
+)
+{
+    m_LogicalDeviceReference = logical_device->get_device();
+    m_CommandPoolReference = command_pool_manager->get_command_pool();
+
+    m_CommandBuffers.resize(framebuffers_manager->get_swapchain_framebuffers().size());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = command_pool_manager->get_command_pool();
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
+
+    if (vkAllocateCommandBuffers(logical_device->get_device(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerVIUBufferManager - create_command_buffers] Failed to allocate command buffers!");
+    }
+
+    for (size_t current_command_buffer = 0; current_command_buffer < m_CommandBuffers.size(); current_command_buffer++)
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        if (vkBeginCommandBuffer(m_CommandBuffers[current_command_buffer], &beginInfo) != VK_SUCCESS)
+        {
+            throw std::runtime_error("[Vulkan/AgVulkanHandlerVIUBufferManager - create_command_buffers] Failed to begin recording command buffer!");
+        }
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = render_pass->get_render_pass();
+        renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[current_command_buffer];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
+
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0};
+
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+
+        vkCmdBeginRenderPass(m_CommandBuffers[current_command_buffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(m_CommandBuffers[current_command_buffer], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_manager->get_graphics_pipeline());
+
+        for (size_t current_VIU_buffer = 0; current_VIU_buffer < models_VIU_buffers.size(); current_VIU_buffer++)
+        {
+            VkBuffer vertexBuffers[] = { models_VIU_buffers[current_VIU_buffer]->get_vertex_buffer() };
+            VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(m_CommandBuffers[current_command_buffer], 0, 1, vertexBuffers, offsets);
+
+            vkCmdBindIndexBuffer(m_CommandBuffers[current_command_buffer], models_VIU_buffers[current_VIU_buffer]->get_index_buffer(), 0, VK_INDEX_TYPE_UINT32);
+
+            vkCmdBindDescriptorSets(
+                m_CommandBuffers[current_command_buffer],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                graphics_pipeline_manager->get_graphics_pipeline_layout(),
+                0, 1,
+                &descriptor_manager->get_descriptor_sets(current_VIU_buffer)[current_command_buffer],
+                0, nullptr);
+
+            vkCmdDrawIndexed(m_CommandBuffers[current_command_buffer], static_cast<uint32_t>(models[current_VIU_buffer].model_data.indices.size()), 1, 0, 0, 0);
+
+        }
+
+        vkCmdEndRenderPass(m_CommandBuffers[current_command_buffer]);
+
+        if (vkEndCommandBuffer(m_CommandBuffers[current_command_buffer]) != VK_SUCCESS)
+        {
+            AG_CORE_CRITICAL("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
+            throw std::runtime_error("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
+        }
+    }
+
+    AG_CORE_INFO("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Recored command buffers");
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate(const bool& mark_as_terminated)
+{
+    return terminate_command_buffers(mark_as_terminated);
+}
+
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buffers(const bool& mark_as_terminated)
+{
+    if (!m_CommandBuffersTerminated)
+    {
+        vkFreeCommandBuffers(
+            m_LogicalDeviceReference,
+            m_CommandPoolReference,
+            static_cast<uint32_t>(m_CommandBuffers.size()),
+            m_CommandBuffers.data());
+        AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_command_buffers] Freed command buffers!");
+        m_CommandBuffersTerminated = mark_as_terminated;
+        return AG_SUCCESS;
+    }
+    return AG_COMMAND_BUFFERS_ALREADY_FREED;
+}
+
+std::vector<VkCommandBuffer>& Agos::AgVulkanHandlerCommandBufferManager::get_command_buffers()
+{
+    return m_CommandBuffers;
 }

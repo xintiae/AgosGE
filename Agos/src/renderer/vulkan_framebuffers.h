@@ -15,7 +15,7 @@ namespace Agos{
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerFramebuffers
+class AG_API AgVulkanHandlerFramebuffers
 {
 private:
     std::vector<VkFramebuffer> m_SwapChainFramebuffers;
@@ -33,10 +33,10 @@ public:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources);
-    AgResult terminate();
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     std::vector<VkFramebuffer>& get_swapchain_framebuffers();
 
-} AgVulkanHandlerFramebuffers;
+};  // class AgVulkanHandlerFramebuffers
 
 }   // namespace Agos

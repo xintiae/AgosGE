@@ -3,6 +3,7 @@
 #include "Agos/src/logger/logger.h"
 #include <cstdint>
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
 
 Agos::AgVulkanHandlerSwapChain::AgVulkanHandlerSwapChain()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
@@ -97,7 +98,7 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_image_views(const std::sha
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate()
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
@@ -108,7 +109,7 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate()
         vkDestroySwapchainKHR(m_LogicalDeviceReference, m_SwapChain, nullptr);
 
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerSwapChain - terminate] Destroyed swap chain image views ; destroyed swap chain!");
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

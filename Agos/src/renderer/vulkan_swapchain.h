@@ -16,7 +16,7 @@ namespace Agos{
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerSwapChain
+class AG_API AgVulkanHandlerSwapChain
 {
 private:
     VkSwapchainKHR m_SwapChain;
@@ -40,7 +40,7 @@ public:
     AgResult create_image_views(
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device
     );
-    AgResult terminate();
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkSwapchainKHR&             get_swapchain();
     std::vector<VkImage>&       get_swapchain_images();
@@ -65,7 +65,7 @@ protected:
         const uint32_t& mipLevels,
         const VkDevice& device
     );
-} AgVulkanHandlerSwapChain;
+};  // class AgVulkanHandlerSwapChain
 
 }   // namespace Agos
 

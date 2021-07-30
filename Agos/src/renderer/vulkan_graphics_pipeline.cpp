@@ -5,6 +5,7 @@
 #include <fstream>
 #include <filesystem>
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
 
 Agos::AgVulkanHandlerGraphicsPipelineManager::AgVulkanHandlerGraphicsPipelineManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
@@ -52,7 +53,7 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
     VkVertexInputBindingDescription bindingDescription = Agos::VulkanGraphicsPipeline::Vertex::get_binding_description();
-    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Agos::VulkanGraphicsPipeline::Vertex::get_attribute_description();
+    std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Agos::VulkanGraphicsPipeline::Vertex::get_attribute_description();
 
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -160,14 +161,14 @@ Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::create_graphics_pip
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::terminate()
+Agos::AgResult Agos::AgVulkanHandlerGraphicsPipelineManager::terminate(const bool& mark_as_terminated)
 {
     if (!m_Terminated)
     {
         vkDestroyPipeline(m_LogicalDeviceReference, m_GraphicsPipeline, nullptr);
         vkDestroyPipelineLayout(m_LogicalDeviceReference, m_GraphicsPipelineLayout, nullptr);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - terminate] Destroyed graphics pipeline and graphics pipeline layout!");
-        m_Terminated = true;
+        m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;

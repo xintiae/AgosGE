@@ -45,7 +45,7 @@ typedef struct AG_API AgSwapChainSupportDetails
 }   // namespace VulkanPhysicalDevice (within namespace Agos)
 
 
-typedef class AG_API AgVulkanHandlerPhysicalDevice
+class AG_API AgVulkanHandlerPhysicalDevice
 {
 private:
     static const std::vector<const char*> m_DeviceExtensions;
@@ -89,6 +89,6 @@ protected:
     
 private:
     VkSampleCountFlagBits get_max_usable_sample_count();
-};
+};  // class AgVulkanHandlerPhysicalDevice
 
 }   // namespace Agos

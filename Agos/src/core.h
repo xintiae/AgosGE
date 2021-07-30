@@ -1,10 +1,38 @@
 #pragma once
 
 #include "Agos/src/base.h"
-#include AG_VULKAN_INCLUDE
 
-#define AG_WINDOW_WIDTH 800
-#define AG_WINDOW_HEIGHT 600
+#define AG_MAKE_VERSION(major, minor, patch)\
+    ((uint32_t)(major << 28) | (uint32_t)(minor << 14) | (uint32_t)(patch << 0))
+#define AG_CURRENT_VERSION      AG_MAKE_VERSION(1, 0, 0)
+#define AG_AGS_MODEL_VERSION    1
+
+
+#define AG_DEFAUT_WINDOW_WIDTH 800
+#define AG_DEFAUT_WINDOW_HEIGHT 600
+
+#define AG_MAX_WINDOW_WIDTH 1920
+#define AG_MAX_WINDOW_HEIGHT 1280
+
+#define AG_MARK_AS_USED(X)  ( (void*)(&(X)) )
+
+#define AG_DEBUG_LAYERS_ENABLED
+#define AG_ENABLE_DEBUG_VALIDATION_LAYER true
+
+// you know what that means...
+#define AG_LOGGER_TOO_MUCH_TO_SAY
+
+
+#define AG_VULKAN_MAX_FRAMES_IN_FLIGHT 2
+
+#define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
+#define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
+#define AG_SHADERS_COMPILE_ANYWAY true
+
+#define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 100
+
+#define AG_DEFAULT_MODEL_TEXTURE               "/primitives/no_textures.png"
+#define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL  "/primitives/no_textures_opacity_null.png"
 
 namespace Agos
 {
@@ -33,10 +61,8 @@ typedef enum AgResult {
     AG_INDEX_BUFFER_ALREADY_FREED                   = 27,
     AG_UNIFORM_BUFFERS_ALREADY_FREED                = 28,
     AG_COMMAND_BUFFERS_ALREADY_FREED                = 29,
-    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30
+    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30,
+    AG_RECREATED_SWAPCHAIN                          = 31
 } AgResult;
-
-static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
-static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE = VK_NULL_HANDLE;
 
 }   // namespace Agos

@@ -22,7 +22,7 @@ namespace Agos{
 namespace Agos
 {
 
-typedef class AG_API AgVulkanHandlerColorDepthRessourcesManager
+class AG_API AgVulkanHandlerColorDepthRessourcesManager
 {
 private:
     VkImage         m_ColorImage;
@@ -51,7 +51,7 @@ public:
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain);
-    AgResult terminate();
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkImage&         get_color_image();
     VkImageView&     get_color_image_view();
@@ -62,7 +62,7 @@ public:
     VkFormat&        get_depth_format();
 
     friend class AgVulkanHandlerTextureManager;
-    friend class AgVulkanHandlerBufferManager;
+    friend class AgVulkanHandlerVIUBufferManager;
 protected:
     VkImage create_image(
        const VkPhysicalDevice& physical_device,
@@ -100,6 +100,6 @@ private:
         VkFormatFeatureFlags features
     );
 
-} AgVulkanHandlerColorDepthRessourcesManager;
+};  // class AgVulkanHandlerColorDepthRessourcesManager
 
 }   // namespace Agos

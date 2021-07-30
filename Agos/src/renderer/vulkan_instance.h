@@ -13,7 +13,7 @@ namespace Agos{
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerInstance
+class AG_API AgVulkanHandlerInstance
 {
 private:
     dexode::EventBus::Listener m_EventBusListener;
@@ -31,5 +31,5 @@ public:
 
     AgResult init(const std::shared_ptr<AgVulkanHandlerDebugLayersManager>& DebugLayersManager);
     AgResult destroy();
-} AgVulkanHandlerInstance;
+};  // class AgVulkanHandlerInstance
 } // namespace Agos

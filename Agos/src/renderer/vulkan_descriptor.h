@@ -26,20 +26,22 @@ typedef struct AG_API UniformBufferObject
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
+    alignas(16) glm::vec3 lightPos;
+    alignas(16) glm::vec3 lightColor;
 } UniformBufferObject;
 }   // namespace VulkanGraphicsPipeline (within namespace Agos)
 
-typedef class AG_API AgVulkanHandlerDescriptorManager
+class AG_API AgVulkanHandlerDescriptorManager
 {
 private:
     VkDescriptorSetLayout m_DescriptorSetLayout;
     VkDescriptorPool m_DescriptorPool;
-    std::vector<VkDescriptorSet> m_DescriptorSets;
+    std::vector<std::vector<VkDescriptorSet>> m_DescriptorsSets;
 
     VkDevice& m_LogicalDeviceReference;
     bool m_DescriptorSetLayoutTerminated    = false;
     bool m_DescriptorPoolTerminated         = false;
-    bool m_DescriptorSetsTerminated         = false;
+    bool m_DescriptorsSetsTerminated         = false;
     bool m_Terminated = false;
 
 public:
@@ -58,15 +60,16 @@ public:
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerTextureManager>& texture_manager,
-        const std::shared_ptr<AgVulkanHandlerBufferManager>& buffer_manager);
+        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
+        const uint32_t& model_index);
 
-    AgResult terminate_descriptor_set_layout();
-    AgResult terminate_descriptor_pool();
-    AgResult terminate_descriptor_sets();
-    AgResult terminate();
+    AgResult terminate_descriptor_set_layout(const bool& mark_as_terminated = true);
+    AgResult terminate_descriptor_pool(const bool& mark_as_terminated = true);
+    AgResult terminate_descriptor_sets(const bool& mark_as_terminated = true);
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkDescriptorSetLayout& get_descriptor_set_layout();
-    std::vector<VkDescriptorSet>& get_descriptor_sets();
+    std::vector<VkDescriptorSet>& get_descriptor_sets(const uint32_t& model_index);
 
-} AgVulkanHandlerDescriptorManager;
+};  // class AgVulkanHandlerDescriptorManager
 };

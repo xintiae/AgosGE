@@ -42,4 +42,18 @@ void Agos::AgGLFWHandlerEvents::mouseButtonCallback(GLFWwindow* window, int butt
         &data
     });
     m_EventBus->process();
+    AG_MARK_AS_USED(mods);
+}
+
+void Agos::AgGLFWHandlerEvents::keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    {
+        auto data = Agos::Events::AgGLFWEventKeyboardCallback({window, key, scancode, action, mods});
+        m_EventBus->postpone<Agos::Events::AgGLFWHandlerEvent>({
+            Agos::Events::AgGLFWHandlerEventType::keyboardCallback,
+            &data
+        });
+        m_EventBus->process();
+    }
 }

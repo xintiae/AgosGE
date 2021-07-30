@@ -2,6 +2,9 @@
 
 #include "Agos/src/logger/logger.h"
 
+extern VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE;
+
+
 Agos::AgVulkanHandlerCommandPoolManager::AgVulkanHandlerCommandPoolManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE)
 {
@@ -19,8 +22,7 @@ Agos::AgVulkanHandlerCommandPoolManager::~AgVulkanHandlerCommandPoolManager()
 Agos::AgResult Agos::AgVulkanHandlerCommandPoolManager::create_command_pool(
     const std::shared_ptr<AgGLFWHandlerInstance>& glfw_instance,
     const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
-    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
-    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain)
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device)
 {
     m_LogicalDeviceReference = logical_device->get_device();
 

@@ -25,16 +25,28 @@ namespace Agos{
     class AgVulkanHandlerDescriptorManager;
 }
 #include "Agos/src/renderer/vulkan_descriptor.h"
+namespace Agos{
+    class AgModel;
+}
+#include "Agos/src/renderer/model.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
 #include <vector>
 #include <cstdint>
 
+static VkDevice        AG_DEFAULT_LOGICAL_DEVICE_REFERENCE = VK_NULL_HANDLE;
+static VkCommandPool   AG_DEFAULT_COMMAND_POOL_REFERENCE   = VK_NULL_HANDLE;
+
+static inline void ag_f_cking_warning()
+{
+    AG_MARK_AS_USED(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE);
+    AG_MARK_AS_USED(AG_DEFAULT_COMMAND_POOL_REFERENCE);
+}
 
 namespace Agos
 {
-typedef class AG_API AgVulkanHandlerBufferManager
+class AG_API AgVulkanHandlerVIUBufferManager
 {
 private:
     VkBuffer m_VertexBuffer;
@@ -46,11 +58,7 @@ private:
     std::vector<VkBuffer> m_UniformBuffers;
     std::vector<VkDeviceMemory> m_UniformBuffersMemory;
 
-    std::vector<VkCommandBuffer> m_CommandBuffers;
-
     VkDevice& m_LogicalDeviceReference;
-    VkCommandPool& m_CommandPoolReference;
-    bool m_CommandBuffersTerminated = false;
     // buffers simultanés + gestion multiples vertex / index / uniforms buffers
     bool m_VertexBufferTerminated   = false;
     bool m_IndexBufferTerminated    = false;
@@ -58,11 +66,9 @@ private:
     bool m_Terminated = false;
 
 public:
-    AgVulkanHandlerBufferManager();
-    AgVulkanHandlerBufferManager(VkDevice& logical_device);
-    AgVulkanHandlerBufferManager(VkCommandPool& command_pool);
-    AgVulkanHandlerBufferManager(VkDevice& logical_device, VkCommandPool& command_pool);
-    ~AgVulkanHandlerBufferManager();
+    AgVulkanHandlerVIUBufferManager();
+    AgVulkanHandlerVIUBufferManager(VkDevice& logical_device);
+    ~AgVulkanHandlerVIUBufferManager();
 
     AgResult create_vertex_buffer(
         const std::vector<VulkanGraphicsPipeline::Vertex>& vertices,
@@ -84,21 +90,10 @@ public:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager);
 
-    AgResult create_command_buffers(
-        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
-        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
-        const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-        const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
-        const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
-        const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
-        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
-        const std::vector<uint32_t>& indices);
-
-    AgResult terminate_vertex_buffer();
-    AgResult terminate_index_buffer();
-    AgResult terminate_uniform_buffers();
-    AgResult terminate_command_buffers();
-    AgResult terminate();
+    AgResult terminate_vertex_buffer(const bool& mark_as_terminated = true);
+    AgResult terminate_index_buffer(const bool& mark_as_terminated = true);
+    AgResult terminate_uniform_buffers(const bool& mark_as_terminated = true);
+    AgResult terminate(const bool& mark_as_terminated = true);
 
     VkBuffer& get_vertex_buffer();
     VkDeviceMemory& get_vertex_buffer_memory();
@@ -109,11 +104,7 @@ public:
     std::vector<VkBuffer>& get_uniform_buffers();
     std::vector<VkDeviceMemory>& get_uniform_buffers_memory();
 
-    std::vector<VkCommandBuffer>& get_command_buffers();
-
-    friend class AgVulkanHandlerTextureManager;
-
-protected:
+public:
     static void create_buffer(
         const VkPhysicalDevice& physical_device,
         const VkDevice& logical_device,
@@ -142,7 +133,40 @@ protected:
         const VkCommandPool& command_pool,
         const VkCommandBuffer& commandBuffer);
 
-} AgVulkanHandlerBufferManager;
+};  // class AgVulkanHandlerVIUBufferManager
+
+class AG_API AgVulkanHandlerCommandBufferManager
+{
+private:
+    static std::vector<VkCommandBuffer> m_CommandBuffers;
+    static bool m_CommandBuffersTerminated;
+
+    VkDevice& m_LogicalDeviceReference;
+    VkCommandPool& m_CommandPoolReference;
+
+public:
+    AgVulkanHandlerCommandBufferManager();
+    AgVulkanHandlerCommandBufferManager(VkDevice& logical_device);
+    AgVulkanHandlerCommandBufferManager(VkCommandPool& command_pool);
+    AgVulkanHandlerCommandBufferManager(VkDevice& logical_device, VkCommandPool& command_pool);
+    ~AgVulkanHandlerCommandBufferManager();
+
+    AgResult create_command_buffers(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+        const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
+        const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
+        const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
+        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+        const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
+        const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
+        const std::vector<AgModel>& models);
+
+    AgResult terminate_command_buffers(const bool& mark_as_terminated = true);
+    AgResult terminate(const bool& mark_as_terminated = true);
+
+    std::vector<VkCommandBuffer>& get_command_buffers();
+
+};  // AgVulkanHandlerCommandBufferManager
 
 } // namespace Agos
-

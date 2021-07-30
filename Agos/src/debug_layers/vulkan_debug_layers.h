@@ -6,6 +6,7 @@ namespace Agos{
     class AgVulkanHandlerInstance;
 }
 #include "Agos/src/renderer/vulkan_instance.h"
+#include "Agos/src/logger/logger.h"
 
 #include AG_VULKAN_INCLUDE
 #include <vector>
@@ -53,9 +54,13 @@ private:
 
 } // namespace Agos
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL ag_debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData
-);
+namespace Agos{
+    inline static VKAPI_ATTR VkBool32 VKAPI_CALL AG_API AGOS_HELPER_ATTRIBUTE_UNUSED ag_debug_callback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+        void *pUserData
+    );
+
+    inline static AG_API AGOS_HELPER_ATTRIBUTE_UNUSED std::string ag_debug_callback_message_type(const VkDebugUtilsMessageTypeFlagsEXT& messageType);
+}
