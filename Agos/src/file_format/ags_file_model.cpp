@@ -65,7 +65,7 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 			vertices_normals.add_data(line.substr(3));
 		}
 
-		if (line.find("f") != std::string::npos) {
+		if (line.find("f ") != std::string::npos) {
 			faces.add_data(line.substr(2));
 		}
 
