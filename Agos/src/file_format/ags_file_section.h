@@ -49,6 +49,7 @@ namespace Agos {
 		std::string convert_to_string();
 
 		AGSFileSectionDataTypeInt();
+		AGSFileSectionDataTypeInt(const std::string& data);
 		AGSFileSectionDataTypeInt(const int& data);
 	};
 
@@ -58,6 +59,7 @@ namespace Agos {
 		std::string convert_to_string();
 
 		AGSFileSectionDataTypeVector2();
+		AGSFileSectionDataTypeVector2(const std::string& data);
 		AGSFileSectionDataTypeVector2(const glm::vec2& data);
 		AGSFileSectionDataTypeVector2(const float& x, const float& y);
 	};
@@ -68,6 +70,7 @@ namespace Agos {
 		std::string convert_to_string();
 
 		AGSFileSectionDataTypeVector3();
+		AGSFileSectionDataTypeVector3(const std::string& data);
 		AGSFileSectionDataTypeVector3(const glm::vec3& data);
 		AGSFileSectionDataTypeVector3(const float& x, const float& y, const float& z);
 	};
@@ -76,7 +79,7 @@ namespace Agos {
 	{
 		NONE,
 		TYPE,
-		NAME,
+		OBJECT_NAME,
 		VERSION,
 		VERTICES,
 		VERTICES_NORMALS,
@@ -91,7 +94,7 @@ namespace Agos {
 
 		inline static std::unordered_map<std::string, AGSFileSectionType> m_typeTable = {
 			{"#type#", TYPE},
-			{"#name#", NAME},
+			{"#object_name#", OBJECT_NAME},
 			{"#version#", VERSION},
 			{"#vertices#", VERTICES},
 			{"#vertices_normals#", VERTICES_NORMALS},
@@ -111,11 +114,15 @@ namespace Agos {
 		void add_data(const T& data) { m_Data.push_back(std::make_shared<T>(data)); };
 
 		/** Converts the data of this section into its string representation, so that it can be printed out to a file
+		* @param printIfEmpty Returns an empty string if false if there is no data in this section
 		* @return A string representing how the section can be printed out to a file
 		*/
-		std::string serialize_section()
+		std::string serialize_section(bool printIfEmpty = false)
 		{
 			std::string out;
+
+			if (!printIfEmpty && m_Data.size() == 0)
+				return out;
 
 			// Start with the name of the section wrapped in hashtags
 			out += section_type_to_string(m_Type) + "\n";
@@ -156,6 +163,14 @@ namespace Agos {
 			return "#none#";
 		};
 
+	};
+
+	typedef struct AG_API AGSCombinedSections
+	{
+		/* @brief Creates and returns a string which contains all the sections wrapped inside curled brackets
+		* @return A string which contains the section headers and their contents wrapped inside curled brackets
+		*/
+		virtual std::string serialize_sections() = 0;
 	};
 
 }

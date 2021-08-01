@@ -44,6 +44,11 @@ Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt()
 {
 }
 
+Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt(const std::string& data)
+{
+	set_data_from_string(data);
+}
+
 Agos::AGSFileSectionDataTypeInt::AGSFileSectionDataTypeInt(const int& data)
 	: AGSFileSectionDataType(data)
 {
@@ -66,11 +71,16 @@ void Agos::AGSFileSectionDataTypeVector2::set_data_from_string(const std::string
 
 std::string Agos::AGSFileSectionDataTypeVector2::convert_to_string()
 {
-	return glm::to_string<glm::vec2>(m_Data);
+	return std::to_string(m_Data.x) + " " + std::to_string(m_Data.y);
 }
 
 Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2()
 {
+}
+
+Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2(const std::string& data)
+{
+	set_data_from_string(data);
 }
 
 Agos::AGSFileSectionDataTypeVector2::AGSFileSectionDataTypeVector2(const glm::vec2& data)
@@ -100,11 +110,16 @@ void Agos::AGSFileSectionDataTypeVector3::set_data_from_string(const std::string
 
 std::string Agos::AGSFileSectionDataTypeVector3::convert_to_string()
 {
-	return glm::to_string<glm::vec3>(m_Data);
+	return std::to_string(m_Data.x) + " " + std::to_string(m_Data.y) + " " + std::to_string(m_Data.z);
 }
 
 Agos::AGSFileSectionDataTypeVector3::AGSFileSectionDataTypeVector3()
 {
+}
+
+Agos::AGSFileSectionDataTypeVector3::AGSFileSectionDataTypeVector3(const std::string& data)
+{
+	set_data_from_string(data);
 }
 
 Agos::AGSFileSectionDataTypeVector3::AGSFileSectionDataTypeVector3(const glm::vec3& data)

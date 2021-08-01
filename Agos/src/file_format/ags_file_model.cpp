@@ -44,44 +44,63 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 	AGSFileSection version = AGSFileSection<AGSFileSectionDataTypeInt>{ VERSION, std::vector<std::shared_ptr<AGSFileSectionDataTypeInt>>() };
 	version.add_data(AG_AGS_MODEL_VERSION);
 
-	AGSFileSection vertices = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
-	AGSFileSection vertex_textures = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES_TEXTURES, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
-	AGSFileSection vertices_normals = AGSFileSection<AGSFileSectionDataTypeString>{ VERTICES_NORMALS, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
-	AGSFileSection faces = AGSFileSection<AGSFileSectionDataTypeString>{ FACES, std::vector<std::shared_ptr<AGSFileSectionDataTypeString>>() };
+	AGSModelSections current_obj;
 
 	// Loop through every line of the file
 	while (std::getline(in_stream, line)) {
 
+		if (line.find("o ") != std::string::npos) {
+			// Prints the last object to the file
+			out_stream << current_obj.serialize_sections();
+
+			current_obj = AGSModelSections();
+			current_obj.object_name.add_data(line.substr(2));
+		}
+
 		// Populate data for the vertices
 		if (line.find("v ") != std::string::npos) {
-			vertices.add_data(line.substr(2));
+			current_obj.vertices.add_data(line.substr(2));
 		}
 
 		if (line.find("vt") != std::string::npos) {
-			vertex_textures.add_data(line.substr(3));
+			current_obj.vertices_textures.add_data(line.substr(3));
 		}
 
 		if (line.find("vn") != std::string::npos) {
-			vertices_normals.add_data(line.substr(3));
+			current_obj.vertices_normals.add_data(line.substr(3));
 		}
 
 		if (line.find("f ") != std::string::npos) {
-			faces.add_data(line.substr(2));
+			current_obj.faces.add_data(line.substr(2));
 		}
 
 	}
+	
+	out_stream << current_obj.serialize_sections();
 
 	if (!out_stream) {
 		AG_CORE_ERROR("Could not write to file " + output);
 		return;
 	}
 
-	out_stream << file_type.serialize_section();
-	out_stream << version.serialize_section();
-	out_stream << vertices.serialize_section();
-	out_stream << vertex_textures.serialize_section();
-	out_stream << vertices_normals.serialize_section();
-	out_stream << faces.serialize_section();
-
 	in_stream.close();
+}
+
+std::string Agos::AGSModelSections::serialize_sections()
+{
+	std::string out;
+
+	out += object_name.serialize_section();
+	out += vertices.serialize_section();
+	out += vertices_textures.serialize_section();
+	out += vertices_normals.serialize_section();
+	out += faces.serialize_section();
+
+	// Wrap around curled brackets if string isn't empty
+	if (out.size() != 0) {
+		out.insert(0, "{\n");
+		out += "}\n";
+	}
+
+	return out;
 }

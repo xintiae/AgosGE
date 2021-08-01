@@ -13,7 +13,7 @@
 
 namespace Agos {
 
-	class AG_API AGSModelFile
+	typedef class AG_API AGSModelFile
 	{
 	private:
 
@@ -62,6 +62,18 @@ namespace Agos {
 		AGSModelFile(const std::string& path);
 		~AGSModelFile();
 
+	};
+
+	// A struct containing the different sections required for a model (vertices, vertex_normals, ...)
+	typedef struct AG_API AGSModelSections : AGSCombinedSections
+	{
+		AGSFileSection<AGSFileSectionDataTypeString> object_name = AGSFileSection<AGSFileSectionDataTypeString>{ OBJECT_NAME };
+		AGSFileSection<AGSFileSectionDataTypeVector3> vertices = AGSFileSection<AGSFileSectionDataTypeVector3>{ VERTICES };
+		AGSFileSection<AGSFileSectionDataTypeVector2> vertices_textures = AGSFileSection<AGSFileSectionDataTypeVector2>{ VERTICES_TEXTURES };
+		AGSFileSection<AGSFileSectionDataTypeVector3> vertices_normals = AGSFileSection<AGSFileSectionDataTypeVector3>{ VERTICES_NORMALS };
+		AGSFileSection<AGSFileSectionDataTypeString> faces = AGSFileSection<AGSFileSectionDataTypeString>{ FACES };
+
+		std::string serialize_sections();
 	};
 
 }
