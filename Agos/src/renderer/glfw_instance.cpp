@@ -32,12 +32,14 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::init(
         return AG_FAILED_TO_CREATE_GLFW_INSTANCE;
     }
 
+    glfwSetWindowTitle(m_ApplicationWindow, "AgosGE - init example!");
+
     glfwSetWindowUserPointer(m_ApplicationWindow, this);
     glfwSetFramebufferSizeCallback(m_ApplicationWindow, event_handler->framebufferResizeCallback);
 
     glfwSetMouseButtonCallback(m_ApplicationWindow, event_handler->mouseButtonCallback);
     glfwSetCursorPosCallback(m_ApplicationWindow, event_handler->cursorPosCallback);
-    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     m_CursorState = GLFW_CURSOR_DISABLED;
     glfwSetKeyCallback(m_ApplicationWindow, event_handler->keyboardCallback);
 
@@ -197,6 +199,7 @@ void Agos::AgGLFWHandlerCursorPosEventHandler::process(
         lastX = event.xpos;
         lastY = event.ypos;
         firstMouse = false;
+        return;
     }
   
     float xoffset = event.xpos - lastX;
@@ -209,7 +212,7 @@ void Agos::AgGLFWHandlerCursorPosEventHandler::process(
     yoffset *= sensitivity;
 
     renderer->m_Camera->m_CameraYaw   += xoffset;
-    renderer->m_Camera->m_CameraPitch -= yoffset;
+    renderer->m_Camera->m_CameraPitch += yoffset;
 
     if(renderer->m_Camera->m_CameraPitch > 89.0f)
         renderer->m_Camera->m_CameraPitch = 89.0f;
@@ -220,5 +223,5 @@ void Agos::AgGLFWHandlerCursorPosEventHandler::process(
     direction.x = cos(glm::radians(renderer->m_Camera->m_CameraYaw)) * cos(glm::radians(renderer->m_Camera->m_CameraPitch));
     direction.y = sin(glm::radians(renderer->m_Camera->m_CameraPitch));
     direction.z = sin(glm::radians(renderer->m_Camera->m_CameraYaw)) * cos(glm::radians(renderer->m_Camera->m_CameraPitch));
-    renderer->m_Camera->m_CameraOppositeDirection = std::move(glm::normalize(direction));
+    renderer->m_Camera->m_CameraOppositeDirection = std::move(glm::normalize(direction * (-1.0f) ));
 }

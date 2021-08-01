@@ -155,6 +155,97 @@ Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::create_uniform_buffers(
     return AG_SUCCESS;
 }
 
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::update_vertex_buffer(
+    const std::vector<Agos::VulkanGraphicsPipeline::Vertex>& vertices,
+    const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
+    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+    const bool& keep_informed
+)
+{
+    m_LogicalDeviceReference = logical_device->get_device();
+
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    create_buffer(
+        physical_device->get_device(),
+        logical_device->get_device(),
+        color_depth_ressources_manager,
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer,
+        stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(logical_device->get_device(), stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(logical_device->get_device(), stagingBufferMemory);
+
+    copy_buffer(
+        logical_device->get_device(),
+        logical_device->get_graphics_queue(),
+        command_pool_manager->get_command_pool(),
+        stagingBuffer,
+        m_VertexBuffer,
+        bufferSize);
+
+    vkDestroyBuffer(logical_device->get_device(), stagingBuffer, nullptr);
+    vkFreeMemory(logical_device->get_device(), stagingBufferMemory, nullptr);
+    if (keep_informed)
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_vertex_buffer] Updated vertex buffer!");
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::update_index_buffer(
+    const std::vector<uint32_t>& indices,
+    const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
+    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+    const bool& keep_informed
+)
+{
+    m_LogicalDeviceReference = logical_device->get_device();
+
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    create_buffer(
+        physical_device->get_device(),
+        logical_device->get_device(),
+        color_depth_ressources_manager,
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer,
+        stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(logical_device->get_device(), stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t)bufferSize);
+    vkUnmapMemory(logical_device->get_device(), stagingBufferMemory);
+
+    copy_buffer(
+        logical_device->get_device(),
+        logical_device->get_graphics_queue(),
+        command_pool_manager->get_command_pool(),
+        stagingBuffer,
+        m_IndexBuffer,
+        bufferSize);
+
+    vkDestroyBuffer(logical_device->get_device(), stagingBuffer, nullptr);
+    vkFreeMemory(logical_device->get_device(), stagingBufferMemory, nullptr);
+
+    if (keep_informed)
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_index_buffer] Updated index buffer!");
+    return AG_SUCCESS;
+}
+
 Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::terminate_vertex_buffer(const bool& mark_as_terminated)
 {
     if (!m_VertexBufferTerminated)
@@ -381,7 +472,8 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
     const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
     const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
     const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
-    const std::vector<AgModel>& models
+    const std::vector<AgModel>& models,
+    const bool& keep_informed
 )
 {
     m_LogicalDeviceReference = logical_device->get_device();
@@ -456,8 +548,8 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
             throw std::runtime_error("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
         }
     }
-
-    AG_CORE_INFO("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Recored command buffers");
+    if (keep_informed)
+        AG_CORE_INFO("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Recored command buffers");
     return AG_SUCCESS;
 }
 
@@ -466,7 +558,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate(const bool& 
     return terminate_command_buffers(mark_as_terminated);
 }
 
-Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buffers(const bool& mark_as_terminated)
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buffers(const bool& mark_as_terminated, const bool& keep_informed)
 {
     if (!m_CommandBuffersTerminated)
     {
@@ -475,7 +567,8 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buff
             m_CommandPoolReference,
             static_cast<uint32_t>(m_CommandBuffers.size()),
             m_CommandBuffers.data());
-        AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_command_buffers] Freed command buffers!");
+        if (keep_informed)
+            AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_command_buffers] Freed command buffers!");
         m_CommandBuffersTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }

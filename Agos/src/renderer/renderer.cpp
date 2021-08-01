@@ -2,6 +2,7 @@
 
 #include "Agos/src/logger/logger.h"
 #include <chrono>
+#include <tuple>
 
 Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dexode::EventBus>& event_bus)
     : m_EventBus(event_bus)
@@ -129,7 +130,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
             m_VulkanLogicalDevice,
             m_VulkanColorDepthRessourcesManager,
             m_VulkanGraphicsCommandPoolManager,
-            m_VertexIndexUniformBuffers[i]
+            m_VertexIndexUniformBuffers[0]
         );
         m_VulkanTextureImageManager[i]->create_texture_image_view(
             m_VulkanLogicalDevice,
@@ -200,8 +201,119 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
     return AG_SUCCESS;
 }
 
-// Agos::AgResult Agos::AgVulkanHandlerRenderer::run(const std::function<__Function_Signature>& to_do)
-// is defined in file AgosGE/Agos/src/renderer/renderer.h
+Agos::AgResult Agos::AgVulkanHandlerRenderer::update_models_data(const std::vector<Agos::AgModel>& to_update_models, const bool& keep_informed)
+{
+    std::vector<std::pair<bool, size_t>> models_match( to_update_models.size(), std::move(std::pair<bool, size_t>(false, 0)) );
+    bool doesnt_match = false;
+
+    for (size_t i = 0; i < to_update_models.size(); i++)
+    {
+        for (size_t y = 0; y < m_Models.size(); y++)
+        {
+            if (to_update_models[i].id == m_Models[y].id)
+            {
+                models_match[i] = (std::move(std::pair<bool, size_t>(true, y)));
+                break;
+            }
+        }
+    }
+
+    for (const std::pair<bool, size_t>& match : models_match)
+    {
+        if (match.first == false)
+            doesnt_match = true;
+    }
+
+    if (doesnt_match)
+    {
+        AG_CORE_WARN("[Vulkan/AgVulkanHandlerRenderer - update_models_data] Models specified for update don't match given models during renderer's initializing op!");
+        AG_CORE_WARN("[Vulkan/AgVulkanHandlerRenderer - update_models_data] Abording models' update...");
+        return AG_UPDATE_MODELS_DONT_MATCH;
+    }
+
+    for (size_t i = 0; i < models_match.size(); i++)
+    {
+        m_Models[models_match[i].second].model_data = std::move(to_update_models[i].model_data);
+
+        if (m_Models[models_match[i].second].extension_type == Agos::AgModelExtensionDataType::light_source)
+        {
+            Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(m_Models[models_match[i].second].pExtensionData);
+            extension_data->light_position = m_Models[models_match[i].second].model_data.vertices[0].pos;
+        }
+    }
+
+
+    // ! ======================= MOVE INTO HELPERS FUNCTIONS
+    for (size_t i = 0; i < models_match.size(); i++)
+    {
+        m_VulkanCommandBuffer->terminate_command_buffers(false, false);
+        if (keep_informed)
+        {
+            AG_CORE_INFO("Updating model : \"" + m_Models[i].id + "\" vertex buffer...");
+        }
+        m_VertexIndexUniformBuffers[models_match[i].second]->update_vertex_buffer(
+            m_Models[models_match[i].second].model_data.vertices,
+            m_VulkanPhysicalDevice,
+            m_VulkanLogicalDevice,
+            m_VulkanColorDepthRessourcesManager,
+            m_VulkanGraphicsCommandPoolManager,
+            keep_informed
+        );
+        if (keep_informed)
+        {
+            AG_CORE_INFO("Updating model : \"" + m_Models[i].id + "\" index buffer...");
+        }
+        m_VertexIndexUniformBuffers[models_match[i].second]->update_index_buffer(
+            m_Models[models_match[i].second].model_data.indices,
+            m_VulkanPhysicalDevice,
+            m_VulkanLogicalDevice,
+            m_VulkanColorDepthRessourcesManager,
+            m_VulkanGraphicsCommandPoolManager,
+            keep_informed
+        );
+    }
+    if (keep_informed)
+    {
+        AG_CORE_INFO("Updating command buffers...");
+    }
+    m_VulkanCommandBuffer->create_command_buffers(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanSwapChainFrameBuffersManager,
+        m_VulkanGraphicsPipelineManager,
+        m_VulkanGraphicsCommandPoolManager,
+        m_VulkanDescriptorManager,
+        m_VertexIndexUniformBuffers,
+        m_Models,
+        keep_informed
+    );
+    // ! ======================= MOVE INTO HELPER FUNCTION
+
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerRenderer::run()
+{
+    std::chrono::_V2::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+    glfwPollEvents();
+    m_VulkanPresenter->draw_frame(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VertexIndexUniformBuffers,
+        m_Models,
+        m_VulkanCommandBuffer,
+        this
+    );
+    vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
+    this->m_Camera->calculate_adequate_camera_speed(start_time);
+    return AG_SUCCESS;
+}
+
+Agos::AgBool Agos::AgVulkanHandlerRenderer::can_run()
+{
+    return !glfwWindowShouldClose(m_GLFWInstance->get_window());
+}
 
 Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate_vulkan()
 {
@@ -359,20 +471,4 @@ void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instanc
         m_VertexIndexUniformBuffers[i]->terminate_uniform_buffers(mark_instances_terminated);
     }
     m_VulkanDescriptorManager->terminate_descriptor_pool(mark_instances_terminated);
-}
-
-void Agos::AgVulkanHandlerRenderer::draw_frame()
-{
-    std::chrono::_V2::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-    glfwPollEvents();
-    m_VulkanPresenter->draw_frame(
-        m_VulkanLogicalDevice,
-        m_VulkanSwapChain,
-        m_VertexIndexUniformBuffers,
-        m_Models,
-        m_VulkanCommandBuffer,
-        this
-    );
-    vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
-    this->m_Camera->calculate_adequate_camera_speed(start_time);
 }

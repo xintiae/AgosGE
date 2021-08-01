@@ -15,12 +15,19 @@ layout(location = 3) out vec3 fragView;
 layout(location = 4) out vec3 fragLight;
 
 
-layout(binding = 0) uniform UniformBufferObject {
+layout(binding = 0) uniform ModelViewProjectionBufferObject {
+    // mvp
     mat4 model;
     mat4 view;
     mat4 proj;
+    // light
     vec3 lightPos;
     vec3 lightColor;
+    // material
+    vec3    ambient;
+    vec3    diffuse;
+    vec3    specular;
+    float   shininess;
 } ubo;
 
 

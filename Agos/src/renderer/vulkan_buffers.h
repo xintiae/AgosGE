@@ -90,6 +90,22 @@ public:
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager);
 
+    AgResult update_vertex_buffer(
+        const std::vector<VulkanGraphicsPipeline::Vertex>& vertices,
+        const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
+        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+        const bool& keep_informed = true);
+
+    AgResult update_index_buffer(
+        const std::vector<uint32_t>& indices,
+        const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
+        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+        const bool& keep_informed = true);
+
     AgResult terminate_vertex_buffer(const bool& mark_as_terminated = true);
     AgResult terminate_index_buffer(const bool& mark_as_terminated = true);
     AgResult terminate_uniform_buffers(const bool& mark_as_terminated = true);
@@ -160,9 +176,10 @@ public:
         const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
         const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
         const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
-        const std::vector<AgModel>& models);
+        const std::vector<AgModel>& models,
+        const bool& keep_informed = true);
 
-    AgResult terminate_command_buffers(const bool& mark_as_terminated = true);
+    AgResult terminate_command_buffers(const bool& mark_as_terminated = true, const bool& keep_informed = true);
     AgResult terminate(const bool& mark_as_terminated = true);
 
     std::vector<VkCommandBuffer>& get_command_buffers();

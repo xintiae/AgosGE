@@ -90,8 +90,14 @@ public:
     AgVulkanHandlerRenderer& operator=(AgVulkanHandlerRenderer&& other)         = delete;
 
     AgResult init_vulkan(const std::vector<AgModel>& to_render_models);
-    template <typename __Function_Signature>
-    AgResult run(const std::function<__Function_Signature>& to_do);     // our main loop
+    AgResult run();
+    AgBool can_run();
+    /**
+     * @brief main function to update the models' data given when initializing the renderer
+     * @param to_update_models an array of models to update |
+     * you don't have to specify here all your models; you can pass here just the ones you updated (those ones will be identified using their id)
+    */
+    AgResult update_models_data(const std::vector<AgModel>& to_update_models, const bool& keep_informed = false);
     AgResult terminate_vulkan();
     AgResult terminate();
 
@@ -108,24 +114,6 @@ protected:
 
 private:
     void terminate_swapchain(const bool& mark_instances_terminated = true);
-    void draw_frame();
 };  // class AgVulkanHandlerRenderer
 
 }   // namespace Agos
-
-/* * * * * * * template member function Agos::AgVulkanHandlerRenderer::run definition * * * * * * */
-
-template <typename __Function_Signature>
-Agos::AgResult Agos::AgVulkanHandlerRenderer::run(
-    const std::function<__Function_Signature>& to_do)
-{
-    while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
-    {
-        this->draw_frame();
-        // https://www.youtube.com/watch?v=NzishIREebw
-        to_do();
-    }
-
-    return AG_SUCCESS;
-}
-

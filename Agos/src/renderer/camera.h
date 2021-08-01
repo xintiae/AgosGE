@@ -17,7 +17,7 @@ struct AG_API AgCameraObject
 {
     glm::vec3 m_CameraPosition;
     glm::vec3 m_CameraOppositeDirection;
-    glm::vec3 m_Up        = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 m_Up;
     glm::vec3 m_CameraRight;
     glm::vec3 m_CameraUp;
 
@@ -32,11 +32,9 @@ struct AG_API AgCameraObject
 
     AgCameraObject(
         const glm::vec3& camera_pos,
-        const glm::vec3& camera_direction,
+        const glm::vec3& camera_opposite_direction,
         const float& camera_speed = AG_CAMERA_DEFAULT_ABSOLUTE_SPEED,
-        const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f),
-        const float& init_yaw = 0.0f,
-        const float& init_pitch = 0.0f);
+        const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
     ~AgCameraObject();
 
     void compute_camera_basis();

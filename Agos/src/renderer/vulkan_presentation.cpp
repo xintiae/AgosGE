@@ -225,6 +225,8 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     ubo.proj = glm::perspective(glm::radians(45.0f), swapchain->get_swapchain_extent().width / (float)swapchain->get_swapchain_extent().height, 0.0625f, 500.0f);
     ubo.proj[1][1] *= -1;
 
+
+    // * light
     std::vector<size_t> light_models;
     Agos::AgModelExtensionDataLight* extension_data;
     bool no_light_source_among_models = true;
@@ -249,21 +251,27 @@ void Agos::AgVulkanHandlerPresenter::update_uniform_buffer(
     else
     {
         extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(models[light_models[0]].pExtensionData);
-    }
+    }    
 
     for (size_t model = 0; model < models.size(); model++)
     {
-        // - "all that glitters is _a light source_ " 
+        // * "all that glitters is _a light source_ "
         if (models[model].extension_type == Agos::AgModelExtensionDataType::light_source)
         {
             ubo.lightPos    = extension_data->light_position;
-            ubo.lightColor  = extension_data->light_color * 1.0f/0.125f;    // see float ambientStrengt = 0.125f in basic_shader.frag
+            ubo.lightColor  = extension_data->light_color * 1.0f/(models[model].model_data.materials[0].ambient);
         }
         else
         {
             ubo.lightPos    = extension_data->light_position;
             ubo.lightColor  = extension_data->light_color;
         }
+
+        // * model's materials
+        ubo.ambient     = models[model].model_data.materials[0].ambient;
+        ubo.diffuse     = models[model].model_data.materials[0].diffuse;
+        ubo.specular    = models[model].model_data.materials[0].specular;
+        ubo.shininess   = models[model].model_data.materials[0].shininess;
 
         void *data;
         vkMapMemory(logical_device->get_device(), uniforms_buffers[model]->get_uniform_buffers_memory()[current_image], 0, sizeof(ubo), 0, &data);
