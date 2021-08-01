@@ -38,7 +38,7 @@ struct AG_API AgCameraObject
     ~AgCameraObject();
 
     void compute_camera_basis();
-    void calculate_adequate_camera_speed(const std::chrono::_V2::high_resolution_clock::time_point& start_time);
+    void calculate_adequate_camera_speed(const std::chrono::high_resolution_clock::time_point& start_time);
 };  // class AgCameraObject
 
 }   // namespace Agos

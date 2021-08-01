@@ -28,9 +28,9 @@ void Agos::AgCameraObject::compute_camera_basis()
     m_CameraUp        = glm::normalize(glm::cross(this->m_CameraOppositeDirection, this->m_CameraRight));
 }
 
-void Agos::AgCameraObject::calculate_adequate_camera_speed(const std::chrono::_V2::high_resolution_clock::time_point& start_time)
+void Agos::AgCameraObject::calculate_adequate_camera_speed(const std::chrono::high_resolution_clock::time_point& start_time)
 {
-    std::chrono::_V2::high_resolution_clock::time_point current_time = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point current_time = std::chrono::high_resolution_clock::now();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
     m_CameraSpeed = deltaTime * AG_CAMERA_DEFAULT_PER_UNIT_SPEED * 100;
 }

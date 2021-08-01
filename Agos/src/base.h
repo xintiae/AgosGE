@@ -51,7 +51,7 @@
   #define AG_GLM_STRING_CAST          "glm/gtx/string_cast.hpp"
   #define AG_GLM_HASH_TYPES           "glm/gtx/hash.hpp"
   #define AG_GLM_INCLUDE              "glm/glm.hpp"
- 
+
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
  
   #define STB_IMAGE_IMPLEMENTATION
