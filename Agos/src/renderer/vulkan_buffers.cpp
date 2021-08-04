@@ -196,7 +196,9 @@ Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::update_vertex_buffer(
     vkDestroyBuffer(logical_device->get_device(), stagingBuffer, nullptr);
     vkFreeMemory(logical_device->get_device(), stagingBufferMemory, nullptr);
     if (keep_informed)
+    {
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_vertex_buffer] Updated vertex buffer!");
+    }
     return AG_SUCCESS;
 }
 
@@ -242,7 +244,9 @@ Agos::AgResult Agos::AgVulkanHandlerVIUBufferManager::update_index_buffer(
     vkFreeMemory(logical_device->get_device(), stagingBufferMemory, nullptr);
 
     if (keep_informed)
+    {
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerVIUBufferManager - create_index_buffer] Updated index buffer!");
+    }
     return AG_SUCCESS;
 }
 
@@ -379,23 +383,22 @@ void Agos::AgVulkanHandlerVIUBufferManager::copy_buffer(
     const VkBuffer& dstBuffer,
     const VkDeviceSize& size)
 {
-    VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
+    VkCommandBuffer commandBuffer = Agos::AgVulkanHandlerCommandBufferManager::begin_single_time_command(logical_device, command_pool);
 
     VkBufferCopy copyRegion{};
     copyRegion.size = size;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-    end_single_time_command(
+    Agos::AgVulkanHandlerCommandBufferManager::end_single_time_command(
         logical_device,
         queue,
         command_pool,
         commandBuffer);
 }
 
-VkCommandBuffer Agos::AgVulkanHandlerVIUBufferManager::begin_single_time_command(
+VkCommandBuffer Agos::AgVulkanHandlerCommandBufferManager::begin_single_time_command(
     const VkDevice& logical_device,
-    const VkCommandPool& commandPool
-)
+    const VkCommandPool& commandPool)
 {
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -415,7 +418,7 @@ VkCommandBuffer Agos::AgVulkanHandlerVIUBufferManager::begin_single_time_command
     return commandBuffer;
 }
 
-void Agos::AgVulkanHandlerVIUBufferManager::end_single_time_command(
+void Agos::AgVulkanHandlerCommandBufferManager::end_single_time_command(
     const VkDevice& logical_device,
     const VkQueue& graphics_queue,
     const VkCommandPool& command_pool,
@@ -433,10 +436,6 @@ void Agos::AgVulkanHandlerVIUBufferManager::end_single_time_command(
 
     vkFreeCommandBuffers(logical_device, command_pool, 1, &commandBuffer);
 }
-
-
-std::vector<VkCommandBuffer> Agos::AgVulkanHandlerCommandBufferManager::m_CommandBuffers;
-bool Agos::AgVulkanHandlerCommandBufferManager::m_CommandBuffersTerminated = false;
 
 Agos::AgVulkanHandlerCommandBufferManager::AgVulkanHandlerCommandBufferManager()
     : m_LogicalDeviceReference(AG_DEFAULT_LOGICAL_DEVICE_REFERENCE), m_CommandPoolReference(AG_DEFAULT_COMMAND_POOL_REFERENCE)
@@ -473,8 +472,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
     const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
     const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
     const std::vector<AgModel>& models,
-    const bool& keep_informed
-)
+    const bool& keep_informed)
 {
     m_LogicalDeviceReference = logical_device->get_device();
     m_CommandPoolReference = command_pool_manager->get_command_pool();
@@ -549,9 +547,145 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
         }
     }
     if (keep_informed)
+    {
         AG_CORE_INFO("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Recored command buffers");
+    }
     return AG_SUCCESS;
 }
+
+Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::update_command_buffers(
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+    const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
+    const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
+    const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
+    const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+    const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
+    const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
+    const std::vector<AgModel>& models,
+    const std::shared_ptr<AgImGuiHandler>& imgui_handler,
+    const bool& keep_informed)
+{
+    m_LogicalDeviceReference = logical_device->get_device();
+    m_CommandPoolReference = command_pool_manager->get_command_pool();
+
+    imgui_handler->update_ui();
+
+    m_CommandBuffers.resize(framebuffers_manager->get_swapchain_framebuffers().size());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = command_pool_manager->get_command_pool();
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
+
+    if (vkAllocateCommandBuffers(logical_device->get_device(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("[Vulkan/AgVulkanHandlerVIUBufferManager - create_command_buffers] Failed to allocate command buffers!");
+    }
+
+    for (size_t current_command_buffer = 0; current_command_buffer < m_CommandBuffers.size(); current_command_buffer++)
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        if (vkBeginCommandBuffer(m_CommandBuffers[current_command_buffer], &beginInfo) != VK_SUCCESS)
+        {
+            throw std::runtime_error("[Vulkan/AgVulkanHandlerVIUBufferManager - create_command_buffers] Failed to begin recording command buffer!");
+        }
+
+        {
+            VkRenderPassBeginInfo renderPassInfo{};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = render_pass->get_render_pass();
+            renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[current_command_buffer];
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
+
+            std::array<VkClearValue, 2> clearValues{};
+            clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+            clearValues[1].depthStencil = {1.0f, 0};
+
+            renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            renderPassInfo.pClearValues = clearValues.data();
+
+            vkCmdBeginRenderPass(m_CommandBuffers[current_command_buffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+
+            VkViewport viewport{};
+            viewport.width = 100.0f;
+            viewport.height = 50.0f;
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            VkRect2D scissor{};
+            scissor.extent.width = 100.0f;
+            scissor.extent.height = 50.0f;
+            scissor.offset.x = 0;
+            scissor.offset.y = 0;
+
+            vkCmdSetViewport(m_CommandBuffers[current_command_buffer], 0, 1, &viewport);
+            vkCmdSetScissor(m_CommandBuffers[current_command_buffer], 0, 1, &scissor);
+
+
+            vkCmdBindPipeline(m_CommandBuffers[current_command_buffer], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline_manager->get_graphics_pipeline());
+
+            for (size_t current_VIU_buffer = 0; current_VIU_buffer < models_VIU_buffers.size(); current_VIU_buffer++)
+            {
+                VkBuffer vertexBuffers[] = { models_VIU_buffers[current_VIU_buffer]->get_vertex_buffer() };
+                VkDeviceSize offsets[] = {0};
+                vkCmdBindVertexBuffers(m_CommandBuffers[current_command_buffer], 0, 1, vertexBuffers, offsets);
+
+                vkCmdBindIndexBuffer(m_CommandBuffers[current_command_buffer], models_VIU_buffers[current_VIU_buffer]->get_index_buffer(), 0, VK_INDEX_TYPE_UINT32);
+
+                vkCmdBindDescriptorSets(
+                    m_CommandBuffers[current_command_buffer],
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    graphics_pipeline_manager->get_graphics_pipeline_layout(),
+                    0, 1,
+                    &descriptor_manager->get_descriptor_sets(current_VIU_buffer)[current_command_buffer],
+                    0, nullptr);
+
+                vkCmdDrawIndexed(m_CommandBuffers[current_command_buffer], static_cast<uint32_t>(models[current_VIU_buffer].model_data.indices.size()), 1, 0, 0, 0);
+            }
+
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_CommandBuffers[current_command_buffer]);
+
+            vkCmdEndRenderPass(m_CommandBuffers[current_command_buffer]);
+        }
+
+/*
+        {
+            VkRenderPassBeginInfo renderPassInfo{};
+            VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = imgui_handler->get_renderpass();
+            renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[current_command_buffer];
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = &clearColor;
+
+            vkCmdBeginRenderPass(m_CommandBuffers[current_command_buffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            // imgui
+    
+            vkCmdEndRenderPass(m_CommandBuffers[current_command_buffer]);
+        }
+*/
+
+        if (vkEndCommandBuffer(m_CommandBuffers[current_command_buffer]) != VK_SUCCESS)
+        {
+            AG_CORE_CRITICAL("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
+            throw std::runtime_error("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Failed to record command buffer!");
+        }
+    }
+    if (keep_informed)
+    {
+        AG_CORE_INFO("[Vulkan/AgVulkanHanderBufferManager - create_command_buffers] Recored command buffers");
+    }
+    return AG_SUCCESS;
+}
+
 
 Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate(const bool& mark_as_terminated)
 {
@@ -568,7 +702,9 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::terminate_command_buff
             static_cast<uint32_t>(m_CommandBuffers.size()),
             m_CommandBuffers.data());
         if (keep_informed)
+        {
             AG_CORE_INFO("[Vulkan/AgVulkanHanlderBufferManager - terminate_command_buffers] Freed command buffers!");
+        }
         m_CommandBuffersTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }

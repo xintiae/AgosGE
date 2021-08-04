@@ -29,6 +29,10 @@ namespace Agos{
     class AgModel;
 }
 #include "Agos/src/renderer/model.h"
+namespace Agos{
+    class AgImGuiHandler;
+}
+#include "Agos/src/renderer/imgui/agos_imgui.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -139,23 +143,13 @@ public:
         const VkBuffer& dstBuffer,
         const VkDeviceSize& size);
 
-    static VkCommandBuffer begin_single_time_command(
-        const VkDevice& logical_device,
-        const VkCommandPool& commandPool);
-
-    static void end_single_time_command(
-        const VkDevice& logical_device,
-        const VkQueue& graphics_queue,
-        const VkCommandPool& command_pool,
-        const VkCommandBuffer& commandBuffer);
-
 };  // class AgVulkanHandlerVIUBufferManager
 
 class AG_API AgVulkanHandlerCommandBufferManager
 {
 private:
-    static std::vector<VkCommandBuffer> m_CommandBuffers;
-    static bool m_CommandBuffersTerminated;
+    std::vector<VkCommandBuffer> m_CommandBuffers;
+    bool m_CommandBuffersTerminated = false;
 
     VkDevice& m_LogicalDeviceReference;
     VkCommandPool& m_CommandPoolReference;
@@ -179,11 +173,34 @@ public:
         const std::vector<AgModel>& models,
         const bool& keep_informed = true);
 
+    AgResult update_command_buffers(
+        const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+        const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
+        const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
+        const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
+        const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
+        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
+        const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
+        const std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>>& models_VIU_buffers,
+        const std::vector<AgModel>& models,
+        const std::shared_ptr<AgImGuiHandler>& imgui_handler,
+        const bool& keep_informed = true
+    );
+
     AgResult terminate_command_buffers(const bool& mark_as_terminated = true, const bool& keep_informed = true);
     AgResult terminate(const bool& mark_as_terminated = true);
 
     std::vector<VkCommandBuffer>& get_command_buffers();
 
+    static VkCommandBuffer begin_single_time_command(
+        const VkDevice& logical_device,
+        const VkCommandPool& commandPool);
+
+    static void end_single_time_command(
+        const VkDevice& logical_device,
+        const VkQueue& graphics_queue,
+        const VkCommandPool& command_pool,
+        const VkCommandBuffer& commandBuffer);
 };  // AgVulkanHandlerCommandBufferManager
 
 } // namespace Agos

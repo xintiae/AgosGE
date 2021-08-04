@@ -54,10 +54,11 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
     m_Rendered_Models.push_back(std::move(model));
 
-    model.id                     = std::move(std::string("wallSingle.obj"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/wallSingle.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
+    // model.id                     = std::move(std::string("wallSingle.obj"));
+    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/wallSingle.obj"));
+    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
+    // m_Rendered_Models.push_back(std::move(model));
+
 
     // * you have to load your models' data here before initializing vulkan
     for (size_t i = 0; i < m_Rendered_Models.size(); i++)
@@ -74,8 +75,10 @@ Agos::AgResult Agos::AgApplication::core_init_application()
             Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(1.0f, 1.0f, 1.0f));        
     }
 
+
     // * scale things up here
     Agos::AgModelHandler::scale(m_Rendered_Models[0], glm::vec3(0.0f));
+
 
     // * setting up a light source here
     // NOTE : if no model is set as a light source, the renderer provides a default light source
@@ -84,8 +87,9 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     Agos::AgModelHandler::translate(m_Rendered_Models[1], glm::vec3(5.0f, 0.0f, 0.0f));
     Agos::AgModelHandler::set_light_source(m_Rendered_Models[1], glm::vec3(1.25f, 1.25f, 1.25f));
 
+    bool should_cursor_exist = true;
     // ! init vulkan WITH your loaded models
-    m_Renderer->init_vulkan(m_Rendered_Models);
+    m_Renderer->init_vulkan(m_Rendered_Models, should_cursor_exist);
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;

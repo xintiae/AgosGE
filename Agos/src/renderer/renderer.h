@@ -39,6 +39,10 @@ namespace Agos{
 }
 #include "Agos/src/renderer/model.h"
 #include "Agos/src/renderer/camera.h"
+namespace Agos{
+    class AgImGuiHandler;
+}
+#include "Agos/src/renderer/imgui/agos_imgui.h"
 
 
 #include <functional>
@@ -68,14 +72,15 @@ private:
     std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager> m_VulkanColorDepthRessourcesManager;
     std::shared_ptr<AgVulkanHandlerFramebuffers> m_VulkanSwapChainFrameBuffersManager;
 
-    // all those three helpers are models-dependent
+    // - - - all those three helpers are models-dependent - - -
     std::vector<std::shared_ptr<AgVulkanHandlerTextureManager>> m_VulkanTextureImageManager;
     std::vector<AgModel> m_Models;
     std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>> m_VertexIndexUniformBuffers;
-
+    //  - - - ===  - - -
 
     std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
+    std::shared_ptr<AgImGuiHandler> m_ImGui;
 
     bool m_FramebufferResized = false;
     bool m_RendererTerminated = false;
@@ -89,7 +94,7 @@ public:
     AgVulkanHandlerRenderer& operator=(const AgVulkanHandlerRenderer& other)    = delete;
     AgVulkanHandlerRenderer& operator=(AgVulkanHandlerRenderer&& other)         = delete;
 
-    AgResult init_vulkan(const std::vector<AgModel>& to_render_models);
+    AgResult init_vulkan(const std::vector<AgModel>& to_render_models, const bool& should_cursor_exist = false);
     AgResult run();
     AgBool can_run();
     /**
@@ -102,9 +107,10 @@ public:
     AgResult terminate();
 
     friend class AgGLFWHandlerInstance;
-    friend class AgVulkanHandlerPresenter;
     friend struct AgGLFWHandlerKeyboardEventHandler;
     friend struct AgGLFWHandlerCursorPosEventHandler;
+    friend class AgVulkanHandlerPresenter;
+    friend class AgImGuiHandler;
 
 protected:
     std::shared_ptr<AgCameraObject> m_Camera;

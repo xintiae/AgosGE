@@ -45,8 +45,7 @@ public:
         const std::shared_ptr<AgVulkanHandlerPhysicalDevice>& physical_device,
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources_manager,
-        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
-        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager);
+        const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager);
 
     AgResult create_texture_image_view(
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
@@ -69,7 +68,6 @@ private:
         const VkDevice& logical_device,
         const VkQueue& graphics_queue,
         const VkCommandPool& command_pool,
-        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
         const VkImage& image,
         const VkFormat& format,
         const VkImageLayout& oldLayout,
@@ -80,7 +78,6 @@ private:
         const VkDevice& logical_device,
         const VkQueue& graphics_queue,
         const VkCommandPool& command_pool,
-        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
         const VkBuffer& buffer,
         const VkImage& image,
         const uint32_t& width,
@@ -91,7 +88,6 @@ private:
         const VkDevice& logical_device,
         const VkQueue& graphics_queue,
         const VkCommandPool& command_pool,
-        const std::shared_ptr<AgVulkanHandlerVIUBufferManager>& buffer_manager,
         const VkImage& image,
         const VkFormat& imageFormat,
         const int32_t& texWidth,

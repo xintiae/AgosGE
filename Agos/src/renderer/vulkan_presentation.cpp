@@ -82,7 +82,6 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
         return AG_RECREATED_SWAPCHAIN;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to acquire swap chain image!");
@@ -125,10 +124,11 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
     vkResetFences(logical_device->get_device(), 1, &m_InFlightFences[m_CurrentFrame]);
     if (vkQueueSubmit(logical_device->get_graphics_queue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS)
     {
+        // ! ADD TO SEE IT ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+
         AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to submit draw command buffer!");
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to submit draw command buffer!");
     }
-
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

@@ -13,7 +13,8 @@ Agos::AgGLFWHandlerInstance::~AgGLFWHandlerInstance()
 }
 
 Agos::AgResult Agos::AgGLFWHandlerInstance::init(
-    const std::shared_ptr<AgGLFWHandlerEvents>& event_handler)
+    const std::shared_ptr<AgGLFWHandlerEvents>& event_handler,
+    const bool& shall_cursor_exist)
 {
     m_EventBusListener.listen<Agos::Events::AgGLFWHandlerEvent>(
         [this](const Agos::Events::AgGLFWHandlerEvent& event) -> void
@@ -39,8 +40,17 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::init(
 
     glfwSetMouseButtonCallback(m_ApplicationWindow, event_handler->mouseButtonCallback);
     glfwSetCursorPosCallback(m_ApplicationWindow, event_handler->cursorPosCallback);
-    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    m_CursorState = GLFW_CURSOR_DISABLED;
+
+    if (shall_cursor_exist)
+    {
+        glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        m_CursorState = GLFW_CURSOR_NORMAL;
+    }
+    else
+    {
+        glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        m_CursorState = GLFW_CURSOR_DISABLED;
+    }
     glfwSetKeyCallback(m_ApplicationWindow, event_handler->keyboardCallback);
 
     return AG_SUCCESS;
@@ -114,8 +124,11 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
         }
         case Agos::Events::cursorPosCallback:
         {
-            Agos::Events::AgGLFWEventCursorPosCallback* event_data = reinterpret_cast<Agos::Events::AgGLFWEventCursorPosCallback*>(event.event_data);
-            Agos::AgGLFWHandlerCursorPosEventHandler::process(*event_data, m_RendererReference);
+            if (this->m_CursorState == GLFW_CURSOR_DISABLED)
+            {
+                Agos::Events::AgGLFWEventCursorPosCallback* event_data = reinterpret_cast<Agos::Events::AgGLFWEventCursorPosCallback*>(event.event_data);
+                Agos::AgGLFWHandlerCursorPosEventHandler::process(*event_data, m_RendererReference);
+            }
             break;
         }
         case Agos::Events::keyboardCallback:

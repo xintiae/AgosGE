@@ -19,10 +19,10 @@
 #define AG_DEBUG_LAYERS_ENABLED
 #define AG_ENABLE_DEBUG_VALIDATION_LAYER true
 
-// you know what that means...
-#define AG_LOGGER_TOO_MUCH_TO_SAY
-// #define AG_LOGGER_NOT_THAT_MUCH_TO_SAY
-
+// #define AG_LOGGER_ALL
+// #define AG_LOGGER_NO_INFO
+#define AG_LOGGER_NO_WARN
+// #define AG_LOGGER_NO_LOGGER
 
 #define AG_VULKAN_MAX_FRAMES_IN_FLIGHT 2
 
@@ -61,11 +61,12 @@ enum AgResult {
     AG_VERTEX_BUFFER_ALREADY_FREED                  = 26,
     AG_INDEX_BUFFER_ALREADY_FREED                   = 27,
     AG_UNIFORM_BUFFERS_ALREADY_FREED                = 28,
-    AG_COMMAND_BUFFERS_ALREADY_FREED                = 29,
-    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 30,
-    AG_RECREATED_SWAPCHAIN                          = 31,
-    AG_UPDATE_MODELS_DONT_MATCH                     = 32,
-    AG_FAILED_TO_READ_OBJ_FILE                      = 33
+    AG_FAILED_TO_CREATE_COMMAND_POOL                = 29,
+    AG_COMMAND_BUFFERS_ALREADY_FREED                = 30,
+    AG_SEMAPHORES_FENCES_ALREADY_TERMINATED         = 31,
+    AG_RECREATED_SWAPCHAIN                          = 32,
+    AG_UPDATE_MODELS_DONT_MATCH                     = 33,
+    AG_FAILED_TO_READ_OBJ_FILE                      = 34
 };
 
 typedef bool AgBool;
