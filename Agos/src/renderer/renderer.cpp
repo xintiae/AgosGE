@@ -308,7 +308,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::update_models_data(const std::vect
 
 Agos::AgResult Agos::AgVulkanHandlerRenderer::run()
 {
-    std::chrono::_V2::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
     glfwPollEvents();
 
     m_VulkanPresenter->draw_frame(

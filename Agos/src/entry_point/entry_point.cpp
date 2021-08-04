@@ -101,14 +101,14 @@ Agos::AgResult Agos::AgApplication::core_run_application()
 
     while (m_Renderer->can_run())
     {
-        std::chrono::_V2::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+        std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
 
         std::vector<Agos::AgModel> updated_models(1, m_Rendered_Models[1]);
         // ! !=!=!=! NOTE : UNDER ANY CIRCUMSTANCES DO NOT TRY TO RESIZE ANY m_Rendered_Models.model_data !=!=!=!
         m_Renderer->update_models_data( updated_models );
         m_Renderer->run();
 
-        std::chrono::_V2::high_resolution_clock::time_point current_time = std::chrono::high_resolution_clock::now();
+        std::chrono::high_resolution_clock::time_point current_time = std::chrono::high_resolution_clock::now();
         float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
 
         Agos::AgModelHandler::rotate(m_Rendered_Models[1], glm::vec3(0.0f, 1.0f, 1.0f), deltaTime * 20.0f);
