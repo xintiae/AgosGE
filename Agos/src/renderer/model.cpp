@@ -115,7 +115,9 @@ Agos::AgResult Agos::AgModelHandler::load_model(AgModel& model, const glm::vec3&
         return AG_FAILED_TO_READ_OBJ_FILE;
     }
     if (!reader.Warning().empty())
+    {
         AG_CORE_WARN("[ModelLoader/AgModelHandler - load_model] TinyObjReader : " + reader.Warning());
+    }
 
     attrib      = std::move( reader.GetAttrib()     );
     shapes      = std::move( reader.GetShapes()     );

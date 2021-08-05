@@ -24,14 +24,14 @@ Agos::AgResult Agos::AgApplication::core_init_application()
      * * (use Better Comments vscode extension to better visulize it :P)
      * 
      * TODO LIST
+     *      - helper function to change models' color
+     *      - helper function to show on each model its position, velocity and acceleration vector when triggered using an item-specific imgui window (see default AgosGE window layout)
      *      - material property for each model
-     *      - review .mtl files loading op
      *      - camera velocity vector / acceleration vector
      *      ! IMGUI MENU
      *
      * * LATER ON
      *      - Live editing & saving
-     *      - physics?
      *      - who knows what's coming next ;)
     */
 
