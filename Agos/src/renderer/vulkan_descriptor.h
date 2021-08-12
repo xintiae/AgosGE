@@ -5,8 +5,14 @@
 #include "Agos/src/renderer/vulkan_instance.h"
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
+namespace Agos{
+    class AgVulkanHandlerSwapChain;
+}
 #include "Agos/src/renderer/vulkan_swapchain.h"
 #include "Agos/src/renderer/vulkan_textures.h"
+namespace Agos{
+    class AgVulkanHandlerVIUBufferManager;
+}
 #include "Agos/src/renderer/vulkan_buffers.h"
 
 #include AG_VULKAN_INCLUDE

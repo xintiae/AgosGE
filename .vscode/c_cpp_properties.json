@@ -11,7 +11,8 @@
             ],
             "defines": [
                 "AG_SHADERS_PATH=\"\"",
-                "AG_MODELS_PATH=\"\""
+                "AG_MODELS_PATH=\"\"",
+                "AG_TEXTURES_PATH=\"\""
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",

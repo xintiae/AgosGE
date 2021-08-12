@@ -148,7 +148,6 @@ Agos::AgResult Agos::AgVulkanHandlerPresenter::draw_frame(
         renderer->recreate_swapchain(false);
     }
     else if (result != VK_SUCCESS)
-    if (result != VK_SUCCESS)
     {
         throw std::runtime_error("[Vulkan/AgVulkanHandlerPresenter - draw_frame] Failed to present swap chain image!");
     }

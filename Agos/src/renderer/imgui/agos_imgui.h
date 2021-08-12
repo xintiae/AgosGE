@@ -15,6 +15,10 @@ namespace Agos{
 #include "Agos/src/renderer/vulkan_swapchain.h"
 #include "Agos/src/renderer/vulkan_render_pass.h"
 #include "Agos/src/renderer/renderer.h"
+namespace Agos{
+    class AgVulkanHandlerCommandPoolManager;
+}
+#include "Agos/src/renderer/vulkan_command_pool.h"
 
 
 #include "Agos/src/renderer/imgui/mandatories/imgui_impl_vulkan.h"
@@ -52,7 +56,7 @@ public:
         const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager);
 
     AgResult update_ui();
-    AgResult terminate();
+    AgResult terminate(const bool& mark_as_terminated = false);
 
 private:
     AgResult create_descriptor_pool(

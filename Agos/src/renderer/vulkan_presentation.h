@@ -9,7 +9,7 @@ namespace Agos{
     class AgVulkanHandlerCommandBufferManager;
 }
 #include "Agos/src/renderer/vulkan_buffers.h"
-#include "Agos/src/renderer/model.h"
+#include "Agos/src/renderer/modeling/model.h"
 
 #include AG_VULKAN_INCLUDE
 #include <cstdint>

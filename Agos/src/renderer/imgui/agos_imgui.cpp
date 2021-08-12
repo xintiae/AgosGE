@@ -32,7 +32,7 @@ Agos::AgResult Agos::AgImGuiHandler::init(
     create_descriptor_pool(logical_device->get_device());
 
     ImGui_ImplGlfw_InitForVulkan(glfw_instance->get_window(), true);
-    ImGui_ImplVulkan_InitInfo initInfo = {};
+    ImGui_ImplVulkan_InitInfo initInfo{};
     initInfo.Instance           = vulkan_instance->get_instance();
     initInfo.PhysicalDevice     = physical_device->get_device();
     initInfo.Device             = logical_device->get_device();
@@ -67,7 +67,7 @@ Agos::AgResult Agos::AgImGuiHandler::update_ui()
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgImGuiHandler::terminate()
+Agos::AgResult Agos::AgImGuiHandler::terminate(const bool& mark_as_terminated)
 {
     if (!m_ImguiTerminated)
     {
@@ -75,7 +75,7 @@ Agos::AgResult Agos::AgImGuiHandler::terminate()
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
         terminate_descriptor_pool();
-        m_ImguiTerminated = true;
+        m_ImguiTerminated = mark_as_terminated;
         return AG_SUCCESS;
     }
     return AG_INSTANCE_ALREADY_TERMINATED;
@@ -131,10 +131,12 @@ Agos::AgResult Agos::AgImGuiHandler::terminate_descriptor_pool()
 void Agos::AgImGuiHandler::create_context()
 {
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    ImGuiContext* new_context = ImGui::CreateContext();
+    ImGui::SetCurrentContext(new_context);
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.IniFilename = NULL;
     ImGui::StyleColorsDark();
 }
 

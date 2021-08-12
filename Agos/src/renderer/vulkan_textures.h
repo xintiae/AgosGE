@@ -26,14 +26,14 @@ namespace Agos
 class AG_API AgVulkanHandlerTextureManager
 {
 private:
-    VkImage m_TextureImage;
-    VkImageView m_TextureImageView;
-    VkDeviceMemory m_TextureImageMemory;
-    uint32_t m_MipLevels;
-    VkSampler m_TextureSampler;
+    VkImage         m_TextureImage;
+    VkImageView     m_TextureImageView;
+    VkDeviceMemory  m_TextureImageMemory;
+    uint32_t        m_MipLevels;
+    VkSampler       m_TextureSampler;
 
-    VkDevice& m_LogicalDeviceReference;
-    bool m_Terminated = false;
+    VkDevice&   m_LogicalDeviceReference;
+    bool        m_Terminated = false;
 
 public:
     AgVulkanHandlerTextureManager();
@@ -57,11 +57,11 @@ public:
 
     AgResult terminate();
 
-    VkImage& get_texture_image();
-    VkImageView& get_texture_image_view();
-    VkDeviceMemory& get_texture_image_memory();
-    uint32_t& get_miplevels();
-    VkSampler& get_texture_sampler();
+    VkImage&            get_texture_image();
+    VkImageView&        get_texture_image_view();
+    VkDeviceMemory&     get_texture_image_memory();
+    uint32_t&           get_miplevels();
+    VkSampler&          get_texture_sampler();
 
 private:
     void transition_image_layout(

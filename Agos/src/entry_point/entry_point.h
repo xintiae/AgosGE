@@ -28,6 +28,10 @@ public:
     virtual AgResult client_init_application()      = 0;
     virtual AgResult client_run_application()       = 0;
     virtual AgResult client_terminate_application() = 0;
+
+// example_sake
+private:
+    void load_models();
 } AgApplication; 
 
 }   // namespace Agos

@@ -14,6 +14,8 @@
 #define AG_MAX_WINDOW_WIDTH 1920
 #define AG_MAX_WINDOW_HEIGHT 983
 
+#define AG_SWAPCHAIN_RECREATION_LOCK_TIME_MS 500
+
 #define AG_MARK_AS_USED(X)  ( (void*)(&(X)) )
 
 #define AG_DEBUG_LAYERS_ENABLED
@@ -26,14 +28,14 @@
 
 #define AG_VULKAN_MAX_FRAMES_IN_FLIGHT 2
 
-#define AG_DEFAULT_VERTEX_SHADER_FOLDER "Agos_vertex_shader"
-#define AG_DEFAULT_FRAGMENT_SHADER_FOLDER "Agos_fragment_shader"
-#define AG_SHADERS_COMPILE_ANYWAY true
+#define AG_DEFAULT_VERTEX_SHADER_FOLDER     "Agos_vertex_shader"
+#define AG_DEFAULT_FRAGMENT_SHADER_FOLDER   "Agos_fragment_shader"
+#define AG_SHADERS_SHALL_COMPILE true
 
 #define AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS 100
 
-#define AG_DEFAULT_MODEL_TEXTURE               "/primitives/no_textures.png"
-#define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL  "/primitives/no_textures_opacity_null.png"
+#define AG_DEFAULT_TEXTURE                  "/primitives/no_textures.png"
+#define AG_DEFAULT_TEXTURE_OPACITY_NULL     "/primitives/no_textures_opacity_null.png"
 
 namespace Agos
 {

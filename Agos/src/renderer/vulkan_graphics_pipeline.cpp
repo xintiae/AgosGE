@@ -256,7 +256,7 @@ Agos::VulkanGraphicsPipeline::Shader Agos::AgVulkanHandlerGraphicsPipelineManage
 
     // compile
     std::string compile_cmd = "(cd " + shader_folder_path + " && " + shader_info.compile + ")";
-    if (!compiled_shader_exists || AG_SHADERS_COMPILE_ANYWAY)
+    if (!compiled_shader_exists || AG_SHADERS_SHALL_COMPILE)
     {
         AG_CORE_WARN("[Vulkan/AgVulkanHandlerGraphicsPipelineManager - compile_shader] Compiling shader : " + shader_folder_path + "/" + shader_info.id + "...");
 

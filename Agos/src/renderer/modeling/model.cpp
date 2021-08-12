@@ -1,4 +1,4 @@
-#include "Agos/src/renderer/model.h"
+#include "Agos/src/renderer/modeling/model.h"
 
 #include "Agos/src/logger/logger.h"
 #include "Agos/src/renderer/vulkan_graphics_pipeline.h"
@@ -9,7 +9,7 @@ Agos::AgModel::AgModel()
 {
 }
 
-Agos::AgModel::AgModel(const AgModel& other)
+Agos::AgModel::AgModel(const Agos::AgModel& other)
 {
     this->id                    = other.id;
     this->path_to_obj_file      = other.path_to_obj_file;
@@ -27,7 +27,7 @@ Agos::AgModel::AgModel(const AgModel& other)
     }
 }
 
-Agos::AgModel::AgModel(AgModel&& other)
+Agos::AgModel::AgModel(Agos::AgModel&& other)
 {
     this->id                    = std::move(other.id);
     this->path_to_obj_file      = std::move(other.path_to_obj_file);
@@ -44,12 +44,19 @@ Agos::AgModel::AgModel(AgModel&& other)
 
 Agos::AgModel::~AgModel()
 {
-    if (this->extension_type == Agos::AgModelExtensionDataType::light_source)
+    switch (this->extension_type)
     {
-        this->extension_type = Agos::AgModelExtensionDataType::none;
-        Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(this->pExtensionData);
-        delete (extension_data);
-        this->pExtensionData = NULL;
+        // extension vector for multiple extensions stored into a std::vector
+        case Agos::AgModelExtensionDataType::light_source:
+        {
+            delete_model_extension<Agos::AgModelExtensionDataType::light_source>(*this);
+            break;
+        }
+        case Agos::AgModelExtensionDataType::lighting_map:
+        {
+            delete_model_extension<Agos::AgModelExtensionDataType::lighting_map>(*this);
+            break;
+        }
     }
 }
 
@@ -88,7 +95,22 @@ Agos::AgModel& Agos::AgModel::operator=(Agos::AgModel&& other)
     return *this;
 }
 
-Agos::AgResult Agos::AgModelHandler::load_model(AgModel& model, const glm::vec3& polygons_color)
+template <uint16_t extension_type>
+void Agos::AgModel::create_model_extension(Agos::AgModel& model)
+{
+    model.extension_type |= extension_type;
+}
+
+template <uint16_t extension_type>
+void Agos::AgModel::delete_model_extension(Agos::AgModel& model)
+{
+    model.extension_type -= extension_type;
+    extension_type* extension_data = reinterpret_cast<extension_type*>(model.pExtensionData);
+    delete (extension_data);
+    model.pExtensionData = NULL;
+}
+
+Agos::AgResult Agos::AgModelHandler::load_model(Agos::AgModel& model, const glm::vec3& polygons_color)
 {
     bool has_mtl = false;
 
@@ -252,7 +274,7 @@ Agos::AgResult Agos::AgModelHandler::load_model(AgModel& model, const glm::vec3&
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgModelHandler::translate(AgModel& model, const glm::vec3& translation)
+Agos::AgResult Agos::AgModelHandler::translate(Agos::AgModel& model, const glm::vec3& translation)
 {
     for (Agos::VulkanGraphicsPipeline::Vertex& vertex : model.model_data.vertices)
     {
@@ -262,7 +284,7 @@ Agos::AgResult Agos::AgModelHandler::translate(AgModel& model, const glm::vec3& 
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgModelHandler::scale(AgModel& model, const glm::vec3& translation)
+Agos::AgResult Agos::AgModelHandler::scale(Agos::AgModel& model, const glm::vec3& translation)
 {
     glm::mat4 m(1.0f);  // 'm' stands for "model"
     m = glm::scale(m, translation);
@@ -282,7 +304,7 @@ Agos::AgResult Agos::AgModelHandler::scale(AgModel& model, const glm::vec3& tran
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgModelHandler::rotate(AgModel& model, const glm::vec3& rotation_axis, const float& angle_degrees)
+Agos::AgResult Agos::AgModelHandler::rotate(Agos::AgModel& model, const glm::vec3& rotation_axis, const float& angle_degrees)
 {
     glm::mat4 m(1.0f);  // 'm' stands for "model"
     m = glm::rotate(m, glm::radians(angle_degrees), rotation_axis);
@@ -301,7 +323,7 @@ Agos::AgResult Agos::AgModelHandler::rotate(AgModel& model, const glm::vec3& rot
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgModelHandler::set_light_source(AgModel& model, const glm::vec3& light_color)
+Agos::AgResult Agos::AgModelHandler::set_light_source(Agos::AgModel& model, const glm::vec3& light_color)
 {
     model.extension_type = std::move(Agos::AgModelExtensionDataType::light_source);
     model.pExtensionData = new (Agos::AgModelExtensionDataLight);
@@ -310,4 +332,9 @@ Agos::AgResult Agos::AgModelHandler::set_light_source(AgModel& model, const glm:
     extension_data->light_color = light_color;
 
     return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgModelHandler::set_lighting_map(Agos::AgModel& model)
+{
+
 }

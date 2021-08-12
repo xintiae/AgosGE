@@ -98,16 +98,87 @@ Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_image_views(const std::sha
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate(const bool& mark_as_terminated)
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::create_framebuffers(
+    const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
+    const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
+    const std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager>& color_depth_ressources)
 {
-    if (!m_Terminated)
+    m_LogicalDeviceReference = logical_device->get_device();
+    m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
+
+    for (size_t i = 0; i < m_SwapChainImageViews.size(); i++)
+    {
+        std::array<VkImageView, 3> attachments = {
+            color_depth_ressources->get_color_image_view(),
+            color_depth_ressources->get_depth_image_view(),
+            m_SwapChainImageViews[i]};
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = render_pass->get_render_pass();
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.width = m_SwapChainExtent.width;
+        framebufferInfo.height = m_SwapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(logical_device->get_device(), &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]) != VK_SUCCESS)
+        {
+            AG_CORE_CRITICAL("[Vulkan/AgVulkanHandlerSwapChain - create_framebuffers] Failed to create swap chain framebuffers!");
+            return AG_FAILED_TO_CREATE_FRAMEBUFFERS;
+        }
+    }
+
+    AG_CORE_INFO("[Vulkan/AgVulkanHandlerSwapChain - create_framebuffers] Created swap chain framebuffers!");
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate_framebuffers(const bool& mark_as_terminated)
+{
+    if (!m_FramebuffersTerminated)
+    {
+        for (VkFramebuffer& frame_buffer : m_SwapChainFramebuffers)
+        {
+            vkDestroyFramebuffer(m_LogicalDeviceReference, frame_buffer, nullptr);
+        }
+        AG_CORE_INFO("[Vulkan/AgVulkanHandlerSwapChain] Destroyed swap chain framebuffers!");
+        m_FramebuffersTerminated = mark_as_terminated;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate_swapchain_images_nd_views(const bool& mark_as_terminated)
+{
+    if (!m_ImageViewsTerminated)
     {
         for (const VkImageView& it : m_SwapChainImageViews)
         {
             vkDestroyImageView(m_LogicalDeviceReference, it, nullptr);
         }
-        vkDestroySwapchainKHR(m_LogicalDeviceReference, m_SwapChain, nullptr);
+        m_ImageViewsTerminated = mark_as_terminated;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
+}
 
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate_swapchain(const bool& mark_as_terminated)
+{
+    if (!m_SwapChainTerminated)
+    {
+        vkDestroySwapchainKHR(m_LogicalDeviceReference, m_SwapChain, nullptr);
+        m_SwapChainTerminated = mark_as_terminated;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED; 
+}
+
+Agos::AgResult Agos::AgVulkanHandlerSwapChain::terminate(const bool& mark_as_terminated)
+{
+    if (!m_Terminated)
+    {
+        terminate_swapchain_images_nd_views(mark_as_terminated);
+        terminate_swapchain(mark_as_terminated);
         AG_CORE_INFO("[Vulkan/AgVulkanHandlerSwapChain - terminate] Destroyed swap chain image views ; destroyed swap chain!");
         m_Terminated = mark_as_terminated;
         return AG_SUCCESS;
@@ -138,6 +209,11 @@ VkFormat& Agos::AgVulkanHandlerSwapChain::get_swapchain_image_format()
 VkExtent2D& Agos::AgVulkanHandlerSwapChain::get_swapchain_extent()
 {
     return m_SwapChainExtent;
+}
+
+std::vector<VkFramebuffer>& Agos::AgVulkanHandlerSwapChain::get_swapchain_framebuffers()
+{
+    return m_SwapChainFramebuffers;
 }
 
 VkSurfaceFormatKHR Agos::AgVulkanHandlerSwapChain::choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats)

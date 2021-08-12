@@ -24,9 +24,11 @@ Agos::AgResult Agos::AgApplication::core_init_application()
      * * (use Better Comments vscode extension to better visulize it :P)
      * 
      * TODO LIST
+     *      ! RENDERER CODE REVIEW
+     *      ~ bug fix : descriptor sets not being destroyed on vulkan logical device destruction; occurs only when resizing the window
+     *      - lighting maps
      *      - helper function to change models' color
      *      - helper function to show on each model its position, velocity and acceleration vector when triggered using an item-specific imgui window (see default AgosGE window layout)
-     *      - material property for each model
      *      - camera velocity vector / acceleration vector
      *      ! IMGUI MENU
      *
@@ -35,57 +37,7 @@ Agos::AgResult Agos::AgApplication::core_init_application()
      *      - who knows what's coming next ;)
     */
 
-    // * setup here your data for the renderer to render OR specify which models AgosGE should load by default
-    // * keep in mind that your models may overlap on each others when rendering your scene without translating
-    m_Rendered_Models.reserve(3);
-    Agos::AgModel model;
-    model.id                     = std::move(std::string("axis"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/axis.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
-
-    model.id                     = std::move(std::string("cube"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/cube.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
-
-    model.id                     = std::move(std::string("teapot"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/teapot.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
-
-    // model.id                     = std::move(std::string("wallSingle.obj"));
-    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/wallSingle.obj"));
-    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
-    // m_Rendered_Models.push_back(std::move(model));
-
-
-    // * you have to load your models' data here before initializing vulkan
-    for (size_t i = 0; i < m_Rendered_Models.size(); i++)
-    {
-        AG_CORE_WARN("Loading model : " + m_Rendered_Models[i].id + " (obj file path : " + m_Rendered_Models[i].path_to_obj_file + ")");
-        if (i == 1)
-            // "wanna set ma cube blue man"
-            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(0.0f, 0.0f, 1.0f));
-        else if (i == 2)
-            // "wanna set ma teapot green man"
-            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(0.0f, 1.0f, 0.0f));
-        else
-            // "wanna set it any color?" - "nah I'm fine with white this time"
-            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(1.0f, 1.0f, 1.0f));        
-    }
-
-
-    // * scale things up here
-    Agos::AgModelHandler::scale(m_Rendered_Models[0], glm::vec3(0.0f));
-
-
-    // * setting up a light source here
-    // NOTE : if no model is set as a light source, the renderer provides a default light source
-    // at location glm::vec3(1.0f, 1.0f, 1.0f) with color glm::vec3(1.0f, 0.0f, 0.0f) - which is red
-    Agos::AgModelHandler::scale(m_Rendered_Models[1], glm::vec3(0.2f));
-    Agos::AgModelHandler::translate(m_Rendered_Models[1], glm::vec3(5.0f, 0.0f, 0.0f));
-    Agos::AgModelHandler::set_light_source(m_Rendered_Models[1], glm::vec3(1.25f, 1.25f, 1.25f));
+   load_models();
 
     bool should_cursor_exist = true;
     // ! init vulkan WITH your loaded models
@@ -127,4 +79,59 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
     AG_CORE_INFO("Terminated Agos core application!");
     AG_CORE_WARN("Exiting...");
     return Agos::AG_SUCCESS;
+}
+
+void Agos::AgApplication::load_models()
+{
+    // * setup here your data for the renderer to render OR specify which models AgosGE should load by default
+    // * keep in mind that your models may overlap on each others when rendering your scene without translating
+    m_Rendered_Models.reserve(3);
+    Agos::AgModel model;
+    model.id                     = std::move(std::string("axis"));
+    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/axis.obj"));
+    model.path_to_texture_file   = std::move(std::string(AG_TEXTURES_PATH) + std::string(AG_DEFAULT_TEXTURE));
+    m_Rendered_Models.push_back(std::move(model));
+
+    model.id                     = std::move(std::string("cube"));
+    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/cube.obj"));
+    model.path_to_texture_file   = std::move(std::string(AG_TEXTURES_PATH) + std::string(AG_DEFAULT_TEXTURE));
+    m_Rendered_Models.push_back(std::move(model));
+
+    model.id                     = std::move(std::string("teapot"));
+    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/teapot.obj"));
+    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_TEXTURE));
+    m_Rendered_Models.push_back(std::move(model));
+
+    // model.id                     = std::move(std::string("wallSingle.obj"));
+    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/wallSingle.obj"));
+    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
+    // m_Rendered_Models.push_back(std::move(model));
+
+
+    // * you have to load your models' data here before initializing vulkan
+    for (size_t i = 0; i < m_Rendered_Models.size(); i++)
+    {
+        AG_CORE_WARN("Loading model : " + m_Rendered_Models[i].id + " (obj file path : " + m_Rendered_Models[i].path_to_obj_file + ")");
+        if (i == 1)
+            // "wanna set ma cube blue man"
+            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(0.0f, 0.0f, 1.0f));
+        else if (i == 2)
+            // "wanna set ma teapot green man"
+            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(0.0f, 1.0f, 0.0f));
+        else
+            // "wanna set it any color?" - "nah I'm fine with white this time"
+            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(1.0f, 1.0f, 1.0f));        
+    }
+
+
+    // * scale things up here
+    Agos::AgModelHandler::scale(m_Rendered_Models[0], glm::vec3(0.0f));
+
+
+    // * setting up a light source here
+    // NOTE : if no model is set as a light source, the renderer provides a default light source
+    // at location glm::vec3(1.0f, 1.0f, 1.0f) with color glm::vec3(1.0f, 0.0f, 0.0f) - which is red
+    Agos::AgModelHandler::scale(m_Rendered_Models[1], glm::vec3(0.2f));
+    Agos::AgModelHandler::translate(m_Rendered_Models[1], glm::vec3(5.0f, 0.0f, 0.0f));
+    Agos::AgModelHandler::set_light_source(m_Rendered_Models[1], glm::vec3(1.25f, 1.25f, 1.25f));   
 }

@@ -17,17 +17,16 @@ Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dex
     m_VulkanLogicalDevice       = std::make_shared<AgVulkanHandlerLogicalDevice>();
     m_VulkanSwapChain           = std::make_shared<AgVulkanHandlerSwapChain>();
     m_VulkanRenderPass          = std::make_shared<AgVulkanHandlerRenderPass>();
-
-    m_VulkanDescriptorManager            = std::make_shared<AgVulkanHandlerDescriptorManager>();
     m_VulkanGraphicsPipelineManager      = std::make_shared<AgVulkanHandlerGraphicsPipelineManager>();
     m_VulkanGraphicsCommandPoolManager   = std::make_shared<AgVulkanHandlerCommandPoolManager>();
     m_VulkanColorDepthRessourcesManager  = std::make_shared<AgVulkanHandlerColorDepthRessourcesManager>();
-    m_VulkanSwapChainFrameBuffersManager = std::make_shared<AgVulkanHandlerFramebuffers>();
     m_VulkanCommandBuffer                = std::make_shared<AgVulkanHandlerCommandBufferManager>();
 
     m_VulkanPresenter   = std::make_shared<AgVulkanHandlerPresenter>();
     m_Camera            = std::make_shared<AgCameraObject>(glm::vec3(-5.0f, 5.0f, 5.0f), -glm::vec3(1.0f, -1.0f, -1.0f));
     m_ImGui             = std::make_shared<AgImGuiHandler>(m_GLFWInstance->get_window());
+
+    m_VulkanDescriptorManager            = std::make_shared<AgVulkanHandlerDescriptorManager>();
 }
 
 Agos::AgVulkanHandlerRenderer::~AgVulkanHandlerRenderer()
@@ -116,9 +115,8 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
         m_VulkanSwapChain
     );
     AG_CORE_WARN("Creating swap chain frame buffers...");
-    m_VulkanSwapChainFrameBuffersManager->create_framebuffers(
+    m_VulkanSwapChain->create_framebuffers(
         m_VulkanLogicalDevice,
-        m_VulkanSwapChain,
         m_VulkanRenderPass,
         m_VulkanColorDepthRessourcesManager
     );
@@ -186,7 +184,6 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
         m_VulkanRenderPass,
-        m_VulkanSwapChainFrameBuffersManager,
         m_VulkanGraphicsPipelineManager,
         m_VulkanGraphicsCommandPoolManager,
         m_VulkanDescriptorManager,
@@ -292,7 +289,6 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::update_models_data(const std::vect
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
         m_VulkanRenderPass,
-        m_VulkanSwapChainFrameBuffersManager,
         m_VulkanGraphicsPipelineManager,
         m_VulkanGraphicsCommandPoolManager,
         m_VulkanDescriptorManager,
@@ -330,6 +326,17 @@ Agos::AgBool Agos::AgVulkanHandlerRenderer::can_run()
     return !glfwWindowShouldClose(m_GLFWInstance->get_window());
 }
 
+Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate()
+{
+    if (!m_RendererTerminated)
+    {
+        terminate_vulkan();
+        m_RendererTerminated = true;
+        return AG_SUCCESS;
+    }
+    return AG_INSTANCE_ALREADY_TERMINATED;
+}
+
 Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate_vulkan()
 {
     this->terminate_swapchain(true);
@@ -362,18 +369,18 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate_vulkan()
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate()
+void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instances_terminated)
 {
-    if (!m_RendererTerminated)
+    if (!m_ResizeOpLocked)
     {
-        terminate_vulkan();
-        m_RendererTerminated = true;
-        return AG_SUCCESS;
+        m_ResizeOpLocked = true;
+        do_it(mark_instances_terminated);
+        std::this_thread::sleep_for(std::chrono::milliseconds(AG_SWAPCHAIN_RECREATION_LOCK_TIME_MS));
+        m_ResizeOpLocked = false;
     }
-    return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instances_terminated)
+void Agos::AgVulkanHandlerRenderer::do_it(const bool& mark_instances_terminated)
 {
     int width = 0, height = 0;
     glfwGetFramebufferSize(m_GLFWInstance->get_window(), &width, &height);
@@ -423,9 +430,8 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instance
         m_VulkanSwapChain
     );
     AG_CORE_INFO("Recreating swap chain frame buffers...");
-    m_VulkanSwapChainFrameBuffersManager->create_framebuffers(
+    m_VulkanSwapChain->create_framebuffers(
         m_VulkanLogicalDevice,
-        m_VulkanSwapChain,
         m_VulkanRenderPass,
         m_VulkanColorDepthRessourcesManager
     );
@@ -461,7 +467,6 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instance
         m_VulkanLogicalDevice,
         m_VulkanSwapChain,
         m_VulkanRenderPass,
-        m_VulkanSwapChainFrameBuffersManager,
         m_VulkanGraphicsPipelineManager,
         m_VulkanGraphicsCommandPoolManager,
         m_VulkanDescriptorManager,
@@ -470,13 +475,24 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instance
     );
 
     m_VulkanPresenter->get_images_in_flight().resize(m_VulkanSwapChain->get_swapchain_images().size(), VK_NULL_HANDLE);
+
+    AG_CORE_INFO("Reinitializing ImGui...");
+    m_ImGui->init(
+        m_GLFWInstance,
+        m_VulkanInstance,
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanGraphicsCommandPoolManager
+    );
 }
 
 void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instances_terminated)
 {
-    m_ImGui->terminate();
+    m_ImGui->terminate(mark_instances_terminated);
     m_VulkanColorDepthRessourcesManager->terminate(mark_instances_terminated);
-    m_VulkanSwapChainFrameBuffersManager->terminate(mark_instances_terminated);
+    m_VulkanSwapChain->terminate_framebuffers(mark_instances_terminated);
     m_VulkanCommandBuffer->terminate_command_buffers(mark_instances_terminated);
     m_VulkanGraphicsPipelineManager->terminate(mark_instances_terminated);
     m_VulkanRenderPass->terminate(mark_instances_terminated);

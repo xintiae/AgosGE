@@ -19,7 +19,6 @@ namespace Agos{
 namespace Agos{
     class AgVulkanHandlerFramebuffers;
 }
-#include "Agos/src/renderer/vulkan_framebuffers.h"
 #include "Agos/src/renderer/vulkan_command_pool.h"
 namespace Agos{
     class AgVulkanHandlerDescriptorManager;
@@ -28,7 +27,7 @@ namespace Agos{
 namespace Agos{
     class AgModel;
 }
-#include "Agos/src/renderer/model.h"
+#include "Agos/src/renderer/modeling/model.h"
 namespace Agos{
     class AgImGuiHandler;
 }
@@ -165,7 +164,6 @@ public:
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-        const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
         const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
         const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
         const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
@@ -177,7 +175,6 @@ public:
         const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
         const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
         const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-        const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
         const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
         const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
         const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,

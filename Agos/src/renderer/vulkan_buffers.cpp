@@ -466,7 +466,6 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
     const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-    const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
     const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
     const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
     const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
@@ -477,7 +476,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
     m_LogicalDeviceReference = logical_device->get_device();
     m_CommandPoolReference = command_pool_manager->get_command_pool();
 
-    m_CommandBuffers.resize(framebuffers_manager->get_swapchain_framebuffers().size());
+    m_CommandBuffers.resize(swapchain->get_swapchain_framebuffers().size());
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -503,7 +502,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::create_command_buffers
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = render_pass->get_render_pass();
-        renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[current_command_buffer];
+        renderPassInfo.framebuffer = swapchain->get_swapchain_framebuffers()[current_command_buffer];
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
 
@@ -557,7 +556,6 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::update_command_buffers
     const std::shared_ptr<AgVulkanHandlerLogicalDevice>& logical_device,
     const std::shared_ptr<AgVulkanHandlerSwapChain>& swapchain,
     const std::shared_ptr<AgVulkanHandlerRenderPass>& render_pass,
-    const std::shared_ptr<AgVulkanHandlerFramebuffers>& framebuffers_manager,
     const std::shared_ptr<AgVulkanHandlerGraphicsPipelineManager>& graphics_pipeline_manager,
     const std::shared_ptr<AgVulkanHandlerCommandPoolManager>& command_pool_manager,
     const std::shared_ptr<AgVulkanHandlerDescriptorManager>& descriptor_manager,
@@ -571,7 +569,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::update_command_buffers
 
     imgui_handler->update_ui();
 
-    m_CommandBuffers.resize(framebuffers_manager->get_swapchain_framebuffers().size());
+    m_CommandBuffers.resize(swapchain->get_swapchain_framebuffers().size());
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -598,7 +596,7 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::update_command_buffers
             VkRenderPassBeginInfo renderPassInfo{};
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = render_pass->get_render_pass();
-            renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[current_command_buffer];
+            renderPassInfo.framebuffer = swapchain->get_swapchain_framebuffers()[current_command_buffer];
             renderPassInfo.renderArea.offset = {0, 0};
             renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
 
@@ -652,26 +650,6 @@ Agos::AgResult Agos::AgVulkanHandlerCommandBufferManager::update_command_buffers
 
             vkCmdEndRenderPass(m_CommandBuffers[current_command_buffer]);
         }
-
-/*
-        {
-            VkRenderPassBeginInfo renderPassInfo{};
-            VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = imgui_handler->get_renderpass();
-            renderPassInfo.framebuffer = framebuffers_manager->get_swapchain_framebuffers()[current_command_buffer];
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = swapchain->get_swapchain_extent();
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = &clearColor;
-
-            vkCmdBeginRenderPass(m_CommandBuffers[current_command_buffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-            // imgui
-    
-            vkCmdEndRenderPass(m_CommandBuffers[current_command_buffer]);
-        }
-*/
 
         if (vkEndCommandBuffer(m_CommandBuffers[current_command_buffer]) != VK_SUCCESS)
         {

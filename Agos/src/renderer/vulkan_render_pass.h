@@ -4,6 +4,9 @@
 #include "Agos/src/core.h"
 #include "Agos/src/renderer/vulkan_physical_device.h"
 #include "Agos/src/renderer/vulkan_logical_device.h"
+namespace Agos{
+    class AgVulkanHandlerSwapChain;
+}
 #include "Agos/src/renderer/vulkan_swapchain.h"
 
 #include AG_VULKAN_INCLUDE
