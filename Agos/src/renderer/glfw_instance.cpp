@@ -13,7 +13,8 @@ Agos::AgGLFWHandlerInstance::~AgGLFWHandlerInstance()
 }
 
 Agos::AgResult Agos::AgGLFWHandlerInstance::init(
-    const std::shared_ptr<AgGLFWHandlerEvents>& event_handler)
+    const std::shared_ptr<AgGLFWHandlerEvents>& event_handler,
+    const bool& shall_cursor_exist)
 {
     m_EventBusListener.listen<Agos::Events::AgGLFWHandlerEvent>(
         [this](const Agos::Events::AgGLFWHandlerEvent& event) -> void
@@ -32,13 +33,24 @@ Agos::AgResult Agos::AgGLFWHandlerInstance::init(
         return AG_FAILED_TO_CREATE_GLFW_INSTANCE;
     }
 
+    glfwSetWindowTitle(m_ApplicationWindow, "AgosGE - init example!");
+
     glfwSetWindowUserPointer(m_ApplicationWindow, this);
     glfwSetFramebufferSizeCallback(m_ApplicationWindow, event_handler->framebufferResizeCallback);
 
     glfwSetMouseButtonCallback(m_ApplicationWindow, event_handler->mouseButtonCallback);
     glfwSetCursorPosCallback(m_ApplicationWindow, event_handler->cursorPosCallback);
-    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    m_CursorState = GLFW_CURSOR_DISABLED;
+
+    if (shall_cursor_exist)
+    {
+        glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        m_CursorState = GLFW_CURSOR_NORMAL;
+    }
+    else
+    {
+        glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        m_CursorState = GLFW_CURSOR_DISABLED;
+    }
     glfwSetKeyCallback(m_ApplicationWindow, event_handler->keyboardCallback);
 
     return AG_SUCCESS;
@@ -112,8 +124,11 @@ void Agos::AgGLFWHandlerInstance::on_event_process(const Agos::Events::AgGLFWHan
         }
         case Agos::Events::cursorPosCallback:
         {
-            Agos::Events::AgGLFWEventCursorPosCallback* event_data = reinterpret_cast<Agos::Events::AgGLFWEventCursorPosCallback*>(event.event_data);
-            Agos::AgGLFWHandlerCursorPosEventHandler::process(*event_data, m_RendererReference);
+            if (this->m_CursorState == GLFW_CURSOR_DISABLED)
+            {
+                Agos::Events::AgGLFWEventCursorPosCallback* event_data = reinterpret_cast<Agos::Events::AgGLFWEventCursorPosCallback*>(event.event_data);
+                Agos::AgGLFWHandlerCursorPosEventHandler::process(*event_data, m_RendererReference);
+            }
             break;
         }
         case Agos::Events::keyboardCallback:
@@ -197,6 +212,7 @@ void Agos::AgGLFWHandlerCursorPosEventHandler::process(
         lastX = event.xpos;
         lastY = event.ypos;
         firstMouse = false;
+        return;
     }
   
     float xoffset = event.xpos - lastX;
@@ -209,7 +225,7 @@ void Agos::AgGLFWHandlerCursorPosEventHandler::process(
     yoffset *= sensitivity;
 
     renderer->m_Camera->m_CameraYaw   += xoffset;
-    renderer->m_Camera->m_CameraPitch -= yoffset;
+    renderer->m_Camera->m_CameraPitch += yoffset;
 
     if(renderer->m_Camera->m_CameraPitch > 89.0f)
         renderer->m_Camera->m_CameraPitch = 89.0f;
@@ -220,5 +236,5 @@ void Agos::AgGLFWHandlerCursorPosEventHandler::process(
     direction.x = cos(glm::radians(renderer->m_Camera->m_CameraYaw)) * cos(glm::radians(renderer->m_Camera->m_CameraPitch));
     direction.y = sin(glm::radians(renderer->m_Camera->m_CameraPitch));
     direction.z = sin(glm::radians(renderer->m_Camera->m_CameraYaw)) * cos(glm::radians(renderer->m_Camera->m_CameraPitch));
-    renderer->m_Camera->m_CameraOppositeDirection = std::move(glm::normalize(direction));
+    renderer->m_Camera->m_CameraOppositeDirection = std::move(glm::normalize(direction * (-1.0f) ));
 }

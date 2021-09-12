@@ -38,7 +38,8 @@ public:
     AgGLFWHandlerInstance(AgGLFWHandlerInstance&& other)        = delete;
 
     AgResult init(
-        const std::shared_ptr<AgGLFWHandlerEvents>& event_handler);
+        const std::shared_ptr<AgGLFWHandlerEvents>& event_handler,
+        const bool& shall_cursor_exist = false);
     AgResult setup_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance);
     AgResult terminate_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance);
     AgResult terminate();

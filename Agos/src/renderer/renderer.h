@@ -39,6 +39,10 @@ namespace Agos{
 }
 #include "Agos/src/renderer/model.h"
 #include "Agos/src/renderer/camera.h"
+namespace Agos{
+    class AgImGuiHandler;
+}
+#include "Agos/src/renderer/imgui/agos_imgui.h"
 
 
 #include <functional>
@@ -68,14 +72,15 @@ private:
     std::shared_ptr<AgVulkanHandlerColorDepthRessourcesManager> m_VulkanColorDepthRessourcesManager;
     std::shared_ptr<AgVulkanHandlerFramebuffers> m_VulkanSwapChainFrameBuffersManager;
 
-    // all those three helpers are models-dependent
+    // - - - all those three helpers are models-dependent - - -
     std::vector<std::shared_ptr<AgVulkanHandlerTextureManager>> m_VulkanTextureImageManager;
     std::vector<AgModel> m_Models;
     std::vector<std::shared_ptr<AgVulkanHandlerVIUBufferManager>> m_VertexIndexUniformBuffers;
-
+    //  - - - ===  - - -
 
     std::shared_ptr<AgVulkanHandlerCommandBufferManager> m_VulkanCommandBuffer;
     std::shared_ptr<AgVulkanHandlerPresenter> m_VulkanPresenter;
+    std::shared_ptr<AgImGuiHandler> m_ImGui;
 
     bool m_FramebufferResized = false;
     bool m_RendererTerminated = false;
@@ -89,16 +94,23 @@ public:
     AgVulkanHandlerRenderer& operator=(const AgVulkanHandlerRenderer& other)    = delete;
     AgVulkanHandlerRenderer& operator=(AgVulkanHandlerRenderer&& other)         = delete;
 
-    AgResult init_vulkan(const std::vector<AgModel>& to_render_models);
-    template <typename __Function_Signature>
-    AgResult run(const std::function<__Function_Signature>& to_do);     // our main loop
+    AgResult init_vulkan(const std::vector<AgModel>& to_render_models, const bool& should_cursor_exist = false);
+    AgResult run();
+    AgBool can_run();
+    /**
+     * @brief main function to update the models' data given when initializing the renderer
+     * @param to_update_models an array of models to update |
+     * you don't have to specify here all your models; you can pass here just the ones you updated (those ones will be identified using their id)
+    */
+    AgResult update_models_data(const std::vector<AgModel>& to_update_models, const bool& keep_informed = false);
     AgResult terminate_vulkan();
     AgResult terminate();
 
     friend class AgGLFWHandlerInstance;
-    friend class AgVulkanHandlerPresenter;
     friend struct AgGLFWHandlerKeyboardEventHandler;
     friend struct AgGLFWHandlerCursorPosEventHandler;
+    friend class AgVulkanHandlerPresenter;
+    friend class AgImGuiHandler;
 
 protected:
     std::shared_ptr<AgCameraObject> m_Camera;
@@ -108,24 +120,6 @@ protected:
 
 private:
     void terminate_swapchain(const bool& mark_instances_terminated = true);
-    void draw_frame();
 };  // class AgVulkanHandlerRenderer
 
 }   // namespace Agos
-
-/* * * * * * * template member function Agos::AgVulkanHandlerRenderer::run definition * * * * * * */
-
-template <typename __Function_Signature>
-Agos::AgResult Agos::AgVulkanHandlerRenderer::run(
-    const std::function<__Function_Signature>& to_do)
-{
-    while ( !glfwWindowShouldClose(m_GLFWInstance->get_window()) )
-    {
-        this->draw_frame();
-        // https://www.youtube.com/watch?v=NzishIREebw
-        to_do();
-    }
-
-    return AG_SUCCESS;
-}
-

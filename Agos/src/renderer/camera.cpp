@@ -2,20 +2,19 @@
 
 Agos::AgCameraObject::AgCameraObject(
     const glm::vec3& camera_pos,
-    const glm::vec3& camera_direction,
+    const glm::vec3& camera_opposite_direction,
     const float& camera_speed,
-    const glm::vec3& up,
-    const float& init_yaw,
-    const float& init_pitch)
+    const glm::vec3& up)
     : m_CameraPosition              (camera_pos),
-    m_CameraOppositeDirection       (glm::normalize(camera_direction)),
+    m_CameraOppositeDirection       (glm::normalize(camera_opposite_direction)),
     m_Up                            (up),
     m_CameraRight                   ( glm::normalize(glm::cross(m_Up, m_CameraOppositeDirection)) ),
     m_CameraUp                      ( glm::normalize(glm::cross(m_CameraOppositeDirection, m_CameraRight)) ),
-    m_CameraSpeed                   (camera_speed),
-    m_CameraYaw                     (init_yaw),
-    m_CameraPitch                   (init_pitch)
+    m_CameraSpeed                   (camera_speed)
 {
+    glm::vec3 camera_direction = glm::vec3(-m_CameraOppositeDirection);
+    m_CameraPitch = glm::degrees(glm::asin(camera_direction.y));
+    m_CameraYaw = -(glm::degrees(glm::acos(camera_direction.x / glm::cos(m_CameraPitch))) - 90.0f);
 }
 
 

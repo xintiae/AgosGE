@@ -18,17 +18,26 @@ enum AG_API AgModelExtensionDataType : uint8_t
     light_source    = 1
 };
 
-struct AG_API AgModelData
-{
-    std::vector<VulkanGraphicsPipeline::Vertex> vertices;
-    std::vector<uint32_t> indices;
-    glm::vec3 translation = glm::vec3(0.0f);
-};
-
 struct AG_API AgModelExtensionDataLight
 {
     glm::vec3 light_position;
     glm::vec3 light_color;
+};
+
+struct AG_API AgModelDataMaterial
+{
+    glm::vec3   ambient;
+    glm::vec3   diffuse;
+    glm::vec3   specular;
+    float       shininess;
+};
+
+struct AG_API AgModelData
+{
+    std::vector<VulkanGraphicsPipeline::Vertex> vertices;
+    std::vector<uint32_t>   indices;
+    glm::vec3               translation = glm::vec3(0.0f);
+    std::vector<AgModelDataMaterial> materials;
 };
 
 struct AG_API AgModel
@@ -42,21 +51,27 @@ struct AG_API AgModel
     void* pExtensionData                    = NULL;
 
     AgModel();
+    AgModel(const AgModel& other);
+    AgModel(AgModel&& other);
     ~AgModel();
+
+    AgModel& operator=(const AgModel& other);
+    AgModel& operator=(AgModel&&);
 };
 
 struct AG_API AgModelHandler
 {
     /**
-     * @brief main Agos function to parse an .obj file with its corresponding texture (currently either a .png or a .mtl file)
+     * @brief main Agos function to parse an .obj file with its corresponding .mtl file
      * @param model AgModel containing @b both informations to model.path_to_obj_file @a and model.path_to_texture_file
      * @param color Default color to apply to the entire model
      * @return A filled in with AgModelData struct with informations from the .obj
     */
-    static AgModelData  load_model          (AgModel& model, const glm::vec3& polygons_color = glm::vec3(1.0f));
-    static void         translate           (AgModel& model, const glm::vec3& translation);
-    static void         scale               (AgModel& model, const glm::vec3& translation);
-    static void         set_light_source    (AgModel& model, const glm::vec3& light_color);
+    static AgResult     load_model          (AgModel& model, const glm::vec3& polygons_color = glm::vec3(1.0f));
+    static AgResult     translate           (AgModel& model, const glm::vec3& translation);
+    static AgResult     scale               (AgModel& model, const glm::vec3& translation);
+    static AgResult     rotate              (AgModel& model, const glm::vec3& rotation_axis, const float& angle_degrees);
+    static AgResult     set_light_source    (AgModel& model, const glm::vec3& light_color);
 };
 } // namespace Agos
 

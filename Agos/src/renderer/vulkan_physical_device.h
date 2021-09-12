@@ -16,6 +16,10 @@ namespace Agos{
     class AgVulkanHandlerCommandPoolManager;
 }
 #include "Agos/src/renderer/vulkan_command_pool.h"
+namespace Agos{
+    class AgIMGUIHandler;
+}
+#include "Agos/src/renderer/imgui/agos_imgui.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>
@@ -25,7 +29,7 @@ namespace Agos
 {
 namespace VulkanPhysicalDevice
 {
-typedef struct AG_API AgQueueFamilyIndices
+struct AG_API AgQueueFamilyIndices
 {
     std::optional<uint32_t> graphics_family;
     std::optional<uint32_t> present_family;
@@ -34,14 +38,14 @@ typedef struct AG_API AgQueueFamilyIndices
     {
         return graphics_family.has_value() && present_family.has_value();
     }
-} AgQueueFamilyIndices;
+};
 
-typedef struct AG_API AgSwapChainSupportDetails
+struct AG_API AgSwapChainSupportDetails
 {
     VkSurfaceCapabilitiesKHR        capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR>   present_modes;
-} AgSwapChainSupportDetails;
+};
 }   // namespace VulkanPhysicalDevice (within namespace Agos)
 
 
@@ -67,9 +71,10 @@ public:
     VkPhysicalDevice& get_device();
     VkSampleCountFlagBits& get_msaa_samples();
 
-    friend class Agos::AgVulkanHandlerLogicalDevice;
-    friend class Agos::AgVulkanHandlerSwapChain;
-    friend class Agos::AgVulkanHandlerCommandPoolManager;
+    friend class AgVulkanHandlerLogicalDevice;
+    friend class AgVulkanHandlerSwapChain;
+    friend class AgVulkanHandlerCommandPoolManager;
+    friend class AgImGuiHandler;
 
 private:
     bool is_device_suitable(

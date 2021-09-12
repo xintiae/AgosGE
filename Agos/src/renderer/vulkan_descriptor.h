@@ -21,14 +21,23 @@ namespace Agos
 
 namespace VulkanGraphicsPipeline
 {
-typedef struct AG_API UniformBufferObject
+struct AG_API UniformBufferObject
 {
+    // MVP
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
+
+    // light
     alignas(16) glm::vec3 lightPos;
     alignas(16) glm::vec3 lightColor;
-} UniformBufferObject;
+
+    // material
+    alignas(16) glm::vec3   ambient;
+    alignas(16) glm::vec3   diffuse;
+    alignas(16) glm::vec3   specular;
+    alignas(4) float       shininess;
+};
 }   // namespace VulkanGraphicsPipeline (within namespace Agos)
 
 class AG_API AgVulkanHandlerDescriptorManager

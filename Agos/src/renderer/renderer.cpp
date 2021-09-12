@@ -1,7 +1,9 @@
 #include "Agos/src/renderer/renderer.h"
 
+#include "Agos/src/renderer/imgui/mandatories/imgui_impl_vulkan.h"
 #include "Agos/src/logger/logger.h"
 #include <chrono>
+#include <tuple>
 
 Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dexode::EventBus>& event_bus)
     : m_EventBus(event_bus)
@@ -25,6 +27,7 @@ Agos::AgVulkanHandlerRenderer::AgVulkanHandlerRenderer(const std::shared_ptr<dex
 
     m_VulkanPresenter   = std::make_shared<AgVulkanHandlerPresenter>();
     m_Camera            = std::make_shared<AgCameraObject>(glm::vec3(-5.0f, 5.0f, 5.0f), -glm::vec3(1.0f, -1.0f, -1.0f));
+    m_ImGui             = std::make_shared<AgImGuiHandler>(m_GLFWInstance->get_window());
 }
 
 Agos::AgVulkanHandlerRenderer::~AgVulkanHandlerRenderer()
@@ -32,7 +35,7 @@ Agos::AgVulkanHandlerRenderer::~AgVulkanHandlerRenderer()
     terminate();
 }
 
-Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgModel>& to_render_models)
+Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgModel>& to_render_models, const bool& should_cursor_exist)
 {
     m_Models = std::move(to_render_models);
     m_VulkanTextureImageManager.resize(m_Models.size());
@@ -47,7 +50,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
     }
 
     AG_CORE_WARN("Initializing GLFW instance...");
-    m_GLFWInstance->init(m_GLFWEventsHandler);
+    m_GLFWInstance->init(m_GLFWEventsHandler, should_cursor_exist);
 
     AG_CORE_WARN("Initializing vulkan instance...");
     m_VulkanInstance->init(m_VulkanDebugLayersManager);
@@ -128,8 +131,7 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
             m_VulkanPhysicalDevice,
             m_VulkanLogicalDevice,
             m_VulkanColorDepthRessourcesManager,
-            m_VulkanGraphicsCommandPoolManager,
-            m_VertexIndexUniformBuffers[i]
+            m_VulkanGraphicsCommandPoolManager
         );
         m_VulkanTextureImageManager[i]->create_texture_image_view(
             m_VulkanLogicalDevice,
@@ -197,11 +199,136 @@ Agos::AgResult Agos::AgVulkanHandlerRenderer::init_vulkan(const std::vector<AgMo
         m_VulkanSwapChain
     );
 
+    AG_CORE_WARN("Initializing ImGui...");
+    m_ImGui->init(
+        m_GLFWInstance,
+        m_VulkanInstance,
+        m_VulkanPhysicalDevice,
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanGraphicsCommandPoolManager
+    );
+
     return AG_SUCCESS;
 }
 
-// Agos::AgResult Agos::AgVulkanHandlerRenderer::run(const std::function<__Function_Signature>& to_do)
-// is defined in file AgosGE/Agos/src/renderer/renderer.h
+Agos::AgResult Agos::AgVulkanHandlerRenderer::update_models_data(const std::vector<Agos::AgModel>& to_update_models, const bool& keep_informed)
+{
+    std::vector<std::pair<bool, size_t>> models_match( to_update_models.size(), std::move(std::pair<bool, size_t>(false, 0)) );
+    bool doesnt_match = false;
+
+    for (size_t i = 0; i < to_update_models.size(); i++)
+    {
+        for (size_t y = 0; y < m_Models.size(); y++)
+        {
+            if (to_update_models[i].id == m_Models[y].id)
+            {
+                models_match[i] = (std::move(std::pair<bool, size_t>(true, y)));
+                break;
+            }
+        }
+    }
+
+    for (const std::pair<bool, size_t>& match : models_match)
+    {
+        if (match.first == false)
+            doesnt_match = true;
+    }
+
+    if (doesnt_match)
+    {
+        AG_CORE_WARN("[Vulkan/AgVulkanHandlerRenderer - update_models_data] Models specified for update don't match given models during renderer's initializing op!");
+        AG_CORE_WARN("[Vulkan/AgVulkanHandlerRenderer - update_models_data] Abording models' update...");
+        return AG_UPDATE_MODELS_DONT_MATCH;
+    }
+
+    for (size_t i = 0; i < models_match.size(); i++)
+    {
+        m_Models[models_match[i].second].model_data = std::move(to_update_models[i].model_data);
+
+        if (m_Models[models_match[i].second].extension_type == Agos::AgModelExtensionDataType::light_source)
+        {
+            Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(m_Models[models_match[i].second].pExtensionData);
+            extension_data->light_position = m_Models[models_match[i].second].model_data.vertices[0].pos;
+        }
+    }
+
+
+    // ! ======================= MOVE INTO HELPERS FUNCTIONS
+    for (size_t i = 0; i < models_match.size(); i++)
+    {
+        m_VulkanCommandBuffer->terminate_command_buffers(false, false);
+        if (keep_informed)
+        {
+            AG_CORE_INFO("Updating model : \"" + m_Models[i].id + "\" vertex buffer...");
+        }
+        m_VertexIndexUniformBuffers[models_match[i].second]->update_vertex_buffer(
+            m_Models[models_match[i].second].model_data.vertices,
+            m_VulkanPhysicalDevice,
+            m_VulkanLogicalDevice,
+            m_VulkanColorDepthRessourcesManager,
+            m_VulkanGraphicsCommandPoolManager,
+            keep_informed
+        );
+        if (keep_informed)
+        {
+            AG_CORE_INFO("Updating model : \"" + m_Models[i].id + "\" index buffer...");
+        }
+        m_VertexIndexUniformBuffers[models_match[i].second]->update_index_buffer(
+            m_Models[models_match[i].second].model_data.indices,
+            m_VulkanPhysicalDevice,
+            m_VulkanLogicalDevice,
+            m_VulkanColorDepthRessourcesManager,
+            m_VulkanGraphicsCommandPoolManager,
+            keep_informed
+        );
+    }
+    if (keep_informed)
+    {
+        AG_CORE_INFO("Updating command buffers...");
+    }
+    m_VulkanCommandBuffer->update_command_buffers(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VulkanRenderPass,
+        m_VulkanSwapChainFrameBuffersManager,
+        m_VulkanGraphicsPipelineManager,
+        m_VulkanGraphicsCommandPoolManager,
+        m_VulkanDescriptorManager,
+        m_VertexIndexUniformBuffers,
+        m_Models,
+        m_ImGui,
+        keep_informed
+    );
+    // ! ======================= MOVE INTO HELPER FUNCTION
+
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::AgVulkanHandlerRenderer::run()
+{
+    std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+    glfwPollEvents();
+
+    m_VulkanPresenter->draw_frame(
+        m_VulkanLogicalDevice,
+        m_VulkanSwapChain,
+        m_VertexIndexUniformBuffers,
+        m_Models,
+        m_VulkanCommandBuffer,
+        this
+    );
+    vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
+
+    this->m_Camera->calculate_adequate_camera_speed(start_time);
+    return AG_SUCCESS;
+}
+
+Agos::AgBool Agos::AgVulkanHandlerRenderer::can_run()
+{
+    return !glfwWindowShouldClose(m_GLFWInstance->get_window());
+}
 
 Agos::AgResult Agos::AgVulkanHandlerRenderer::terminate_vulkan()
 {
@@ -255,7 +382,6 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instance
         glfwGetFramebufferSize(m_GLFWInstance->get_window(), &width, &height);
         glfwWaitEvents();
     }
-
     vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
 
     this->terminate_swapchain(mark_instances_terminated);
@@ -348,6 +474,7 @@ void Agos::AgVulkanHandlerRenderer::recreate_swapchain(const bool& mark_instance
 
 void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instances_terminated)
 {
+    m_ImGui->terminate();
     m_VulkanColorDepthRessourcesManager->terminate(mark_instances_terminated);
     m_VulkanSwapChainFrameBuffersManager->terminate(mark_instances_terminated);
     m_VulkanCommandBuffer->terminate_command_buffers(mark_instances_terminated);
@@ -359,20 +486,4 @@ void Agos::AgVulkanHandlerRenderer::terminate_swapchain(const bool& mark_instanc
         m_VertexIndexUniformBuffers[i]->terminate_uniform_buffers(mark_instances_terminated);
     }
     m_VulkanDescriptorManager->terminate_descriptor_pool(mark_instances_terminated);
-}
-
-void Agos::AgVulkanHandlerRenderer::draw_frame()
-{
-    std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-    glfwPollEvents();
-    m_VulkanPresenter->draw_frame(
-        m_VulkanLogicalDevice,
-        m_VulkanSwapChain,
-        m_VertexIndexUniformBuffers,
-        m_Models,
-        m_VulkanCommandBuffer,
-        this
-    );
-    vkDeviceWaitIdle(m_VulkanLogicalDevice->get_device());
-    this->m_Camera->calculate_adequate_camera_speed(start_time);
 }
