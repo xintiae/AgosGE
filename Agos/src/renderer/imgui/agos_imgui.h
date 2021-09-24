@@ -3,6 +3,7 @@
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
+/*
 #include "Agos/src/renderer/imgui/mandatories/imgui.h"
 #include "Agos/src/renderer/glfw_instance.h"
 #include "Agos/src/renderer/vulkan_instance.h"
@@ -74,3 +75,4 @@ private:
 
 static void ag_imgui_check_vk_result(VkResult err);
 }
+*/

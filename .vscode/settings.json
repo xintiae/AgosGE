@@ -73,7 +73,9 @@
         "csignal": "cpp",
         "any": "cpp",
         "shared_mutex": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "codecvt": "cpp",
+        "forward_list": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

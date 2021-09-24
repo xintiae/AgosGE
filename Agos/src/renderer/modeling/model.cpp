@@ -1,11 +1,18 @@
 #include "Agos/src/renderer/modeling/model.h"
 
+/*
 #include "Agos/src/logger/logger.h"
 #include "Agos/src/renderer/vulkan_graphics_pipeline.h"
 #include <unordered_map>
 #include <filesystem>
 
 Agos::AgModel::AgModel()
+    :   id              (),
+    path_to_obj_file    (),
+    path_to_texture_file(),
+    model_data          (),
+    extensions          (AgModelExtensionDataTypes::none),
+    pExtensionData      ()
 {
 }
 
@@ -15,16 +22,15 @@ Agos::AgModel::AgModel(const Agos::AgModel& other)
     this->path_to_obj_file      = other.path_to_obj_file;
     this->path_to_texture_file  = other.path_to_texture_file;
     this->model_data            = other.model_data;
-    this->extension_type        = other.extension_type;
+    this->extensions            = other.extensions;
 
-    if (other.extension_type == Agos::AgModelExtensionDataType::light_source)
-    {
-        this->pExtensionData = new (Agos::AgModelExtensionDataLight);
-        Agos::AgModelExtensionDataLight* others_extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(other.pExtensionData);
-        Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(this->pExtensionData);
-        extension_data->light_position = others_extension_data->light_position;
-        extension_data->light_color = others_extension_data->light_color;
-    }
+    // this->pExtensionData.resize(other.pExtensionData.size());
+    // Agos::AgModelExtensionDataType other_extensions = other.extensions;
+
+    // for (size_t i = 0; i < this->pExtensionData.size(); i++)
+    // {
+        
+    // }
 }
 
 Agos::AgModel::AgModel(Agos::AgModel&& other)
@@ -34,27 +40,27 @@ Agos::AgModel::AgModel(Agos::AgModel&& other)
     this->path_to_texture_file  = std::move(other.path_to_texture_file);
     this->model_data            = std::move(other.model_data);
 
-    this->extension_type        = std::move(other.extension_type);
+    this->extensions        = std::move(other.extensions);
     this->pExtensionData        = other.pExtensionData;
 
-    other.extension_type = Agos::AgModelExtensionDataType::none;
+    other.extensions = Agos::AgModelExtensionDataTypes::none;
     other.pExtensionData = NULL;
 }
 
 
 Agos::AgModel::~AgModel()
 {
-    switch (this->extension_type)
+    switch (this->extensions)
     {
         // extension vector for multiple extensions stored into a std::vector
-        case Agos::AgModelExtensionDataType::light_source:
+        case Agos::AgModelExtensionDataTypes::light_source:
         {
-            delete_model_extension<Agos::AgModelExtensionDataType::light_source>(*this);
+            delete_model_extension<Agos::AgModelExtensionDataTypes::light_source>(*this);
             break;
         }
-        case Agos::AgModelExtensionDataType::lighting_map:
+        case Agos::AgModelExtensionDataTypes::lighting_map:
         {
-            delete_model_extension<Agos::AgModelExtensionDataType::lighting_map>(*this);
+            delete_model_extension<Agos::AgModelExtensionDataTypes::lighting_map>(*this);
             break;
         }
     }
@@ -66,16 +72,9 @@ Agos::AgModel& Agos::AgModel::operator=(const Agos::AgModel& other)
     this->path_to_obj_file      = other.path_to_obj_file;
     this->path_to_texture_file  = other.path_to_texture_file;
     this->model_data            = other.model_data;
-    this->extension_type        = other.extension_type;
+    this->extensions        = other.extensions;
 
-    if (other.extension_type == Agos::AgModelExtensionDataType::light_source)
-    {
-        this->pExtensionData = new (Agos::AgModelExtensionDataLight);
-        Agos::AgModelExtensionDataLight* others_extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(other.pExtensionData);
-        Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(this->pExtensionData);
-        extension_data->light_position = others_extension_data->light_position;
-        extension_data->light_color = others_extension_data->light_color;
-    }
+    copy_extension_from_model(*this, other);
     return *this;
 }
 
@@ -86,28 +85,82 @@ Agos::AgModel& Agos::AgModel::operator=(Agos::AgModel&& other)
     this->path_to_texture_file  = std::move(other.path_to_texture_file);
     this->model_data            = std::move(other.model_data);
 
-    this->extension_type        = std::move(other.extension_type);
+    this->extensions        = std::move(other.extensions);
     this->pExtensionData        = other.pExtensionData;
 
-    other.extension_type = Agos::AgModelExtensionDataType::none;
+    other.extensions = Agos::AgModelExtensionDataTypes::none;
     other.pExtensionData = NULL;
 
     return *this;
 }
 
-template <uint16_t extension_type>
-void Agos::AgModel::create_model_extension(Agos::AgModel& model)
+template <uint16_t extensions>
+void Agos::AgModel::create_model_extension(Agos::AgModel& model, void* extension_data)
 {
-    model.extension_type |= extension_type;
+    switch (extensions)
+    {
+        case Agos::AgModelExtensionDataTypes::light_source:
+        {
+            model.extensions += extensions; // which is Agos::AgModelExtensionDataTypes::light_source
+            Agos::AgModelExtensionDataLight* ext_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(extension_data);
+            model.pExtensionData = ext_data;
+            break;
+        }
+        case Agos::AgModelExtensionDataTypes::lighting_map:
+        {
+            model.extensions += extensions; // which is Agos::AgModelExtensionDataTypes::lighting_map
+            Agos::AgModelExtensionDataLightingMap* ext_data = reinterpret_cast<Agos::AgModelExtensionDataLightingMap*>(extension_data);
+            model.pExtensionData = ext_data;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
 }
 
-template <uint16_t extension_type>
+template <uint16_t extensions>
 void Agos::AgModel::delete_model_extension(Agos::AgModel& model)
 {
-    model.extension_type -= extension_type;
-    extension_type* extension_data = reinterpret_cast<extension_type*>(model.pExtensionData);
-    delete (extension_data);
-    model.pExtensionData = NULL;
+    switch (extensions)
+    {
+        case Agos::AgModelExtensionDataTypes::light_source:
+        {
+            model.extensions -= extensions; // which is Agos::AgModelExtensionDataTypes::light_source
+            Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(model.pExtensionData);
+            delete(extension_data);
+            break;
+        }
+        case Agos::AgModelExtensionDataTypes::lighting_map:
+        {
+            model.extensions -= extensions; // which is Agos::AgModelExtensionDataTypes::lighting_map
+            Agos::AgModelExtensionDataLightingMap* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLightingMap*>(model.pExtensionData);
+            delete(extension_data);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+void Agos::AgModel::copy_extension_from_model(Agos::AgModel& dstModel, const Agos::AgModel& srcModel)
+{
+    if (srcModel.extensions == Agos::AgModelExtensionDataTypes::light_source)
+    {
+        dstModel.pExtensionData = new (Agos::AgModelExtensionDataLight);
+        Agos::AgModelExtensionDataLight* src_extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(srcModel.pExtensionData);
+        Agos::AgModelExtensionDataLight* dst_extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(dstModel.pExtensionData);
+        dst_extension_data->light_position    = src_extension_data->light_position;
+        dst_extension_data->light_color       = src_extension_data->light_color;
+    }
+    else if (srcModel.extensions == Agos::AgModelExtensionDataTypes::lighting_map)
+    {
+        dstModel.pExtensionData = new(Agos::AgModelExtensionDataLightingMap);
+        Agos::AgModelExtensionDataLightingMap* src_extension_data = reinterpret_cast<Agos::AgModelExtensionDataLightingMap*>(srcModel.pExtensionData);
+    }
 }
 
 Agos::AgResult Agos::AgModelHandler::load_model(Agos::AgModel& model, const glm::vec3& polygons_color)
@@ -306,7 +359,7 @@ Agos::AgResult Agos::AgModelHandler::scale(Agos::AgModel& model, const glm::vec3
 
 Agos::AgResult Agos::AgModelHandler::rotate(Agos::AgModel& model, const glm::vec3& rotation_axis, const float& angle_degrees)
 {
-    glm::mat4 m(1.0f);  // 'm' stands for "model"
+    glm::mat4 m(1.0f);
     m = glm::rotate(m, glm::radians(angle_degrees), rotation_axis);
 
     for (Agos::VulkanGraphicsPipeline::Vertex& vertex : model.model_data.vertices)
@@ -314,7 +367,7 @@ Agos::AgResult Agos::AgModelHandler::rotate(Agos::AgModel& model, const glm::vec
         vertex.pos = glm::vec3(m * glm::vec4(vertex.pos, 1.0f));// + model.model_data.translation;
     }
 
-    if (model.extension_type == Agos::AgModelExtensionDataType::light_source)
+    if (model.extensions == Agos::AgModelExtensionDataTypes::light_source)
     {
         Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(model.pExtensionData);
         extension_data->light_position = model.model_data.vertices[0].pos;
@@ -323,9 +376,11 @@ Agos::AgResult Agos::AgModelHandler::rotate(Agos::AgModel& model, const glm::vec
     return AG_SUCCESS;
 }
 
+// = - - - - - - - - - - - - - - - - - = model's extension managment = - - - - - - - - - - - - - - - - - =
+
 Agos::AgResult Agos::AgModelHandler::set_light_source(Agos::AgModel& model, const glm::vec3& light_color)
 {
-    model.extension_type = std::move(Agos::AgModelExtensionDataType::light_source);
+    model.extensions += Agos::AgModelExtensionDataTypes::light_source;
     model.pExtensionData = new (Agos::AgModelExtensionDataLight);
     Agos::AgModelExtensionDataLight* extension_data = reinterpret_cast<Agos::AgModelExtensionDataLight*>(model.pExtensionData);
     extension_data->light_position = model.model_data.vertices[0].pos;
@@ -338,3 +393,5 @@ Agos::AgResult Agos::AgModelHandler::set_lighting_map(Agos::AgModel& model)
 {
 
 }
+
+*/

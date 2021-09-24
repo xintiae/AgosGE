@@ -12,7 +12,9 @@
             "defines": [
                 "AG_SHADERS_PATH=\"\"",
                 "AG_MODELS_PATH=\"\"",
-                "AG_TEXTURES_PATH=\"\""
+                "AG_TEXTURES_PATH=\"\"",
+                "AG_GRAPHICS_API_VULKAN=\"\"",
+                "AG_GRAPHICS_API_OPENGL=\"\""
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",

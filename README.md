@@ -27,14 +27,19 @@ https://www.apache.org/licenses/LICENSE-2.0.html
 3. Cd in that repo : ```cd build```
 4. Run ```cmake .. && make && ./bin/AgosGE```
 
-*Note: You can ignore the warnings that might appear*
-
 ### macOS
 Not supported yet
 
+
 ## Credits and notes
-- A **huge thanks to [Alexander Overvoorde's](https://github.com/Overv) amazing** [Vulkan tutorial](https://vulkan-tutorial.com/), without which we surely wouldn't have been so far (also make sure to checkout his [github's tutorial page](https://github.com/Overv/VulkanTutorial))!
-- Also a **huge thanks to all contributors** : 
+- A **huge thanks to [Alexander Overvoorde](https://github.com/Overv) for his amazing** [Vulkan tutorial](https://vulkan-tutorial.com/), without which we surely wouldn't have been so far (also make sure to checkout his [github's tutorial page](https://github.com/Overv/VulkanTutorial))!
+- Also **huge thanks too to [Joey de Vries](https://joeydevries.com/) for his amazing** [OpenGL tutorial](https://github.com/JoeyDeVries/LearnOpenGL/), because, you know, everything's been learnt on the stack :>!
+- **Special thanks to all contributors** : 
     *[Dodopriester](https://github.com/Dodopriester)*,
     *[Blackalpaul](https://github.com/Blackalpaul)*
+
+*Notes:*
+- AgosGE allows you to **choose** on which **graphics API AgosGE's Renderer** should be based. This enables you to implement your own AgosGE's extensions based on the API YOU want :). In order to select which API you want, consider adding the following flag when running cmake : ```-DAGOS_GRAPHICS_API=*the_api_you_want*```. At the moment, AgosGE **only supports Vulkan**.
+- Each AgosGE's supported graphics API are **glfw-based only APIs**. 
+- (You can ignore the warnings that might appear when compiling...?)
 

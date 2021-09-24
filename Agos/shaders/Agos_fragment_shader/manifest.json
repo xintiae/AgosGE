@@ -1,6 +1,7 @@
 {
-    "type" : "fragment",
-    "id" : "basic_shader.frag",
-    "id_compiled" : "basic_frag.spv",
-    "compile" : "glslc -o basic_frag.spv basic_shader.frag"
+    "type"              : "fragment",
+    "id_generic"        : "generic_frag.spv",
+    "id_lighting"       : "lighting_frag.spv",
+    "compile_generic"   : "glslc -o generic_frag.spv generic_shader.frag",
+    "compile_lighting"  : "glslc -o lighting_frag.spv lighting_shader.frag"
 }

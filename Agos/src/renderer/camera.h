@@ -15,11 +15,11 @@ namespace Agos
 
 struct AG_API AgCameraObject
 {
-    glm::vec3 m_CameraPosition;
-    glm::vec3 m_CameraOppositeDirection;
-    glm::vec3 m_Up;
-    glm::vec3 m_CameraRight;
-    glm::vec3 m_CameraUp;
+    glm::vec3   m_CameraPosition;
+    glm::vec3   m_CameraOppositeDirection;
+    glm::vec3   m_Up;
+    glm::vec3   m_CameraRight;
+    glm::vec3   m_CameraUp;
 
     float m_CameraSpeed;
     // in degrees

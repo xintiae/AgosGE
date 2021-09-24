@@ -2,12 +2,8 @@
 
 #include "Agos/src/core.h"
 #include "Agos/src/base.h"
-#include "Agos/src/renderer/vulkan_instance.h"
 #include "Agos/src/event_system/glfw_events.h"
-namespace Agos{
-    class AgVulkanHandlerRenderer;
-}
-#include "Agos/src/renderer/renderer.h"
+
 
 #include AG_EVENTBUS_INCLUDE
 #include AG_GLFW_INCLUDE
@@ -16,60 +12,68 @@ namespace Agos{
 
 namespace Agos
 {
-class AG_API AgGLFWHandlerInstance
+
+namespace GLFWHandler
+{
+
+class AG_API GLFWInstance
 {
 private:
-    dexode::EventBus::Listener m_EventBusListener;
-    GLFWwindow* m_ApplicationWindow;
-    VkSurfaceKHR m_ApplicationSurface;
+    dexode::EventBus::Listener  m_EventBusListener;
+    GLFWwindow*                 m_ApplicationWindow;
 
     size_t m_CursorState;
 
-    AgVulkanHandlerRenderer* m_RendererReference;
-
-    bool m_ApplicationSurfaceTerminated = false;
     bool m_Terminated = false;
 
 public:
-    AgGLFWHandlerInstance(const std::shared_ptr<dexode::EventBus>& event_bus, AgVulkanHandlerRenderer* renderer);
-    ~AgGLFWHandlerInstance();
+    // include renderer for GLFWInstance to inform about mouse pos, framebuffer new size, etc...
+    GLFWInstance(const std::shared_ptr<dexode::EventBus>& event_bus);
+    ~GLFWInstance();
 
-    AgGLFWHandlerInstance(const AgGLFWHandlerInstance& other)   = delete;
-    AgGLFWHandlerInstance(AgGLFWHandlerInstance&& other)        = delete;
+    // deleted copy, move constructors and copy, move operators
+    GLFWInstance(const GLFWInstance& other)   = delete;
+    GLFWInstance(GLFWInstance&& other)        = delete;
+    GLFWInstance& operator=(const GLFWInstance& other)  = delete;
+    GLFWInstance& operator=(GLFWInstance& other)        = delete;
 
-    AgResult init(
-        const std::shared_ptr<AgGLFWHandlerEvents>& event_handler,
-        const bool& shall_cursor_exist = false);
-    AgResult setup_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance);
-    AgResult terminate_vulkan_surface(const std::shared_ptr<AgVulkanHandlerInstance>& vulkan_instance);
-    AgResult terminate();
+    // create and destroy a GLFWInstance
+    AgResult init       (   const std::shared_ptr<Agos::GLFWHandler::Event::EventManager>& event_manager,
+                            const std::string& window_title = "Powered by AgosGE",
+                            const bool& shall_cursor_exist = false);
+    AgResult terminate  ();
 
-    GLFWwindow*& get_window();
-    VkSurfaceKHR& get_surface();
+    // misc
+    GLFWwindow*&    get_window      ();
+    size_t&         get_cursor_state();
 
-    size_t& get_cursor_state();
 private:
-    void on_event_process(const Agos::Events::AgGLFWHandlerEvent& event);
-};  // class AgGLFWHandlerInstance
+    void on_event_process(const Agos::GLFWHandler::Event::Event& event);
 
-struct AG_API AgGLFWHandlerKeyboardEventHandler
+};  // class GLFWInstance
+
+namespace EventProcessor
+{
+// helper struct to handle from keyboard triggered events
+struct AG_API Keyboard
 {
     static void process(
-        const Agos::Events::AgGLFWEventKeyboardCallback& event_data,
-        AgGLFWHandlerInstance* glfw_instance,
-        AgVulkanHandlerRenderer* renderer
+        const Agos::GLFWHandler::Event::Callbacks::Keyboard& event_data,
+        GLFWHandler::GLFWInstance* glfw_instance
     );
-};  // struct AgGLFWHandlerKeyboardEventHandler
+};
 
-struct AG_API AgGLFWHandlerCursorPosEventHandler
+// helper struct to handle from mouse (and specificaly its position) triggered events
+struct AG_API CursorPosition
 {
-    static bool firstMouse;
-    static float lastX, lastY;
+    static bool     firstMouse;
+    static float    lastX, lastY;
 
-    static void process(
-        const Agos::Events::AgGLFWEventCursorPosCallback& event,
-        AgVulkanHandlerRenderer* renderer
-    );
-};  // struct AgGLFWHandlerKeyboardEventHandler
+    static void process(const Agos::GLFWHandler::Event::Callbacks::CursorPosition& event);
+};
+
+}   // namespace EventProcessor (within namespace GLFWHandler, itself within namespace Agos)
+
+}   // namespace GLFWHandler (within namespace Agos)
 
 } // namespace Agos

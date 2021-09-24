@@ -1,5 +1,6 @@
 #include "Agos/src/renderer/imgui/agos_imgui.h"
 
+/*
 #include "Agos/src/renderer/vulkan_buffers.h"
 #include "Agos/src/logger/logger.h"
 
@@ -167,4 +168,4 @@ void Agos::ag_imgui_check_vk_result(VkResult err)
         AG_CORE_ERROR("[ImGui/AgImGuiHandler - ag_imgui_check_vk_result] Error! VkResult : " + std::to_string(err));
     }
 }
-
+*/

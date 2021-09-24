@@ -2,9 +2,16 @@
 
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
-#include "Agos/src/renderer/vulkan_graphics_pipeline.h"
 
-#include "Agos/src/renderer/modeling/lighting_map.h"
+#ifdef AG_GRAPHICS_API_VULKAN
+    #include "Agos/src/renderer/vulkan_app/vulkan_modeling.h"
+    using namespace Agos::VulkanHandler::VulkanModeling;
+#endif
+#ifdef AG_GRAPHICS_API_OPENGL
+    #include "Agos/src/renderer/opengl_app/opengl_modeling.h"
+
+#endif
+
 
 #include <string>
 #include <cstdint>
@@ -15,92 +22,123 @@
 namespace Agos
 {
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// consider those to be FLAGS
-enum AG_API AgModelExtensionDataType : uint16_t
+namespace Modeling
 {
-    none            = 0,
-    light_source    = 1,
-    lighting_map    = 2,
-    max_enum        = 65535
-};
 
-struct AG_API AgModelExtensionDataLight
-{
-    glm::vec3 light_position;
-    glm::vec3 light_color;
-};
+    namespace ModelData
+    {
+        struct AG_API Materials
+        {
+            // std::string     texture_path;
+            // std::string     ambiant_path;
+            // std::string     diffuse_path;
+            // std::string     specular_path;
 
-struct AG_API AgModelExtensionDataLightingMap
-{
-    AgModelDataDiffuseMap   diffuse_map;
-    AgModelDataSpecularMap  specular_map;
-};
+            TextureSampler  texture;
+            TextureSampler  ambtMap;
+            TextureSampler  diffMap;
+            TextureSampler  specMap;
+            TextureSampler  nrmlMap;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            glm::float32_t  shininess;
+            glm::float32_t  ior;        // index of refraction
+            glm::float32_t  opacity;    // varies from 0 up to 1 
+        };
 
-struct AG_API AgModelDataMaterial
-{
-    glm::vec3   ambient;
-    glm::vec3   diffuse;
-    glm::vec3   specular;
-    float       shininess;
-};
+        struct AG_API Properties
+        {
+            struct Light
+            {
+                glm::vec3   position;
+                glm::vec3   color;
+            };
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            struct PhysicalBody
+            {
+                float   mass;
+                float   charge;
+                std::vector<Vertex>     vertices;
+                std::vector<uint32_t>   indices;
+                // elasticity, literally anything else...
+            };
+        };
 
-struct AG_API AgModelData
-{
-    std::vector<VulkanGraphicsPipeline::Vertex>     vertices;
-    std::vector<uint32_t>                           indices;
-    glm::vec3                                       translation = glm::vec3(0.0f);
-    std::vector<AgModelDataMaterial>                materials;
-};
+        // ** Model Data =======================================
+        struct AG_API Data
+        {
+            std::string     obj_file_path;
+            std::string     texture_path;
+            std::string     ambiant_path;
+            std::string     diffuse_path;
+            std::string     specular_path;
+            std::string     normal_path;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            std::vector<Vertex>                     vertices;
+            std::vector<uint32_t>                   indices;
+            Agos::Modeling::ModelData::Materials    materials;
+            Agos::Modeling::ModelData::Properties   properties;
+        };
+    }   // namespace ModelData (within namespace Agos::Modeling)
 
-struct AG_API AgModel
-{
-public:
-    std::string id;
-    std::string path_to_obj_file;
-    std::string path_to_texture_file;
+    // ** AgosGE Model =========================================
+    class AG_API Model
+    {
+    private:
+        std::string                         m_Id;
+        Agos::Modeling::ModelData::Data     m_ModelData;
 
-    AgModelData model_data;
-    AgModelExtensionDataType extension_type = AgModelExtensionDataType::none;
-    void* pExtensionData                    = NULL;
+    public:
 
-    AgModel();
-    AgModel(const AgModel& other);
-    AgModel(AgModel&& other);
-    ~AgModel();
+        explicit    Model();
+        explicit    Model(const Model& other)      = delete;
+        explicit    Model(Model&& other)           = delete;
+        virtual    ~Model();
+        Model&      operator=(const Model& other)    = delete;
+        Model&      operator=(Model&& other)         = delete;
 
-    AgModel& operator=(const AgModel& other);
-    AgModel& operator=(AgModel&&);
+        // creates : 
+        // (Vulkan-based renderer) VkImage, VkImageView, VkDeviceMemory, VkSampler
+        // (OpenGL-based renderer) <?>
+        AgResult    load_texture        (const std::string& texture_path);
+        AgResult    load_lighting_map   (const std::string& ambiant_map, const std::string& diffuse_path, const std::string& specular_map);
 
-private:
-    template <uint16_t extension_type>
-    static void create_model_extension(AgModel& model);
-    template <uint16_t extension_type>
-    static void delete_model_extension(AgModel& model);
-};
+        AgResult    destroy_texture();
+        AgResult    destroy_lighting_map();
+    };
 
-struct AG_API AgModelHandler
-{
-    /**
-     * @brief main Agos function to parse an .obj file with its corresponding .mtl file
-     * @param model AgModel containing @b both informations to model.path_to_obj_file @a and model.path_to_texture_file
-     * @param color Default color to apply to the entire model
-     * @return A filled in with AgModelData struct with informations from the .obj
-    */
-    static AgResult     load_model          (AgModel& model, const glm::vec3& polygons_color = glm::vec3(1.0f));
-    static AgResult     translate           (AgModel& model, const glm::vec3& translation);
-    static AgResult     scale               (AgModel& model, const glm::vec3& translation);
-    static AgResult     rotate              (AgModel& model, const glm::vec3& rotation_axis, const float& angle_degrees);
-    static AgResult     set_light_source    (AgModel& model, const glm::vec3& light_color);
-    static AgResult     set_lighting_map    (AgModel& model);
-};
-} // namespace Agos
+    struct AG_API ModelManager
+    {
+        //  * @brief main Agos function to parse an .obj file with its corresponding .mtl file
+        //  * @param model Agos::Modeling::Model containing @b both informations to model.path_to_obj_file @a and model.path_to_texture_file
+        //  * @param color Default color to apply to the entire model
+        //  * @return A filled in with Agos::Modeling::ModelData struct with informations from the .obj
+        static AgResult     load_model          (Agos::Modeling::Model& model, const glm::vec3& polygons_color = glm::vec3(1.0f)            );
+        static AgResult     translate           (Agos::Modeling::Model& model, const glm::vec3& translation                                 );
+        static AgResult     scale               (Agos::Modeling::Model& model, const glm::vec3& translation                                 );
+        static AgResult     rotate              (Agos::Modeling::Model& model, const glm::vec3& rotation_axis, const float& angle_radians   );
+        static AgResult     set_polygons_color  (Agos::Modeling::Model& model, const glm::vec3& polygons_color                              );
+ 
+        static AgResult     set_obj_path        (Agos::Modeling::Model& model, const std::string& obj_file_path         );
+        static AgResult     set_texture_path    (Agos::Modeling::Model& model, const std::string& texture_path          );
+        static AgResult     set_ambiant_path    (Agos::Modeling::Model& model, const std::string& ambiant_map_path      );
+        static AgResult     set_diffuse_path    (Agos::Modeling::Model& model, const std::string& diffuse_map_path      );
+        static AgResult     set_specular_path   (Agos::Modeling::Model& model, const std::string& specular_map_path     );
+        static AgResult     set_normal_map      (Agos::Modeling::Model& model, const std::string& normal_map_path       );
+        static AgResult     set_lighting_map    (Agos::Modeling::Model& model, const std::string& ambiant_map_path  ,
+                                                                               const std::string& diffuse_map_path  ,
+                                                                               const std::string& specular_map_path     );
 
+        static AgResult     set_light_source    (Agos::Modeling::Model& model, const glm::vec3& light_color             );
+        static AgResult     set_physical_body   (Agos::Modeling::Model& model                                           );
 
+        static AgResult     display_position_vector         (Agos::Modeling::Model& model   );
+        static AgResult     display_speed_vector            (Agos::Modeling::Model& model   );
+        static AgResult     display_acceleration_vector     (Agos::Modeling::Model& model   );
+        static AgResult     hide_position_vector            (Agos::Modeling::Model& model   );
+        static AgResult     hide_speed_vector               (Agos::Modeling::Model& model   );
+        static AgResult     hide_acceleration_vector        (Agos::Modeling::Model& model   );
+    };
+
+}   // namespace Modeling (within namespace Agos::Modeling)
+
+}   // namespace Agos

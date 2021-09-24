@@ -2,11 +2,16 @@
 
 #include "Agos/src/core.h"
 #include "Agos/src/base.h"
-#include "Agos/src/renderer/renderer.h"
-#include "Agos/src/debug_layers/debug_layers.h"
 
+namespace Agos{
+    namespace VulkanHandler { class VulkanBase;   }
+    namespace GLFWHandler {
+        class GLFWInstance;
+        namespace Event { class EventManager; }
+    }
+}
+#include "Agos/src/renderer/renderer.h"
 #include AG_EVENTBUS_INCLUDE
-#include <functional>
 
 namespace Agos
 {
@@ -14,8 +19,13 @@ typedef class AG_API AgApplication
 {
 private:
     std::shared_ptr<dexode::EventBus> m_EventBus;
-    std::shared_ptr<AgVulkanHandlerRenderer> m_Renderer;
-    std::vector<Agos::AgModel> m_Rendered_Models;
+    // std::shared_ptr<AgVulkanHandlerRenderer> m_Renderer;
+    // std::vector<Agos::AgModel> m_Rendered_Models;
+
+    // ! TESTING
+    std::shared_ptr<Agos::GLFWHandler::Event::EventManager> m_GLFWEventManager;
+    std::shared_ptr<Agos::GLFWHandler::GLFWInstance> m_GLFWInstance;
+    std::shared_ptr<Agos::VulkanHandler::VulkanBase> m_VulkanBase;
 
 public:
     AgApplication();

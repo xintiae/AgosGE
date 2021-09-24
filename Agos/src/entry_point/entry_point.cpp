@@ -6,12 +6,16 @@
 Agos::AgApplication::AgApplication()
 {
     m_EventBus          = std::make_shared<dexode::EventBus>();
-    m_Renderer          = std::make_shared<AgVulkanHandlerRenderer>(m_EventBus);
+    // m_Renderer          = std::make_shared<AgVulkanHandlerRenderer>(m_EventBus);
+
+    m_GLFWEventManager  = std::make_shared<GLFWHandler::Event::EventManager>    (m_EventBus);
+    m_GLFWInstance      = std::make_shared<GLFWHandler::GLFWInstance>           (m_EventBus);
+    m_VulkanBase        = std::make_shared<VulkanHandler::VulkanBase>           (m_GLFWInstance);
 }
 
 Agos::AgApplication::~AgApplication()
 {
-    m_Renderer->terminate();
+    // m_Renderer->terminate();
 }
 
 Agos::AgResult Agos::AgApplication::core_init_application()
@@ -36,12 +40,16 @@ Agos::AgResult Agos::AgApplication::core_init_application()
      *      - Live editing & saving
      *      - who knows what's coming next ;)
     */
-
    load_models();
 
     bool should_cursor_exist = true;
+    m_GLFWInstance->init(m_GLFWEventManager, "AgosGE's init example!", should_cursor_exist);
+    m_VulkanBase->setup_vulkan_base();
+
     // ! init vulkan WITH your loaded models
-    m_Renderer->init_vulkan(m_Rendered_Models, should_cursor_exist);
+    // m_Renderer->init_vulkan(m_Rendered_Models, should_cursor_exist);
+
+
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;
@@ -51,6 +59,7 @@ Agos::AgResult Agos::AgApplication::core_run_application()
 {
     AG_CORE_WARN("Running Agos core application...");
 
+/*
     while (m_Renderer->can_run())
     {
         std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
@@ -65,6 +74,7 @@ Agos::AgResult Agos::AgApplication::core_run_application()
 
         Agos::AgModelHandler::rotate(m_Rendered_Models[1], glm::vec3(0.0f, 1.0f, 1.0f), deltaTime * 20.0f);
     }
+*/
 
     return Agos::AG_SUCCESS;
 }
@@ -73,8 +83,8 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 {
     AG_CORE_WARN("Terminating Agos core application...");
 
-    m_Renderer->terminate_vulkan();
-    m_Renderer->terminate();
+    // m_Renderer->terminate_vulkan();
+    // m_Renderer->terminate();
 
     AG_CORE_INFO("Terminated Agos core application!");
     AG_CORE_WARN("Exiting...");
@@ -83,6 +93,7 @@ Agos::AgResult Agos::AgApplication::core_terminate_application()
 
 void Agos::AgApplication::load_models()
 {
+/*
     // * setup here your data for the renderer to render OR specify which models AgosGE should load by default
     // * keep in mind that your models may overlap on each others when rendering your scene without translating
     m_Rendered_Models.reserve(3);
@@ -134,4 +145,5 @@ void Agos::AgApplication::load_models()
     Agos::AgModelHandler::scale(m_Rendered_Models[1], glm::vec3(0.2f));
     Agos::AgModelHandler::translate(m_Rendered_Models[1], glm::vec3(5.0f, 0.0f, 0.0f));
     Agos::AgModelHandler::set_light_source(m_Rendered_Models[1], glm::vec3(1.25f, 1.25f, 1.25f));   
+*/
 }
