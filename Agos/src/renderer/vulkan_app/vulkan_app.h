@@ -43,10 +43,10 @@ private:
 
     VkRenderPass                m_RenderPass;
 
-    // m_GraphicsPipelineLayout m_GPL
-    // m_GraphicsPipelineCache  m_GPC
-    // m_GraphicsPipeline       m_GP
-    // ? later on : m_ComputePipeline m_CP
+    // m_GraphicsPipelineLayout         m_GPL
+    // m_GraphicsPipelineCache          m_GPC
+    // m_GraphicsPipeline               m_GP
+    // ? later on : m_ComputePipeline     m_CP
     VkPipelineLayout            m_GPL_Lighting;
     VkPipelineCache             m_GPC_Lighting;
     VkPipeline                  m_GP_Lighting;

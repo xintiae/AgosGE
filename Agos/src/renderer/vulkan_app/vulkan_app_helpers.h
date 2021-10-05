@@ -31,12 +31,16 @@ namespace VulkanAppHelpers
 
 namespace GraphicsPipeline
 {
-    // * Graphics Pipeline Population Stage
-    static VkGraphicsPipelineCreateInfo     provide_generic_GP_create_info();
-    static VkPipelineLayoutCreateInfo       populate_generic_GP_layout_create_info();
+    // * Graphics Pipeline "Generation und Population" Stage
+    static VkGraphicsPipelineCreateInfo     provide_generic_GP_create_info          (   const VkShaderModule& genVertShaderModule,
+                                                                                        const VkShaderModule& genFragShaderModule,
+                                                                                        const VkAllocationCallbacks* allocator);
+    static VkPipelineLayoutCreateInfo       populate_generic_GP_layout_create_info  ();
 
-    static VkGraphicsPipelineCreateInfo     provide_lighting_GP_create_info();
-    static VkPipelineLayoutCreateInfo       populate_lighting_GP_layout_create_info();
+    static VkGraphicsPipelineCreateInfo     provide_lighting_GP_create_info         (   const VkShaderModule& lhtVertShaderModule,
+                                                                                        const VkShaderModule& lhtFragShaderModule,
+                                                                                        const VkAllocationCallbacks* allocator);
+    static VkPipelineLayoutCreateInfo       populate_lighting_GP_layout_create_info ();
 
     // * Shader helpers
     enum ShaderType : int8_t
