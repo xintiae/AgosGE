@@ -104,3 +104,15 @@ std::string Agos::AGSModelSections::serialize_sections()
 
 	return out;
 }
+
+Agos::AGSModelSections Agos::AGSModelFile::read_file()
+{
+	AGSModelSections sections;
+
+	sections.object_name = read_section<AGSFileSectionDataTypeString>(AGSFileSectionType::OBJECT_NAME);
+	sections.vertices = read_section<AGSFileSectionDataTypeVector3>(AGSFileSectionType::VERTICES);
+	sections.vertices_textures = read_section<AGSFileSectionDataTypeVector2>(AGSFileSectionType::VERTICES_TEXTURES);
+	sections.vertices_normals = read_section<AGSFileSectionDataTypeVector3>(AGSFileSectionType::VERTICES_NORMALS);
+	
+	return AGSModelSections();
+}

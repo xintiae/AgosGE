@@ -13,6 +13,18 @@
 
 namespace Agos {
 
+	// A struct containing the different sections required for a model (vertices, vertex_normals, ...)
+	typedef struct AG_API AGSModelSections : AGSCombinedSections
+	{
+		AGSFileSection<AGSFileSectionDataTypeString> object_name = AGSFileSection<AGSFileSectionDataTypeString>{ OBJECT_NAME };
+		AGSFileSection<AGSFileSectionDataTypeVector3> vertices = AGSFileSection<AGSFileSectionDataTypeVector3>{ VERTICES };
+		AGSFileSection<AGSFileSectionDataTypeVector2> vertices_textures = AGSFileSection<AGSFileSectionDataTypeVector2>{ VERTICES_TEXTURES };
+		AGSFileSection<AGSFileSectionDataTypeVector3> vertices_normals = AGSFileSection<AGSFileSectionDataTypeVector3>{ VERTICES_NORMALS };
+		AGSFileSection<AGSFileSectionDataTypeString> faces = AGSFileSection<AGSFileSectionDataTypeString>{ FACES };
+
+		std::string serialize_sections();
+	};
+
 	typedef class AG_API AGSModelFile
 	{
 	private:
@@ -21,29 +33,44 @@ namespace Agos {
 
 	public:
 
+		/** @brief Generates an AGS Model file from a given OBJ-File
+		* @param path The path to the OBJ file
+		* @param output The output to where the new AGS file will be saved to
+		*/
 		static void generate_model_file(const std::string& path, const std::string& output);
 		
+		/** @brief Reads the data from a specified section of the AGS File
+		* @param type The section type it should read
+		* @param collectionIndex From which collection it should read the section (1 for the first one, if a wrong index is specified, the last collection's section is used)
+		*/
 		template <typename T>
-		AGSFileSection<T> read_model_file(AGSFileSectionType type)
+		AGSFileSection<T> read_section(AGSFileSectionType type, int collectionIndex = 1)
 		{
 			bool isInSection = false;
+			int currentCollection = 0;
 			std::string line;
 			AGSFileSection<T> section{ type };
 
 			// Iterate through every line of the file
 			while (std::getline(m_Stream, line)) {
 
-				if (AGSFileSection<T>::get_section_type(line) != AGSFileSectionType::NONE) {
-					
-					if (AGSFileSection<T>::get_section_type(line) == type) {
-						isInSection = true;
-						continue;
-					}
-					else {
-						// Stops the loop as soon as the next section is reached
-						break;
-					}
+				if (line == "{\n") {
+					currentCollection++;
+				}
 
+				if (currentCollection >= collectionIndex) {
+					if (AGSFileSection<T>::get_section_type(line) != AGSFileSectionType::NONE) {
+
+						if (AGSFileSection<T>::get_section_type(line) == type) {
+							isInSection = true;
+							continue;
+						}
+						else {
+							// Stops the loop as soon as the next section is reached
+							break;
+						}
+
+					}
 				}
 
 				if (isInSection) {
@@ -59,21 +86,15 @@ namespace Agos {
 			return section;
 		};
 
+		/** @brief Reads an entire AGS model file
+		* @return An instance of the wrapper class AGSModelSections, which will contain all the required sections for a model
+		*/
+		AGSModelSections read_file();
+
 		AGSModelFile(const std::string& path);
 		~AGSModelFile();
 
 	};
 
-	// A struct containing the different sections required for a model (vertices, vertex_normals, ...)
-	typedef struct AG_API AGSModelSections : AGSCombinedSections
-	{
-		AGSFileSection<AGSFileSectionDataTypeString> object_name = AGSFileSection<AGSFileSectionDataTypeString>{ OBJECT_NAME };
-		AGSFileSection<AGSFileSectionDataTypeVector3> vertices = AGSFileSection<AGSFileSectionDataTypeVector3>{ VERTICES };
-		AGSFileSection<AGSFileSectionDataTypeVector2> vertices_textures = AGSFileSection<AGSFileSectionDataTypeVector2>{ VERTICES_TEXTURES };
-		AGSFileSection<AGSFileSectionDataTypeVector3> vertices_normals = AGSFileSection<AGSFileSectionDataTypeVector3>{ VERTICES_NORMALS };
-		AGSFileSection<AGSFileSectionDataTypeString> faces = AGSFileSection<AGSFileSectionDataTypeString>{ FACES };
-
-		std::string serialize_sections();
-	};
 
 }

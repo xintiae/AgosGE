@@ -15,6 +15,9 @@
 
 namespace Agos {
 
+	/** This is the superclass for all Section Data Types
+	* A Section always contains a unique data type (like a string or int), which has to be (de)serialized
+	*/
 	template <typename T>
 	struct AG_API AGSFileSectionDataType
 	{
@@ -27,7 +30,9 @@ namespace Agos {
 		*/
 		virtual void set_data_from_string(const std::string& data) = 0;
 
-		// Note: Do NOT append \n at the end!
+		/** Converts the data of a section to it's serialized string
+		* NOTE: Do NOT append \n at the end!
+		*/
 		virtual std::string convert_to_string() = 0;
 
 		AGSFileSectionDataType();
@@ -87,7 +92,10 @@ namespace Agos {
 		FACES
 	};
 
-	template <typename T> // This class requires a subclass of AGSFileSectionDataType
+	/** A wrapper for storing contents of a section
+	* NOTE: The required template must be a subclass of AGSFileSectionDataType
+	*/
+	template <typename T>
 	class AG_API AGSFileSection
 	{
 	private:
@@ -167,7 +175,7 @@ namespace Agos {
 
 	typedef struct AG_API AGSCombinedSections
 	{
-		/* @brief Creates and returns a string which contains all the sections wrapped inside curled brackets
+		/** Creates and returns a string which contains all the sections wrapped inside curled brackets
 		* @return A string which contains the section headers and their contents wrapped inside curled brackets
 		*/
 		virtual std::string serialize_sections() = 0;
