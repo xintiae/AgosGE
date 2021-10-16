@@ -35,6 +35,8 @@
 #define AG_DEFAULT_MODEL_TEXTURE               "/primitives/no_textures.png"
 #define AG_DEFAULT_MODEL_TEXTURE_OPACITY_NULL  "/primitives/no_textures_opacity_null.png"
 
+#define AG_DEFAULT_MODEL_NAME "Unnamed"
+
 namespace Agos
 {
 enum AgResult {

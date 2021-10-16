@@ -1,6 +1,7 @@
 #include "Agos/src/entry_point/entry_point.h"
 
 #include "Agos/src/logger/logger.h"
+#include "Agos/src/file_format/ags_file_model.h"
 #include <chrono>
 
 Agos::AgApplication::AgApplication()
@@ -90,6 +91,8 @@ Agos::AgResult Agos::AgApplication::core_init_application()
     bool should_cursor_exist = true;
     // ! init vulkan WITH your loaded models
     m_Renderer->init_vulkan(m_Rendered_Models, should_cursor_exist);
+
+    Agos::AGSModelFile::generate_model_file(std::string(AG_MODELS_PATH) + std::string("/primitives/teapot.obj"), std::string(AG_MODELS_PATH) + std::string("/primitives/teapot.ags"));
 
     AG_CORE_INFO("Done initializing Agos core application!");
     return Agos::AG_SUCCESS;

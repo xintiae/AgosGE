@@ -1,5 +1,14 @@
 #include "ags_file_model.h"
 
+Agos::AgModel Agos::AGSModelFile::get_model(const std::string& id, int modelIndex)
+{
+	AgModel model;
+
+	
+
+	return AgModel();
+}
+
 Agos::AGSModelFile::AGSModelFile(const std::string& path)
 {
 	m_Stream.open(path, std::ios::in);
@@ -54,7 +63,7 @@ void Agos::AGSModelFile::generate_model_file(const std::string& path, const std:
 			out_stream << current_obj.serialize_sections();
 
 			current_obj = AGSModelSections();
-			current_obj.object_name.add_data(line.substr(2));
+			current_obj.object_name = line.substr(2);
 		}
 
 		// Populate data for the vertices
@@ -90,7 +99,7 @@ std::string Agos::AGSModelSections::serialize_sections()
 {
 	std::string out;
 
-	out += object_name.serialize_section();
+	out += object_name;
 	out += vertices.serialize_section();
 	out += vertices_textures.serialize_section();
 	out += vertices_normals.serialize_section();
@@ -105,14 +114,46 @@ std::string Agos::AGSModelSections::serialize_sections()
 	return out;
 }
 
-Agos::AGSModelSections Agos::AGSModelFile::read_file()
+void Agos::AGSModelFile::read_file()
 {
-	AGSModelSections sections;
+	// Clears file data vector to avoid duplicates if this function would be called twice
+	if (!m_FileData.empty()) {
+		m_FileData.clear();
+	}
 
-	sections.object_name = read_section<AGSFileSectionDataTypeString>(AGSFileSectionType::OBJECT_NAME);
-	sections.vertices = read_section<AGSFileSectionDataTypeVector3>(AGSFileSectionType::VERTICES);
-	sections.vertices_textures = read_section<AGSFileSectionDataTypeVector2>(AGSFileSectionType::VERTICES_TEXTURES);
-	sections.vertices_normals = read_section<AGSFileSectionDataTypeVector3>(AGSFileSectionType::VERTICES_NORMALS);
-	
-	return AGSModelSections();
+	int modelNum = get_models_num();
+
+	for (int i = 0; i < modelNum; i++) {
+		AGSModelSections sections;
+
+		AGSFileSection name_section = read_section<AGSFileSectionDataTypeString>(AGSFileSectionType::OBJECT_NAME, i);
+		if (!name_section.m_Data.empty()) {
+			sections.object_name = name_section.m_Data.at(0)->m_Data;
+		}
+		else {
+			sections.object_name = AG_DEFAULT_MODEL_NAME;
+		}
+
+		sections.vertices = read_section<AGSFileSectionDataTypeVector3>(AGSFileSectionType::VERTICES, i);
+		sections.vertices_textures = read_section<AGSFileSectionDataTypeVector2>(AGSFileSectionType::VERTICES_TEXTURES, i);
+		sections.vertices_normals = read_section<AGSFileSectionDataTypeVector3>(AGSFileSectionType::VERTICES_NORMALS, i);
+
+		m_FileData.push_back(std::make_shared<AGSModelSections>(sections));
+	}
+}
+
+int Agos::AGSModelFile::get_models_num()
+{
+	int modelNum = 0;
+
+	std::string line;
+
+	// Loop through every line of the file
+	while (std::getline(m_Stream, line)) {
+		if (line == "{\n") {
+			modelNum++;
+		}
+	}
+
+	return modelNum;
 }
