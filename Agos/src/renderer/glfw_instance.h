@@ -21,27 +21,27 @@ class AG_API GLFWInstance
 private:
     dexode::EventBus::Listener  m_EventBusListener;
     GLFWwindow*                 m_ApplicationWindow;
-
-    size_t m_CursorState;
-
-    bool m_Terminated = false;
+    size_t                      m_CursorState;          // = 0;
+    bool                        m_Terminated;           // = false;
 
 public:
     // include renderer for GLFWInstance to inform about mouse pos, framebuffer new size, etc...
     GLFWInstance(const std::shared_ptr<dexode::EventBus>& event_bus);
+    GLFWInstance(const GLFWInstance& other)             = delete;
+    GLFWInstance(GLFWInstance&& other)                  = delete;
     ~GLFWInstance();
 
-    // deleted copy, move constructors and copy, move operators
-    GLFWInstance(const GLFWInstance& other)   = delete;
-    GLFWInstance(GLFWInstance&& other)        = delete;
     GLFWInstance& operator=(const GLFWInstance& other)  = delete;
     GLFWInstance& operator=(GLFWInstance& other)        = delete;
 
-    // create and destroy a GLFWInstance
-    AgResult init       (   const std::shared_ptr<Agos::GLFWHandler::Event::EventManager>& event_manager,
-                            const std::string& window_title = "Powered by AgosGE",
-                            const bool& shall_cursor_exist = false);
-    AgResult terminate  ();
+
+    AgResult    init       (const std::shared_ptr<Agos::GLFWHandler::Event::EventManager>& event_manager,
+                            const std::string& window_title = "AgosGE",
+                            const int&          width   = AG_DEFAULT_WINDOW_WIDTH,
+                            const int&          height  = AG_DEFAULT_WINDOW_HEIGHT,
+                            const               bool& shall_cursor_exist = false);
+    AgBool      app_should_run();
+    AgResult    terminate  ();
 
     // misc
     GLFWwindow*&    get_window      ();

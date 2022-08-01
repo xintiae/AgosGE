@@ -16,6 +16,7 @@
 
 #include "Agos/src/debug_layers/vulkan_debug_layers.h"
 #include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/vulkan_app/vulkan_helpers.h"
 
 #include AG_GLFW_INCLUDE
 #include AG_VULKAN_INCLUDE
@@ -55,6 +56,7 @@ protected:
     VkQueue                     m_TransferQueue;
     VkQueue                     m_ComputeQueue;
 
+    bool                        m_FramebufferResizedFlag;   // = false
 
     // destructions tracking
     bool                        m_InstanceDestroyed;                // = false
@@ -133,9 +135,7 @@ protected:
     static bool                     check_device_extensions_support     (const VkPhysicalDevice& physical_device);
     static SwapchainSupportDetails  query_swapchain_support             (const VkPhysicalDevice& physical_device, const VkSurfaceKHR& surface);
     static VkSampleCountFlagBits    get_max_usable_sample_count         (const VkPhysicalDevice& physical_device);
-    static uint32_t                 find_memory_type_index              (const VkPhysicalDevice& physical_device,
-                                                                            const uint32_t&                 type_filter,
-                                                                            const VkMemoryPropertyFlags&    properties);
+    static uint32_t                 find_memory_type_index              (const VkPhysicalDevice& physical_device, const uint32_t& type_filter, const VkMemoryPropertyFlags& properties);
 
 };
 

@@ -1,149 +1,60 @@
 #include "Agos/src/entry_point/entry_point.h"
-
 #include "Agos/src/logger/logger.h"
-#include <chrono>
 
-Agos::AgApplication::AgApplication()
+Agos::Application::Application()
+    : m_AppShouldRun    (true),
+    m_AppTerminated     (false)
 {
-    m_EventBus          = std::make_shared<dexode::EventBus>();
-    // m_Renderer          = std::make_shared<AgVulkanHandlerRenderer>(m_EventBus);
-
-    m_GLFWEventManager  = std::make_shared<GLFWHandler::Event::EventManager>    (m_EventBus);
-    m_GLFWInstance      = std::make_shared<GLFWHandler::GLFWInstance>           (m_EventBus);
-    m_VulkanBase        = std::make_shared<VulkanHandler::VulkanBase>           (m_GLFWInstance);
+    m_AppRenderer       = std::make_unique<Agos::Renderer::ApplicationRenderer>();
+    m_AppSceneManager   = std::make_unique<Agos::SceneManager::ApplicationSceneManager>();
 }
 
-Agos::AgApplication::~AgApplication()
+Agos::Application::~Application()
 {
-    // m_Renderer->terminate();
 }
 
-Agos::AgResult Agos::AgApplication::core_init_application()
+Agos::AgResult Agos::Application::init()
 {
     Agos::ag_init_loggers();
-    AG_CORE_WARN("Initializing Agos core application...");
-
-    /**
-     * * === THIS IS A TODO LIST === *
-     * * (use Better Comments vscode extension to better visulize it :P)
-     * 
-     * TODO LIST
-     *      ! RENDERER CODE REVIEW
-     *      ~ bug fix : descriptor sets not being destroyed on vulkan logical device destruction; occurs only when resizing the window
-     *      - lighting maps
-     *      - helper function to change models' color
-     *      - helper function to show on each model its position, velocity and acceleration vector when triggered using an item-specific imgui window (see default AgosGE window layout)
-     *      - camera velocity vector / acceleration vector
-     *      ! IMGUI MENU
-     *
-     * * LATER ON
-     *      - Live editing & saving
-     *      - who knows what's coming next ;)
-    */
-   load_models();
-
-    bool should_cursor_exist = true;
-    m_GLFWInstance->init(m_GLFWEventManager, "AgosGE's init example!", should_cursor_exist);
-    m_VulkanBase->setup_vulkan_base();
-
-    // ! init vulkan WITH your loaded models
-    // m_Renderer->init_vulkan(m_Rendered_Models, should_cursor_exist);
-
-
-
-    AG_CORE_INFO("Done initializing Agos core application!");
-    return Agos::AG_SUCCESS;
+    AG_CORE_WARN("[Entry Point/Application - init] Initializing AgosGE...");
+    m_AppRenderer->init();
+    m_AppSceneManager->init();
+    AG_CORE_INFO("[Entry Point/Application - init] Done!");
+    return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::AgApplication::core_run_application()
+Agos::AgResult Agos::Application::run()
 {
-    AG_CORE_WARN("Running Agos core application...");
+    AG_CORE_WARN("[Entry Point/Application - run] => Running AgosGE... <=");
+    m_AppSceneManager->load_scene   (AG_EXAMPLES_PATH + std::string("/scene_1-hello_agos"));
+    m_AppRenderer->load_entities    (m_AppSceneManager->get_scenes_entities());
 
-/*
-    while (m_Renderer->can_run())
+    while (m_AppShouldRun)
     {
-        std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-
-        std::vector<Agos::AgModel> updated_models(1, m_Rendered_Models[1]);
-        // ! !=!=!=! NOTE : UNDER ANY CIRCUMSTANCES DO NOT TRY TO RESIZE ANY m_Rendered_Models.model_data !=!=!=!
-        m_Renderer->update_models_data( updated_models );
-        m_Renderer->run();
-
-        std::chrono::high_resolution_clock::time_point current_time = std::chrono::high_resolution_clock::now();
-        float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
-
-        Agos::AgModelHandler::rotate(m_Rendered_Models[1], glm::vec3(0.0f, 1.0f, 1.0f), deltaTime * 20.0f);
-    }
-*/
-
-    return Agos::AG_SUCCESS;
-}
-
-Agos::AgResult Agos::AgApplication::core_terminate_application()
-{
-    AG_CORE_WARN("Terminating Agos core application...");
-
-    // m_Renderer->terminate_vulkan();
-    // m_Renderer->terminate();
-
-    AG_CORE_INFO("Terminated Agos core application!");
-    AG_CORE_WARN("Exiting...");
-    return Agos::AG_SUCCESS;
-}
-
-void Agos::AgApplication::load_models()
-{
-/*
-    // * setup here your data for the renderer to render OR specify which models AgosGE should load by default
-    // * keep in mind that your models may overlap on each others when rendering your scene without translating
-    m_Rendered_Models.reserve(3);
-    Agos::AgModel model;
-    model.id                     = std::move(std::string("axis"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/axis.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_TEXTURES_PATH) + std::string(AG_DEFAULT_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
-
-    model.id                     = std::move(std::string("cube"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/cube.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_TEXTURES_PATH) + std::string(AG_DEFAULT_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
-
-    model.id                     = std::move(std::string("teapot"));
-    model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/primitives/teapot.obj"));
-    model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_TEXTURE));
-    m_Rendered_Models.push_back(std::move(model));
-
-    // model.id                     = std::move(std::string("wallSingle.obj"));
-    // model.path_to_obj_file       = std::move(std::string(AG_MODELS_PATH) + std::string("/dungeon_pack/Models/obj/wallSingle.obj"));
-    // model.path_to_texture_file   = std::move(std::string(AG_MODELS_PATH) + std::string(AG_DEFAULT_MODEL_TEXTURE));
-    // m_Rendered_Models.push_back(std::move(model));
-
-
-    // * you have to load your models' data here before initializing vulkan
-    for (size_t i = 0; i < m_Rendered_Models.size(); i++)
-    {
-        AG_CORE_WARN("Loading model : " + m_Rendered_Models[i].id + " (obj file path : " + m_Rendered_Models[i].path_to_obj_file + ")");
-        if (i == 1)
-            // "wanna set ma cube blue man"
-            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(0.0f, 0.0f, 1.0f));
-        else if (i == 2)
-            // "wanna set ma teapot green man"
-            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(0.0f, 1.0f, 0.0f));
-        else
-            // "wanna set it any color?" - "nah I'm fine with white this time"
-            Agos::AgModelHandler::load_model(m_Rendered_Models[i], glm::vec3(1.0f, 1.0f, 1.0f));        
+        // m_AppRenderer->draw_startup_menu();  // ImGui stuff
+        // m_AppRenderer->draw_menu();          // ImGui stuff
+        m_AppRenderer->update_entities();
+        m_AppRenderer->draw_scene();
+        // performs glfwPollEvents()
+        m_AppShouldRun = m_AppRenderer->app_should_run();
     }
 
+    m_AppRenderer->unload_entities();
+    m_AppSceneManager->save_scene();
+    m_AppSceneManager->close_current_scene();
+    return AG_SUCCESS;
+}
 
-    // * scale things up here
-    Agos::AgModelHandler::scale(m_Rendered_Models[0], glm::vec3(0.0f));
-
-
-    // * setting up a light source here
-    // NOTE : if no model is set as a light source, the renderer provides a default light source
-    // at location glm::vec3(1.0f, 1.0f, 1.0f) with color glm::vec3(1.0f, 0.0f, 0.0f) - which is red
-    Agos::AgModelHandler::scale(m_Rendered_Models[1], glm::vec3(0.2f));
-    Agos::AgModelHandler::translate(m_Rendered_Models[1], glm::vec3(5.0f, 0.0f, 0.0f));
-    Agos::AgModelHandler::set_light_source(m_Rendered_Models[1], glm::vec3(1.25f, 1.25f, 1.25f));   
-*/
+Agos::AgResult Agos::Application::terimnate()
+{
+    AG_CORE_WARN("[Entry Point/Application - terminate] Terminating AgosGE...");
+    if (!m_AppTerminated)
+    {
+        m_AppSceneManager->terminate();
+        m_AppRenderer->terminate();
+        m_AppTerminated = true;
+        return AG_SUCCESS;
+    }
+    AG_CORE_INFO("[Entry Point/Application - terminate] Done!");
+    return AG_APPLICATION_ALREADY_TERMINATED;
 }

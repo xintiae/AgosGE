@@ -1,47 +1,36 @@
 #pragma once
 
-#include "Agos/src/core.h"
 #include "Agos/src/base.h"
+#include "Agos/src/core.h"
 
-namespace Agos{
-    namespace VulkanHandler { class VulkanBase;   }
-    namespace GLFWHandler {
-        class GLFWInstance;
-        namespace Event { class EventManager; }
-    }
-}
+#include "Agos/src/scene_manager/scene_manager.h"
 #include "Agos/src/renderer/renderer.h"
-#include AG_EVENTBUS_INCLUDE
+
 
 namespace Agos
 {
-typedef class AG_API AgApplication
+class AG_API Application
 {
 private:
-    std::shared_ptr<dexode::EventBus> m_EventBus;
-    // std::shared_ptr<AgVulkanHandlerRenderer> m_Renderer;
-    // std::vector<Agos::AgModel> m_Rendered_Models;
-
-    // ! TESTING
-    std::shared_ptr<Agos::GLFWHandler::Event::EventManager> m_GLFWEventManager;
-    std::shared_ptr<Agos::GLFWHandler::GLFWInstance> m_GLFWInstance;
-    std::shared_ptr<Agos::VulkanHandler::VulkanBase> m_VulkanBase;
+    std::unique_ptr<Agos::Renderer::ApplicationRenderer>            m_AppRenderer;      // renders Gui, Viewport
+    std::unique_ptr<Agos::SceneManager::ApplicationSceneManager>    m_AppSceneManager;  // saves, loads, destroys, scenes and keeps track of each scene's entity
+    bool                                                            m_AppShouldRun;     // = true;
+    bool                                                            m_AppTerminated;    // = false;
+    // ags_file_formater
+    // ? who knows what might come next :3
 
 public:
-    AgApplication();
-    virtual ~AgApplication();
+    Application();
+    Application(const Application& other)   = delete;
+    Application(Application&& other)        = delete;
+    ~Application();
 
-    AgResult core_init_application();
-    AgResult core_run_application();
-    AgResult core_terminate_application();
+    Application& operator=(const Application& other)    = delete;
+    Application& operator=(Application&& other)         = delete;
 
-    virtual AgResult client_init_application()      = 0;
-    virtual AgResult client_run_application()       = 0;
-    virtual AgResult client_terminate_application() = 0;
+    AgResult    init();
+    AgResult    run();
+    AgResult    terimnate();
+};
 
-// example_sake
-private:
-    void load_models();
-} AgApplication; 
-
-}   // namespace Agos
+}

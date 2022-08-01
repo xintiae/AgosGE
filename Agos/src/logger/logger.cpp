@@ -18,7 +18,7 @@ Agos::AgResult Agos::ag_init_loggers()
     AgCoreLogger = std::shared_ptr<spdlog::logger>();
     AgClientLogger = std::shared_ptr<spdlog::logger>();
 
-    AgCoreLogger = spdlog::stdout_color_mt("AgosGE");
+    AgCoreLogger = spdlog::stdout_color_mt("AgCore");
     AgClientLogger = spdlog::stdout_color_mt("Client");
 
     AgCoreLogger->set_level(spdlog::level::info);

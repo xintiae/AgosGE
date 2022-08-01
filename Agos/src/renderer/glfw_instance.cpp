@@ -14,9 +14,12 @@ Agos::GLFWHandler::GLFWInstance::~GLFWInstance()
 }
 
 Agos::AgResult Agos::GLFWHandler::GLFWInstance::init(
-    const std::shared_ptr<Agos::GLFWHandler::Event::EventManager>& event_manager,
-    const std::string& window_title /*= "Powered by AgosGE"*/,
-    const bool& shall_cursor_exist /*= false*/)
+    const std::shared_ptr<Agos::GLFWHandler::Event::EventManager>&  event_manager,
+    const std::string&                                              window_title /*= "AgosGE"*/,
+    const int&                                                      width /*= AG_DEFAULT_WINDOW_WIDTH*/,
+    const int&                                                      height /*= AG_DEFAULT_WINDOW_HEIGHT*/,
+    const bool&                                                     shall_cursor_exist /*= false*/
+)
 {
     m_EventBusListener.listen<Agos::GLFWHandler::Event::Event>(
         [this](const Agos::GLFWHandler::Event::Event& event) -> void
@@ -29,18 +32,19 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::init(
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     m_ApplicationWindow = NULL;
-    if ( (m_ApplicationWindow = glfwCreateWindow(AG_MAX_WINDOW_WIDTH, AG_MAX_WINDOW_HEIGHT, "Vulkan", nullptr, nullptr)) == NULL)
+    if ( (m_ApplicationWindow = glfwCreateWindow(width, height , window_title.c_str(), nullptr, nullptr)) == NULL)
     {
         AG_CORE_CRITICAL("[GLFW/GLFWHandler::GLFWInstance - init] Failed to create window!");
         return AG_FAILED_TO_CREATE_GLFW_INSTANCE;
     }
 
     // * all kind of glfwSetxxx
-    // title
-    glfwSetWindowTitle(m_ApplicationWindow, "AgosGE - init example!");
     // user pointer
     glfwSetWindowUserPointer(m_ApplicationWindow, this);
     // * glfw's callbacks
+    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+/*
     // framebuffer
     glfwSetFramebufferSizeCallback(m_ApplicationWindow, event_manager->framebufferResizeCallback);
     // mouse button
@@ -60,8 +64,15 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::init(
         m_CursorState = GLFW_CURSOR_DISABLED;
     }
     glfwSetKeyCallback(m_ApplicationWindow, event_manager->keyboardCallback);
+*/
 
     return AG_SUCCESS;
+}
+
+Agos::AgBool Agos::GLFWHandler::GLFWInstance::app_should_run()
+{
+    glfwPollEvents();
+    return !glfwWindowShouldClose(m_ApplicationWindow);
 }
 
 Agos::AgResult Agos::GLFWHandler::GLFWInstance::terminate()

@@ -1,7 +1,7 @@
 /**
  * @file vulkan_helpers.h
  * @author ght365 (ght365@hotmail.com)
- * @brief @b generic AgosGE's header for @b Vulkan-oriented @c helper @c functions
+ * @brief @b generic AgosGE's header for @b Vulkan-oriented @c helper @c functions. You may also use it.
  * @version 0.1
  * @date 2021-08-30
  * 
@@ -28,20 +28,26 @@ namespace VulkanHandler
 
 struct VulkanHelpers
 {
+
     // * image helpers
     struct AgImage
     {
         VkImage         image;
         VkDeviceMemory  imageMemory;
+        VkImageView     imageView;
     };
 
+    // * framebuffers' attachment helpers
+    using AgFramebufferAttachment = struct AgImage;
+
+    // * image helpers
     static AgImage      create_image(
         const VkPhysicalDevice&         physical_device,
         const VkDevice&                 logical_device,
         const uint32_t&                 width,
         const uint32_t&                 height,
-        const uint32_t&                 mipLevels,
-        const VkSampleCountFlagBits&    numSamples,
+        const uint32_t&                 mip_levels,
+        const VkSampleCountFlagBits&    num_samples,
         const VkFormat&                 format,
         const VkImageTiling&            tiling,
         const VkImageUsageFlags&        usage,
@@ -52,8 +58,8 @@ struct VulkanHelpers
         const VkDevice&                 logical_device,
         const VkImage&                  image,
         const VkFormat&                 format,
-        const VkImageAspectFlags&       aspectFlags,
-        const uint32_t&                 mipLevels,
+        const VkImageAspectFlags&       aspect_mask,
+        const uint32_t&                 mip_levels,
         const VkAllocationCallbacks*    allocator);
 
     static void         transition_image_layout(
@@ -62,9 +68,9 @@ struct VulkanHelpers
         const VkCommandPool&            command_pool,
         const VkImage&                  image,
         const VkFormat&                 format,
-        const VkImageLayout&            oldLayout,
-        const VkImageLayout&            newLayout,
-        const uint32_t&                 mipLevels);
+        const VkImageLayout&            old_layout,
+        const VkImageLayout&            new_layout,
+        const uint32_t&                 mip_levels);
 
     static void         copy_buffer_to_image(
         const VkDevice&                 logical_device,
@@ -90,10 +96,10 @@ struct VulkanHelpers
         const VkQueue&                  execution_queue,
         const VkCommandPool&            command_pool,
         const VkImage&                  image,
-        const VkFormat&                 imageFormat,
-        const int32_t&                  texWidth,
-        const int32_t&                  texHeight,
-        const uint32_t&                 mipLevels);
+        const VkFormat&                 image_format,
+        const int32_t&                  tex_width,
+        const int32_t&                  tex_height,
+        const uint32_t&                 mip_levels);
     // * image helpers
 
     // * buffer helpers
@@ -121,7 +127,7 @@ struct VulkanHelpers
         const VkAllocationCallbacks*    allocator = nullptr);
 
     // is just two lines of code... literally
-    static void destroy_buffer(
+    static void     destroy_buffer(
         const VkDevice&                 logical_device,
         const AgBuffer&                 buffer,
         const VkAllocationCallbacks*    allocator = nullptr);
@@ -137,7 +143,7 @@ struct VulkanHelpers
                                                 const VkQueue&          execution_queue,
                                                 const VkCommandBuffer&  command_buffer);
     // multiple command buffers handlers
-    static std::vector<VkCommandBuffer>&&   begin_single_time_commands(
+    static std::vector<VkCommandBuffer>     begin_single_time_commands(
                                                 const VkDevice&         logical_device,
                                                 const VkCommandPool&    command_pool,
                                                 const size_t&           command_buffers_count);

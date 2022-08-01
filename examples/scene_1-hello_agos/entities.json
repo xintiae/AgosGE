@@ -1,0 +1,106 @@
+{
+    "Entities": {
+        "cube": {
+            "materials": {
+                "has_ambiant": true,
+                "has_diffuse": true,
+                "has_normal": true,
+                "has_specular": true,
+                "has_texture": true,
+                "ior": 1.0,
+                "opacity": 1.0,
+                "shininess": 0.0
+            },
+            "overall_color": {
+                "a": 255.0,
+                "b": 255.0,
+                "g": 255.0,
+                "r": 255.0
+            },
+            "properties": {
+                "physical_body": {
+                    "charge": 1.6021759512237334e-19,
+                    "mass": 1.0
+                }
+            },
+            "rotation": {
+                "x": 30.0,
+                "y": 180.0,
+                "z": 270.0
+            },
+            "translation": {
+                "x": 2.0,
+                "y": 2.0,
+                "z": 0.0
+            }
+        },
+        "teapot": {
+            "materials": {
+                "has_ambiant": false,
+                "has_diffuse": false,
+                "has_normal": false,
+                "has_specular": false,
+                "has_texture": false,
+                "ior": 1.0,
+                "opacity": 1.0,
+                "shininess": 0.0
+            },
+            "overall_color": {
+                "a": 255.0,
+                "b": 255.0,
+                "g": 255.0,
+                "r": 255.0
+            },
+            "properties": {
+                "physical_body": {
+                    "charge": 0.0,
+                    "mass": 1.0
+                }
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "translation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        "wooden_crate": {
+            "materials": {
+                "has_ambiant": false,
+                "has_diffuse": false,
+                "has_normal": false,
+                "has_specular": true,
+                "has_texture": true,
+                "ior": 1.0,
+                "opacity": 1.0,
+                "shininess": 0.0
+            },
+            "overall_color": {
+                "a": 255.0,
+                "b": 255.0,
+                "g": 255.0,
+                "r": 255.0
+            },
+            "properties": {
+                "physical_body": {
+                    "charge": 0.0,
+                    "mass": 10.0
+                }
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "translation": {
+                "x": 5.0,
+                "y": 5.0,
+                "z": 5.0
+            }
+        }
+    }
+}

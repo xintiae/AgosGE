@@ -1,7 +1,0 @@
-{
-    "type"              : "vertex",
-    "id_generic"        : "generic_vert.spv",
-    "id_lighting"       : "lighting_vert.spv",
-    "compile_generic"   : "glslc -o generic_vert.spv generic_shader.vert",
-    "compile_lighting"  : "glslc -o lighting_vert.spv lighting_shader.vert"
-}

@@ -26,7 +26,7 @@
 
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader/tiny_obj_loader.h"
 
-  #define STB_IMAGE_IMPLEMENTATION
+  // #define STB_IMAGE_IMPLEMENTATION
   #define AG_STB_INCLUDE              "stb/stb_image.h"
 
   #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
@@ -54,7 +54,7 @@
 
   #define AG_TINY_OBJ_LOADER_INCLUDE  "tiny_obj_loader.h"
  
-  #define STB_IMAGE_IMPLEMENTATION
+  // #define STB_IMAGE_IMPLEMENTATION
   #define AG_STB_INCLUDE              "stb/stb_image.h"
  
   #define AG_JSON_INCLUDE             "nlohmann/json.hpp"
@@ -62,11 +62,12 @@
   #define AG_SHADER_SCRIPT_COMPILE_EXTENTION  ".sh"
   #define AG_SHADER_DELETE_COMPILED_SHADER_COMMAND "rm -f"
 
-  #if __GNUC__ >= 4
+ #if __GNUC__ >= 4
     #define AGOS_HELPER_SHARED_IMPORT     __attribute__( (visibility ("default")) )
     #define AGOS_HELPER_SHARED_EXPORT     __attribute__( (visibility ("default")) )
     #define AGOS_HELPER_SHARED_LOCAL      __attribute__( (visibility ("hidden"))  )
     #define AGOS_HELPER_ATTRIBUTE_UNUSED  __attribute__( (unused) )
+    // #define AGOS_HELPER_ATTRIBUTE_UNUSED
   #else
     #define AGOS_HELPER_SHARED_IMPORT
     #define AGOS_HELPER_SHARED_EXPORT
@@ -75,23 +76,4 @@
   #endif
 #endif
 
-// Agos target is SHARED (.dll / .so)
-#ifdef AGOS_COMPILED_SHARED
-  // local refers to non relative Agos symbols
-  #define AG_LOCAL AGOS_HELPER_SHARED_LOCAL
-
-  // export symbols
-  #ifdef AGOS_SYMBOLS_EXPORT
-    #define AG_API AGOS_HELPER_SHARED_EXPORT
-
-  // import symbols
-  #else
-    #define AG_API AGOS_HELPER_SHARED_IMPORT
-
-  #endif
-
-// Agos target is STATIC (.lib / .a)
-#else
-  #define AG_API
-  #define AG_LOCAL
-#endif
+#define AG_API

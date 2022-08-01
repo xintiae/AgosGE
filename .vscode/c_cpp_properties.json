@@ -10,11 +10,13 @@
                 "${workspaceFolder}/Agos/vendor/EventBus/lib/src"
             ],
             "defines": [
+                "AG_SOURCE_PATH=\"\"",
+                "AG_EXAMPLES_PATH=\"\"",
                 "AG_SHADERS_PATH=\"\"",
                 "AG_MODELS_PATH=\"\"",
                 "AG_TEXTURES_PATH=\"\"",
-                "AG_GRAPHICS_API_VULKAN=\"\"",
-                "AG_GRAPHICS_API_OPENGL=\"\""
+                "AG_GRAPHICS_API_VULKAN=true",
+                "AG_GRAPHICS_API_OPENGL=true"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
@@ -29,7 +31,8 @@
                 "path": [
                     "${workspaceFolder}/",
                     "${workspaceFolder}/**",
-                    "${workspaceFolder}/Agos/"
+                    "${workspaceFolder}/Agos/",
+                    "${workspaceFolder}/Agos/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }

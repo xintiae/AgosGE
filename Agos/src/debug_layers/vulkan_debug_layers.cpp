@@ -139,27 +139,28 @@ std::vector<const char *> Agos::VulkanHandler::DebugLayersManager::get_required_
     return extensions;
 }
 
-inline VKAPI_ATTR VkBool32 VKAPI_CALL Agos::VulkanHandler::DebugLayersManager::ag_debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData)
+inline VKAPI_ATTR VkBool32 VKAPI_CALL AGOS_HELPER_ATTRIBUTE_UNUSED Agos::VulkanHandler::DebugLayersManager::ag_debug_callback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT             messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT  *pCallbackData,
+    void *                                      pUserData
+)
 {
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
     {
-        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " " + std::string(pCallbackData->pMessage));
+        AG_CORE_INFO(std::string("[Vulkan Debug Callback/VulkanHandler::DebugLayersManager - ag_debug_callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " " + std::string(pCallbackData->pMessage));
     }
     else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
     {
-        AG_CORE_INFO(std::string("[Vulkan/debug callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " "  + std::string(pCallbackData->pMessage));
+        AG_CORE_INFO(std::string("[Vulkan Debug Callback/VulkanHandler::DebugLayersManager - ag_debug_callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " "  + std::string(pCallbackData->pMessage));
     }
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
     {
-        AG_CORE_WARN(std::string("[Vulkan/debug callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " "  + std::string(pCallbackData->pMessage));
+        AG_CORE_WARN(std::string("[Vulkan Debug Callback/VulkanHandler::DebugLayersManager - ag_debug_callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " "  + std::string(pCallbackData->pMessage));
     }
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
     {
-        AG_CORE_ERROR(std::string("[Vulkan/debug callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " " + std::string(pCallbackData->pMessage));
+        AG_CORE_ERROR(std::string("[Vulkan Debug Callback/VulkanHandler::DebugLayersManager - ag_debug_callback] ") + Agos::VulkanHandler::DebugLayersManager::ag_debug_callback_message_type(messageType) + " " + std::string(pCallbackData->pMessage));
     }
     else
     {

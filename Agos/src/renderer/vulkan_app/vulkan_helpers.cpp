@@ -10,8 +10,8 @@ Agos::VulkanHandler::VulkanHelpers::AgImage Agos::VulkanHandler::VulkanHelpers::
     const VkDevice&                 logical_device,
     const uint32_t&                 width,
     const uint32_t&                 height,
-    const uint32_t&                 mipLevels,
-    const VkSampleCountFlagBits&    numSamples,
+    const uint32_t&                 mip_levels,
+    const VkSampleCountFlagBits&    num_samples,
     const VkFormat&                 format,
     const VkImageTiling&            tiling,
     const VkImageUsageFlags&        usage,
@@ -27,13 +27,13 @@ Agos::VulkanHandler::VulkanHelpers::AgImage Agos::VulkanHandler::VulkanHelpers::
     imageInfo.extent.width      = width;
     imageInfo.extent.height     = height;
     imageInfo.extent.depth      = 1;
-    imageInfo.mipLevels         = mipLevels;
+    imageInfo.mipLevels         = mip_levels;
     imageInfo.arrayLayers       = 1;
     imageInfo.format            = format;
     imageInfo.tiling            = tiling;
     imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage             = usage;
-    imageInfo.samples           = numSamples;
+    imageInfo.samples           = num_samples;
     imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
 
     if (vkCreateImage(logical_device, &imageInfo, allocator, &image.image) != VK_SUCCESS)
@@ -65,8 +65,8 @@ VkImageView Agos::VulkanHandler::VulkanHelpers::create_image_view(
     const VkDevice&                 logical_device,
     const VkImage&                  image,
     const VkFormat&                 format,
-    const VkImageAspectFlags&       aspectFlags,
-    const uint32_t&                 mipLevels,
+    const VkImageAspectFlags&       aspect_mask,
+    const uint32_t&                 mip_levels,
     const VkAllocationCallbacks*    allocator /*= nullptr*/)
 {
     VkImageViewCreateInfo viewInfo{};
@@ -74,9 +74,9 @@ VkImageView Agos::VulkanHandler::VulkanHelpers::create_image_view(
     viewInfo.image                              = image;
     viewInfo.viewType                           = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format                             = format;
-    viewInfo.subresourceRange.aspectMask        = aspectFlags;
+    viewInfo.subresourceRange.aspectMask        = aspect_mask;
     viewInfo.subresourceRange.baseMipLevel      = 0;
-    viewInfo.subresourceRange.levelCount        = mipLevels;
+    viewInfo.subresourceRange.levelCount        = mip_levels;
     viewInfo.subresourceRange.baseArrayLayer    = 0;
     viewInfo.subresourceRange.layerCount        = 1;
 
@@ -96,29 +96,29 @@ void Agos::VulkanHandler::VulkanHelpers::transition_image_layout(
     const VkCommandPool&            command_pool,
     const VkImage&                  image,
     const VkFormat&                 format,
-    const VkImageLayout&            oldLayout,
-    const VkImageLayout&            newLayout,
-    const uint32_t&                 mipLevels)
+    const VkImageLayout&            old_layout,
+    const VkImageLayout&            new_layout,
+    const uint32_t&                 mip_levels)
 {
     VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.oldLayout                       = oldLayout;
-    barrier.newLayout                       = newLayout;
+    barrier.oldLayout                       = old_layout;
+    barrier.newLayout                       = new_layout;
     barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     barrier.image                           = image;
     barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel   = 0;
-    barrier.subresourceRange.levelCount     = mipLevels;
+    barrier.subresourceRange.levelCount     = mip_levels;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount     = 1;
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
 
-    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
     {
         barrier.srcAccessMask = 0;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -126,7 +126,7 @@ void Agos::VulkanHandler::VulkanHelpers::transition_image_layout(
         sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     }
-    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
     {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -219,13 +219,13 @@ void Agos::VulkanHandler::VulkanHelpers::generate_mipmaps(
     const VkQueue&                  execution_queue,
     const VkCommandPool&            command_pool,
     const VkImage&                  image,
-    const VkFormat&                 imageFormat,
-    const int32_t&                  texWidth,
-    const int32_t&                  texHeight,
-    const uint32_t&                 mipLevels)
+    const VkFormat&                 image_format,
+    const int32_t&                  tex_width,
+    const int32_t&                  tex_height,
+    const uint32_t&                 mip_levels)
 {
     VkFormatProperties formatProperties;
-    vkGetPhysicalDeviceFormatProperties(physical_device, imageFormat, &formatProperties);
+    vkGetPhysicalDeviceFormatProperties(physical_device, image_format, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
     {
@@ -245,10 +245,10 @@ void Agos::VulkanHandler::VulkanHelpers::generate_mipmaps(
     barrier.subresourceRange.layerCount     = 1;
     barrier.subresourceRange.levelCount     = 1;
 
-    int32_t mipWidth = texWidth;
-    int32_t mipHeight = texHeight;
+    int32_t mipWidth = tex_width;
+    int32_t mipHeight = tex_height;
 
-    for (uint32_t i = 1; i < mipLevels; i++)
+    for (uint32_t i = 1; i < mip_levels; i++)
     {
         barrier.subresourceRange.baseMipLevel = i - 1;
         barrier.oldLayout       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -299,7 +299,7 @@ void Agos::VulkanHandler::VulkanHelpers::generate_mipmaps(
             mipHeight /= 2;
     }
 
-    barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+    barrier.subresourceRange.baseMipLevel = mip_levels - 1;
     barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -362,6 +362,8 @@ Agos::VulkanHandler::VulkanHelpers::AgBuffer Agos::VulkanHandler::VulkanHelpers:
     }
 
     vkBindBufferMemory(logical_device, buffer, bufferMemory, 0);
+
+    return Agos::VulkanHandler::VulkanHelpers::AgBuffer({buffer, bufferMemory});
 }
 
 void Agos::VulkanHandler::VulkanHelpers::copy_buffer(
@@ -371,7 +373,7 @@ void Agos::VulkanHandler::VulkanHelpers::copy_buffer(
     const VkBuffer&                 src_buffer,
     const VkBuffer&                 dst_buffer,
     const VkDeviceSize&             size,
-    const VkAllocationCallbacks*    allocator = nullptr)
+    const VkAllocationCallbacks*    allocator /*= nullptr*/)
 {
     VkCommandBuffer commandBuffer = begin_single_time_command(logical_device, command_pool);
 
@@ -443,16 +445,18 @@ void Agos::VulkanHandler::VulkanHelpers::end_single_time_command(
     vkFreeCommandBuffers(logical_device, command_pool, 1, &command_buffer);
 }
 
-std::vector<VkCommandBuffer>&& Agos::VulkanHandler::VulkanHelpers::begin_single_time_commands(
+std::vector<VkCommandBuffer> Agos::VulkanHandler::VulkanHelpers::begin_single_time_commands(
     const VkDevice&         logical_device,
     const VkCommandPool&    command_pool,
     const size_t&           command_buffers_count)
 {
-    if (!command_buffers_count > 1 && !command_buffers_count < 101)
+    std::vector<VkCommandBuffer> commandBuffers(command_buffers_count);
+
+    if (  !(command_buffers_count > 1) && !(command_buffers_count < 101)  )
     {
         AG_CORE_WARN("[Vulkan/Agos::VulkanHandler::VulkanHelpers - begin_single_time_commands] command_buffers_count (which is "
                             + std::to_string(command_buffers_count) + ") is less than 1 or above 100!");
-        return std::move(std::vector<VkCommandBuffer>());
+        return commandBuffers;
     }
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -462,7 +466,6 @@ std::vector<VkCommandBuffer>&& Agos::VulkanHandler::VulkanHelpers::begin_single_
     allocInfo.commandBufferCount    = command_buffers_count;
     allocInfo.level                 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     
-    std::vector<VkCommandBuffer> commandBuffers(command_buffers_count);
     vkAllocateCommandBuffers(logical_device, &allocInfo, commandBuffers.data());
 
 
@@ -477,7 +480,7 @@ std::vector<VkCommandBuffer>&& Agos::VulkanHandler::VulkanHelpers::begin_single_
         vkBeginCommandBuffer(commandBuffer, &beginInfo);
     }
 
-    return std::move(commandBuffers);
+    return commandBuffers;
 }
 // * = = = = = = = = = = = = = = = = = = = = buffer helper functions = = = = = = = = = = = = = = = = = = = =
 

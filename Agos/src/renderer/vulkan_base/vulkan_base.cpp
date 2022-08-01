@@ -6,13 +6,14 @@
 Agos::VulkanHandler::VulkanBase::VulkanBase(std::shared_ptr<GLFWHandler::GLFWInstance>& glfw_instance)
     : m_GLFWInstanceRef         (glfw_instance),
     m_Allocator                 (nullptr),
-    m_InstanceDestroyed                 (false),
-    m_DebugMessengerTerminated          (false),
-    m_AllocatorTerminated               (false),
-    m_PhysicalDeviceDestroyed           (false),
-    m_LogicalDeviceDestroyed            (false),
-    m_WindowSurfaceDestroyed            (false),
-    m_VulkanBaseTerminated              (false)
+    m_FramebufferResizedFlag    (false),
+    m_InstanceDestroyed         (false),
+    m_DebugMessengerTerminated  (false),
+    m_AllocatorTerminated       (false),
+    m_PhysicalDeviceDestroyed   (false),
+    m_LogicalDeviceDestroyed    (false),
+    m_WindowSurfaceDestroyed    (false),
+    m_VulkanBaseTerminated      (false)
 {
 }
 
@@ -78,7 +79,6 @@ Agos::AgResult Agos::VulkanHandler::VulkanBase::create_instance()
         return AG_VALIDATION_LAYERS_NOT_AVAILABLE;
     }
 
-    // application infos (just in case you can't read ;)... no offense by the way)
     VkApplicationInfo appInfo{};
     appInfo.sType               = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName    = "AgosGE";    // setup default name?
