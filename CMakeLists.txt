@@ -97,7 +97,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(AgosGE PUBLIC glfw)
 
 else()
-    add_subdirectory(AgosGE/vendor/GLFW)
+    add_subdirectory(Agos/vendor/GLFW)
     set( ENKITS_BUILD_EXAMPLES  OFF CACHE BOOL "Build basic example applications" )
     set( GLFW_BUILD_EXAMPLES    OFF CACHE BOOL  "GLFW lib only" )
     set( GLFW_BUILD_TESTS       OFF CACHE BOOL  "GLFW lib only" )

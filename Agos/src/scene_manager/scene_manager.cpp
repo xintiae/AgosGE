@@ -115,7 +115,11 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::load_scene(
         entities_nb = 0;
 		for (const std::filesystem::directory_entry& it : std::filesystem::directory_iterator(scene_path + std::string("/Entities")))
 		{
-            m_ScenesEntities[entities_nb]->get_entity_data().entity_name    = it.path().stem().c_str();
+#ifdef WIN32
+            m_ScenesEntities[entities_nb]->get_entity_data().entity_name = it.path().stem().string();
+#else
+            m_ScenesEntities[entities_nb]->get_entity_data().entity_name = it.path().stem().c_str();
+#endif
             m_ScenesEntities[entities_nb]->get_entity_id()                  = this->m_GenerateNewEntityId();
             m_ScenesEntities[entities_nb]->get_entity_gpu_status()          = false;
             m_ScenesEntities[entities_nb]->should_be_shown()                = true;
@@ -466,7 +470,11 @@ std::string Agos::SceneManager::ApplicationSceneManager::m_FindMapPath(
 {
     for (const std::filesystem::directory_entry& file_entry : std::filesystem::directory_iterator(m_ScenePath + "/Entities/" + entity.get_entity_data().entity_name))
     {
-        if ( std::string(file_entry.path().stem()) == std::string(entity.get_entity_data().entity_name + map_specifier) )
+#ifdef WIN32
+        if (file_entry.path().stem().string() == std::string(entity.get_entity_data().entity_name + map_specifier))
+#else
+        if (std::string(file_entry.path().stem()) == std::string(entity.get_entity_data().entity_name + map_specifier))
+#endif
         {
             return std::move(file_entry.path().string());
         }
