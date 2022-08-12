@@ -44,6 +44,12 @@ Agos::VulkanHandler::VulkanApp::VulkanApp(std::shared_ptr<GLFWHandler::GLFWInsta
     m_VulkanAppTerminated               (false)
 {
     m_ImGuiInterface    = std::make_unique<Agos::ImGuiHandler::ImGuiVulkan::ImGuiInstance>();
+    m_GLFWInterfaceRef->get_listener()->listen<Agos::GLFWHandler::GLFWEvent::Event>(
+        [this](const Agos::GLFWHandler::GLFWEvent::Event& event) -> void
+        {
+            this->process_events(event);
+        }
+    );
 }
 
 Agos::VulkanHandler::VulkanApp::~VulkanApp()
@@ -85,7 +91,7 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::init_vulkan_imgui()
 
     // we "just" have to fill in initInfo struct
     Agos::ImGuiHandler::ImGuiVulkan::ImGui_initInfo imgui_initInfo{};
-    imgui_initInfo.Window               = m_GLFWInstanceRef->get_window();
+    imgui_initInfo.Window               = m_GLFWInterfaceRef->get_window();
     imgui_initInfo.Instance             = m_Instance;
     imgui_initInfo.PhysicalDevice       = m_PhysicalDevice;
     imgui_initInfo.Device               = &m_LogicalDevice;
@@ -266,7 +272,8 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::submit_image_for_presentation(con
 
     VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
-    if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResizedFlag )
+    // if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResizedFlag )
+    if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
         m_FramebufferResizedFlag = false;
         recreate_swapchain();
@@ -298,10 +305,10 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::submit_image_for_presentation(con
 Agos::AgResult Agos::VulkanHandler::VulkanApp::recreate_swapchain()
 {
     int width = 0, height = 0;
-    glfwGetFramebufferSize(m_GLFWInstanceRef->get_window(), &width, &height);
+    glfwGetFramebufferSize(m_GLFWInterfaceRef->get_window(), &width, &height);
     while (width == 0 || height == 0)
     {
-        glfwGetFramebufferSize(m_GLFWInstanceRef->get_window(), &width, &height);
+        glfwGetFramebufferSize(m_GLFWInterfaceRef->get_window(), &width, &height);
         glfwWaitEvents();
     }
     this->terminate_swapchain();
@@ -343,7 +350,7 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::create_swapchain()
 
     VkSurfaceFormatKHR  surfaceFormat   = choose_swap_surface_format    (swapchain_support.formats);
     VkPresentModeKHR    presentMode     = choose_swap_present_mode      (swapchain_support.present_modes);
-    VkExtent2D          extent          = choose_swap_extent            (swapchain_support.capabilities, m_GLFWInstanceRef->get_window());
+    VkExtent2D          extent          = choose_swap_extent            (swapchain_support.capabilities, m_GLFWInterfaceRef->get_window());
 
     uint32_t imageCount = swapchain_support.capabilities.minImageCount + 1;
     if (swapchain_support.capabilities.maxImageCount > 0 && imageCount > swapchain_support.capabilities.maxImageCount)
@@ -519,7 +526,8 @@ VkPresentModeKHR Agos::VulkanHandler::VulkanApp::choose_swap_present_mode(const 
 
 VkExtent2D Agos::VulkanHandler::VulkanApp::choose_swap_extent(
     const VkSurfaceCapabilitiesKHR& capabilities,
-    GLFWwindow*&                    window)
+    GLFWwindow*                    window
+)
 {
     if (capabilities.currentExtent.width != UINT32_MAX)
     {
@@ -2432,20 +2440,68 @@ void Agos::VulkanHandler::VulkanApp::imgui_draw_main_window()
 
 void Agos::VulkanHandler::VulkanApp::imgui_draw_viewport()
 {
-    ImGui::Begin("Viewport");
-    // m_OffscreenImGuiID = ImGui_ImplVulkan_AddTexture(m_OffscreenSampler, m_OffscreenImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    m_OffscreenViewportSize = ImGui::GetWindowSize();
-    if (m_SceneState->shall_draw_viewport)
+    if (ImGui::Begin("Viewport")) 
     {
-        ImGui::Image(m_OffscreenImGuiID, m_OffscreenViewportSize);
+        // m_OffscreenImGuiID = ImGui_ImplVulkan_AddTexture(m_OffscreenSampler, m_OffscreenImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        m_OffscreenViewportSize = ImGui::GetWindowSize();
+        if (m_SceneState->shall_draw_viewport)
+        {
+            ImGui::Image(m_OffscreenImGuiID, m_OffscreenViewportSize);
+        }
+        else
+        {
+            ImGui::GetWindowDrawList()->AddRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize, (ImU32)( (255 << 24) | (128 << 16) | (128 << 8) | (128) ));
+        }
+        
+        if (ImGui::IsMouseHoveringRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize))
+        {
+            // do calculation stuff
+        }
+        ImGui::End();
     }
-    else
-    {
-        ImGui::GetWindowDrawList()->AddRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize, (ImU32)( (255 << 24) | (128 << 16) | (128 << 8) | (128) ));
-    }
-    ImGui::End();
 }
 // ** ImGui managment ===============================================================================================================================
+
+Agos::AgResult Agos::VulkanHandler::VulkanApp::process_events(
+    const Agos::GLFWHandler::GLFWEvent::Event& event
+)
+{
+    switch (event.type)
+    {
+        case Agos::GLFWHandler::GLFWEvent::EventType::framebufferResizeCallback:
+        {
+            // this->m_FramebufferResizedFlag = true;
+            this->recreate_swapchain();
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::mouseButtonCallback:
+        {
+            // clicky stuff goes brrrrrrrrrr
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::cursorPosCallback:
+        {
+            double x, y;
+            glfwGetCursorPos(m_GLFWInterfaceRef->get_window(), &x, &y);
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::keyboardCallback:
+        {
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::undefined:
+        {
+            AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - process_event] Undefined event triggered!");
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::invalid:
+        {
+            AG_CORE_ERROR("[Event Process /VulkanHandler::VulkanApp - process_event] Invalid event triggered!");
+            break;
+        }
+    }
+    return AG_SUCCESS;
+}
 
 // * = = = = = = = = = = = = = = = = = = = = <...> helpers = = = = = = = = = = = = = = = = = = = =
 // * = = = = = = = = = = = = = = = = = = = = <...> helpers = = = = = = = = = = = = = = = = = = = =

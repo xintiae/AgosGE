@@ -1,4 +1,4 @@
-#include "Agos/src/renderer/camera.h"
+#include "Agos/src/renderer/camera/camera.h"
 
 Agos::AgCameraObject::AgCameraObject(
     const glm::vec3& camera_pos,

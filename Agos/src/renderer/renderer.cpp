@@ -6,10 +6,9 @@
 // ** RendererCore ======================================================================
 Agos::Renderer::RendererCore::RendererCore()
 {
-    m_EventBus          = std::make_shared<dexode::EventBus>();
-    m_GLFWInterface     = std::make_shared<Agos::GLFWHandler::GLFWInstance>(m_EventBus);
-    m_GLFW_SIDU         = std::make_shared<Agos::GLFWHandler::Event::EventManager>(m_EventBus);
-    m_VulkanRenderer    = std::make_shared<Agos::VulkanHandler::VulkanApp>(m_GLFWInterface);
+    // m_EventBus          = std::make_shared<dexode::EventBus>();
+    m_GLFWInterface     = std::make_shared<Agos::GLFWHandler::GLFWInstance> ();
+    m_VulkanRenderer    = std::make_shared<Agos::VulkanHandler::VulkanApp>  (m_GLFWInterface);
 }
 
 Agos::Renderer::RendererCore::~RendererCore()
@@ -23,7 +22,7 @@ Agos::AgResult Agos::Renderer::RendererCore::init(
     const int&          window_height /*= AG_DEFAULT_WINDOW_HEIGHT*/
 )
 {
-    m_GLFWInterface->init(m_GLFW_SIDU, window_title, window_width, window_height);
+    m_GLFWInterface->init(window_title, window_width, window_height);
     m_VulkanRenderer->init_vulkan_app();
 
     return AG_SUCCESS;

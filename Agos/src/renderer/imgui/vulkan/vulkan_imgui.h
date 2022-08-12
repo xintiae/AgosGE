@@ -7,7 +7,7 @@
 #include "Agos/src/renderer/imgui/backends/imgui.h"
 #include "Agos/src/renderer/imgui/backends/imgui_implementations/imgui_impl_glfw.h"
 #include "Agos/src/renderer/imgui/backends/imgui_implementations/imgui_impl_vulkan.h"
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/glfw/glfw_instance.h"
 #include AG_VULKAN_INCLUDE
 
 

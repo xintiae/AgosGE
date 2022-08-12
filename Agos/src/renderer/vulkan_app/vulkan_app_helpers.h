@@ -81,7 +81,7 @@ namespace GraphicsPipeline
 
 // ** @file Agos/src/renderer/vulkan_app/vulkan_app_helpers.cpp
 #include "Agos/src/logger/logger.h"
-#include "Agos/src/renderer/vulkan_app/vulkan_helpers.h"
+// #include "Agos/src/renderer/vulkan_app/vulkan_helpers.h"
 #include "Agos/src/renderer/vulkan_app/vulkan_entity.h"
 #include AG_JSON_INCLUDE
 #include <filesystem>

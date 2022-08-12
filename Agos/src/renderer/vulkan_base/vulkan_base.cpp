@@ -4,7 +4,7 @@
 #include <set>
 
 Agos::VulkanHandler::VulkanBase::VulkanBase(std::shared_ptr<GLFWHandler::GLFWInstance>& glfw_instance)
-    : m_GLFWInstanceRef         (glfw_instance),
+    : m_GLFWInterfaceRef        (glfw_instance),
     m_Allocator                 (nullptr),
     m_FramebufferResizedFlag    (false),
     m_InstanceDestroyed         (false),
@@ -159,7 +159,7 @@ Agos::AgResult Agos::VulkanHandler::VulkanBase::terminate_debug_messenger()
 // ** window surface managment ======================================================================================================================
 Agos::AgResult Agos::VulkanHandler::VulkanBase::setup_window_surface()
 {
-    if (glfwCreateWindowSurface(m_Instance, m_GLFWInstanceRef->get_window(), m_Allocator, &m_WindowSurface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(m_Instance, m_GLFWInterfaceRef->get_window(), m_Allocator, &m_WindowSurface) != VK_SUCCESS)
     {
         AG_CORE_CRITICAL("[Vulkan - GLFW/VulkanHandler::VulkanBase - setup_window_surface] Failed to setup window surface for VulkanBase entity!");
         return AG_FAILED_TO_CREATE_WINDOW_SURFACE;

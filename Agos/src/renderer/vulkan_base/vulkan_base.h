@@ -14,8 +14,8 @@
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
-#include "Agos/src/debug_layers/vulkan_debug_layers.h"
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/debug_layers/vulkan_debug_layers.h"
+#include "Agos/src/renderer/glfw/glfw_instance.h"
 #include "Agos/src/renderer/vulkan_app/vulkan_helpers.h"
 
 #include AG_GLFW_INCLUDE
@@ -34,7 +34,7 @@ namespace VulkanHandler
 class AG_API VulkanBase
 {
 protected:
-    std::shared_ptr<GLFWHandler::GLFWInstance>& m_GLFWInstanceRef;
+    std::shared_ptr<GLFWHandler::GLFWInstance>& m_GLFWInterfaceRef;
 
     VkInstance                  m_Instance; 
     // debugging tools

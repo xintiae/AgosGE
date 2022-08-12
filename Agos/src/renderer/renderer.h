@@ -10,7 +10,7 @@
 #endif
 
 #include AG_EVENTBUS_INCLUDE
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/glfw/glfw_instance.h"
 #include "Agos/src/scene_manager/scene_manager.h"
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
@@ -29,11 +29,9 @@ class AG_API ApplicationRenderer;
 class AG_API RendererCore
 {
 private:
-    std::shared_ptr<dexode::EventBus>                       m_EventBus;
-    std::shared_ptr<Agos::GLFWHandler::GLFWInstance>        m_GLFWInterface;
-    std::shared_ptr<Agos::GLFWHandler::Event::EventManager> m_GLFW_SIDU;
-
-    std::shared_ptr<Agos::VulkanHandler::VulkanApp>         m_VulkanRenderer;
+    // std::shared_ptr<dexode::EventBus>                           m_EventBus;  // already handled by m_GLFWInterface
+    std::shared_ptr<Agos::GLFWHandler::GLFWInstance>            m_GLFWInterface;
+    std::shared_ptr<Agos::VulkanHandler::VulkanApp>             m_VulkanRenderer;
 
 public:
     RendererCore();

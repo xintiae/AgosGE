@@ -48,6 +48,6 @@ WIP - Tutorials coming later up
 
 ## EDIT - AgosGE's rework phase
 AgosGE has undergone an intense 8-months rework phase since last update.
-Older versions of AgosGE were bugs-filled, with poorly made source code (making development phases nightmares and bug fixes even worse).
+Older versions of AgosGE were bugs-filled, with poorly written source code (making development phases nightmares and bug fixes even worse).
 This led to a complete code rework, which took us a considerable amount of time to do.
 Now AgosGE's much easier to develop, features and bug fixes have become more and more easy to deal with.

@@ -5,15 +5,15 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
-#include "Agos/src/debug_layers/debug_layers.h"
 #include "Agos/src/logger/logger.h"
-#include "Agos/src/event_system/event_system.h"
 #include "Agos/src/renderer/renderer.h"
 
 #include "Agos/src/entry_point/entry_point.h"
 
 /**
  * TODO LIST
+ * // ?            move debug layers into renderer (since not in entry pt?)
+ * // ?            idem but regarding event_manager
  * // !*!*!    get vulkan based graphics to work
  * // !*!*!    remove init_agosge.cpp et setup le main dans agos.cpp
  * // !*!*!    imposer lien de corrélation entre ScenesManager et Renderer au sujet des m_ToRenderEntities - bug lors de la fermeture de Agos

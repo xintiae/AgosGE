@@ -14,7 +14,7 @@
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/glfw/glfw_instance.h"
 #include "Agos/src/renderer/vulkan_base/vulkan_base.h"
 #include "Agos/src/renderer/vulkan_app/vulkan_entity.h"
 #include "Agos/src/entities/entities.h"
@@ -183,9 +183,10 @@ public:
 
 protected:
     AgResult    recreate_swapchain  ();
-    AgResult    terminate_swapchain ();
+    AgResult    process_events      (const Agos::GLFWHandler::GLFWEvent::Event& event);
 
 private:
+    AgResult    terminate_swapchain ();
 
     // ** =============================================
     // **   AgResult     init_vulkan_app()
@@ -296,7 +297,7 @@ private:
     static VkSurfaceFormatKHR   choose_swap_surface_format  (const std::vector<VkSurfaceFormatKHR>&     available_formats       );
     static VkPresentModeKHR     choose_swap_present_mode    (const std::vector<VkPresentModeKHR>&       available_present_modes );
     static VkExtent2D           choose_swap_extent          (const VkSurfaceCapabilitiesKHR&            capabilities,
-                                                             GLFWwindow*&                               glfw_instance           );
+                                                             GLFWwindow*                                glfw_instance           );
 
     // ** depth res helpers
     static VkFormat             find_depth_format           (const VkPhysicalDevice&                    physical_device         );

@@ -14,7 +14,7 @@
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/glfw/glfw_instance.h"
 
 #include AG_VULKAN_INCLUDE
 #include <memory>

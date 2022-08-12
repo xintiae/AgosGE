@@ -1,12 +1,23 @@
-#include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/renderer/glfw/glfw_instance.h"
 
 #include "Agos/src/logger/logger.h"
 #include AG_GLM_INCLUDE
 
+
+Agos::GLFWHandler::GLFWInstance::GLFWInstance()
+{
+    m_ApplicationEventBus       = std::make_shared<dexode::EventBus>();
+    m_ApplicationEventManager   = std::make_shared<Agos::GLFWHandler::GLFWEvent::EventManager>(m_ApplicationEventBus);
+    m_EventBusListener          = std::make_shared<dexode::EventBus::Listener>(m_ApplicationEventBus);
+}
+
+/*
 Agos::GLFWHandler::GLFWInstance::GLFWInstance(const std::shared_ptr<dexode::EventBus>& event_bus)
     : m_EventBusListener{event_bus}
 {
+    m_EventManager = std::make_shared<Agos::GLFWHandler::GLFWEvent::EventManager>(m_EventBusListener);
 }
+*/
 
 Agos::GLFWHandler::GLFWInstance::~GLFWInstance()
 {
@@ -14,20 +25,12 @@ Agos::GLFWHandler::GLFWInstance::~GLFWInstance()
 }
 
 Agos::AgResult Agos::GLFWHandler::GLFWInstance::init(
-    const std::shared_ptr<Agos::GLFWHandler::Event::EventManager>&  event_manager,
-    const std::string&                                              window_title /*= "AgosGE"*/,
-    const int&                                                      width /*= AG_DEFAULT_WINDOW_WIDTH*/,
-    const int&                                                      height /*= AG_DEFAULT_WINDOW_HEIGHT*/,
-    const bool&                                                     shall_cursor_exist /*= false*/
+    const std::string&  window_title /*= "AgosGE"*/,
+    const int&          width /*= AG_DEFAULT_WINDOW_WIDTH*/,
+    const int&          height /*= AG_DEFAULT_WINDOW_HEIGHT*/,
+    const bool&         shall_cursor_exist /*= false*/
 )
 {
-    m_EventBusListener.listen<Agos::GLFWHandler::Event::Event>(
-        [this](const Agos::GLFWHandler::Event::Event& event) -> void
-        {
-            this->on_event_process(event);
-        }
-    );
-
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
@@ -45,13 +48,21 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::init(
     glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 /*
+    m_EventBusListener.listen<Agos::GLFWHandler::GLFWEvent::Event>(
+        [this](const Agos::GLFWHandler::GLFWEvent::Event& event) -> void
+        {
+            this->on_event_process(event);
+        }
+    );
+*/
     // framebuffer
-    glfwSetFramebufferSizeCallback(m_ApplicationWindow, event_manager->framebufferResizeCallback);
+    glfwSetFramebufferSizeCallback(m_ApplicationWindow, m_ApplicationEventManager->framebufferResizeCallback);
     // mouse button
-    glfwSetMouseButtonCallback(m_ApplicationWindow, event_manager->mouseButtonCallback);
+    glfwSetMouseButtonCallback(m_ApplicationWindow, m_ApplicationEventManager->mouseButtonCallback);
     // mouse position
-    glfwSetCursorPosCallback(m_ApplicationWindow, event_manager->cursorPositionCallback);
+    glfwSetCursorPosCallback(m_ApplicationWindow, m_ApplicationEventManager->cursorPositionCallback);
 
+/*
     // mouse should appear or not
     if (shall_cursor_exist)
     {
@@ -79,6 +90,8 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::terminate()
 {
     if (!m_Terminated)
     {
+        m_ApplicationEventManager->~EventManager();
+
         glfwDestroyWindow(m_ApplicationWindow);
         glfwTerminate();
 
@@ -90,47 +103,43 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::terminate()
     return AG_INSTANCE_ALREADY_TERMINATED;
 }
 
-GLFWwindow*& Agos::GLFWHandler::GLFWInstance::get_window()
-{
-    return m_ApplicationWindow;
-}
-
+/*
 size_t& Agos::GLFWHandler::GLFWInstance::get_cursor_state()
 {
     return m_CursorState;
 }
 
-void Agos::GLFWHandler::GLFWInstance::on_event_process(const Agos::GLFWHandler::Event::Event& event)
+void Agos::GLFWHandler::GLFWInstance::on_event_process(const Agos::GLFWHandler::GLFWEvent::Event& event)
 {
     switch (event.type)
     {
-        case Agos::GLFWHandler::Event::Type::framebufferResizeCallback:
+        case Agos::GLFWHandler::GLFWEvent::Type::framebufferResizeCallback:
         {
             // m_RendererReference->m_FramebufferResized = true;
             // m_RendererReference->recreate_swapchain(false);
             break;
         }
-        case Agos::GLFWHandler::Event::Type::mouseButtonCallback:
+        case Agos::GLFWHandler::GLFWEvent::Type::mouseButtonCallback:
         {
             // clicky stuff goes brrrrrrrrrr
             break;
         }
-        case Agos::GLFWHandler::Event::Type::cursorPosCallback:
+        case Agos::GLFWHandler::GLFWEvent::Type::cursorPosCallback:
         {
             if (this->m_CursorState == GLFW_CURSOR_DISABLED)
             {
-                Agos::GLFWHandler::Event::Callbacks::CursorPosition* event_data = reinterpret_cast<Agos::GLFWHandler::Event::Callbacks::CursorPosition*>(event.event_data);
+                Agos::GLFWHandler::GLFWEvent::Callbacks::CursorPosition* event_data = reinterpret_cast<Agos::GLFWHandler::GLFWEvent::Callbacks::CursorPosition*>(event.event_data);
                 Agos::GLFWHandler::EventProcessor::CursorPosition::process(*event_data); //, m_RendererReference);
             }
             break;
         }
-        case Agos::GLFWHandler::Event::Type::keyboardCallback:
+        case Agos::GLFWHandler::GLFWEvent::Type::keyboardCallback:
         {
-            Agos::GLFWHandler::Event::Callbacks::Keyboard* event_data = reinterpret_cast<Agos::GLFWHandler::Event::Callbacks::Keyboard*>(event.event_data);
+            Agos::GLFWHandler::GLFWEvent::Callbacks::Keyboard* event_data = reinterpret_cast<Agos::GLFWHandler::GLFWEvent::Callbacks::Keyboard*>(event.event_data);
             Agos::GLFWHandler::EventProcessor::Keyboard::process(*event_data, this); //, m_RendererReference);
             break;
         }
-        case Agos::GLFWHandler::Event::Type::undefined:
+        case Agos::GLFWHandler::GLFWEvent::Type::undefined:
         {
             AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - on_event_process] Tryied to process undefined event!");
             break;
@@ -139,7 +148,7 @@ void Agos::GLFWHandler::GLFWInstance::on_event_process(const Agos::GLFWHandler::
 }
 
 void Agos::GLFWHandler::EventProcessor::Keyboard::process(
-    const Agos::GLFWHandler::Event::Callbacks::Keyboard& event_data,
+    const Agos::GLFWHandler::GLFWEvent::Callbacks::Keyboard& event_data,
     Agos::GLFWHandler::GLFWInstance* glfw_instance)
 {
     switch (event_data.key)
@@ -195,7 +204,7 @@ float Agos::GLFWHandler::EventProcessor::CursorPosition::lastX = 0.0f;
 float Agos::GLFWHandler::EventProcessor::CursorPosition::lastY = 0.0f;
 
 void Agos::GLFWHandler::EventProcessor::CursorPosition::process(
-    const Agos::GLFWHandler::Event::Callbacks::CursorPosition& event)
+    const Agos::GLFWHandler::GLFWEvent::Callbacks::CursorPosition& event)
 {
     if (firstMouse)
     {
@@ -229,3 +238,4 @@ void Agos::GLFWHandler::EventProcessor::CursorPosition::process(
     // direction.z = sin(glm::radians(renderer->m_Camera->m_CameraYaw)) * cos(glm::radians(renderer->m_Camera->m_CameraPitch));
     // renderer->m_Camera->m_CameraOppositeDirection = std::move(glm::normalize(direction * (-1.0f) ));
 }
+*/

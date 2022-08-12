@@ -78,7 +78,8 @@
         "forward_list": "cpp",
         "cfloat": "cpp",
         "climits": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "charconv": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }
