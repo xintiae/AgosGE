@@ -503,7 +503,11 @@ std::string Agos::SceneManager::ApplicationSceneManager::m_FindMapPath(
 {
     for (const std::filesystem::directory_entry& file_entry : std::filesystem::directory_iterator(m_ScenePath + "/Entities/" + entity.get_entity_data().entity_name))
     {
-        if ( std::string(file_entry.path().stem()) == std::string(entity.get_entity_data().entity_name + map_specifier) )
+#ifdef WIN32
+        if (file_entry.path().stem().string() == std::string(entity.get_entity_data().entity_name + map_specifier))
+#else
+        if (std::string(file_entry.path().stem()) == std::string(entity.get_entity_data().entity_name + map_specifier))
+#endif
         {
             return std::move(file_entry.path().string());
         }

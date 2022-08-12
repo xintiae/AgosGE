@@ -890,7 +890,7 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::destroy_decriptor_sets_layout()
 // * = = = = = = = = = = = = = = = = = = = = descriptor pool = = = = = = = = = = = = = = = = = = = =
 Agos::AgResult Agos::VulkanHandler::VulkanApp::create_descriptor_pool()
 {
-    std::array<VkDescriptorPoolSize, 7> poolSizes;
+    std::array<VkDescriptorPoolSize, 8> poolSizes;
     // MVP
     poolSizes[0].type               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount    = AG_VULKAN_DESCRIPTOR_POOL_MAX_SETS;

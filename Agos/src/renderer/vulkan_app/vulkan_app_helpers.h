@@ -148,7 +148,11 @@ Agos::VulkanHandler::VulkanAppHelpers::GraphicsPipeline::Shader Agos::VulkanHand
             AG_CORE_CRITICAL("[Vulkan/Agos::VulkanHandler::VulkanAppHelpers::GraphicsPipeline:: compile_shader] Compilation failed!");
     }
 
+#ifdef WIN32 // On Windows, std::filesystem::path has to be converted differently
+    std::ifstream shader_stream = std::move(std::ifstream(compiled_shader_entry.string(), std::ios::ate | std::ios::binary));
+#else
     std::ifstream shader_stream = std::move(std::ifstream(std::string(compiled_shader_entry), std::ios::ate | std::ios::binary));
+#endif
 
     if ( !shader_stream.is_open() )
     {
