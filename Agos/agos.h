@@ -18,10 +18,10 @@
  * // !*!*!    remove init_agosge.cpp et setup le main dans agos.cpp
  * // !*!*!    imposer lien de corrélation entre ScenesManager et Renderer au sujet des m_ToRenderEntities - bug lors de la fermeture de Agos
  * !*!*!    get proper ImGui-based gui done
- * **           => create an offscreen opaque handler to which AgosGE's scene will be drawn; renderpass, framebuffer, graphics pipeline
+ * // **           => create an offscreen opaque handler to which AgosGE's scene will be drawn; renderpass, framebuffer, graphics pipeline
  * //            !*!*!=> 2 shaders : scene's shaders AND ImGui's shaders  // NO NEED : IMGUI PROVIDES IT ALREADY
- *              -> scene's viewport
- *              -> basic scene's menu
+ * //             -> scene's viewport
+ * *=*             -> basic scene's menu
  *              -> startup menu
  * !*!*!        -> implement ImGui-SceneManager
  *              -> entities's section

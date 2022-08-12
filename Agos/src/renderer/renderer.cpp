@@ -1,9 +1,9 @@
 #include "Agos/src/renderer/renderer.h"
 
-// ** Vulkan-based Renderer ===============================================================================================
+// *=* Vulkan-based Renderer ===============================================================================================
 #ifdef AG_GRAPHICS_API_VULKAN
 
-// * RendererCore ======================================================================
+// ** RendererCore ======================================================================
 Agos::Renderer::RendererCore::RendererCore()
 {
     m_EventBus          = std::make_shared<dexode::EventBus>();
@@ -37,9 +37,11 @@ Agos::AgResult Agos::Renderer::RendererCore::load_entities(
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::Renderer::RendererCore::update_entities()
+Agos::AgResult Agos::Renderer::RendererCore::query_scene_state(
+    const std::shared_ptr<Agos::SceneManager::SceneStatus>& scene_status
+)
 {
-    m_VulkanRenderer->update_entities();
+    m_VulkanRenderer->query_scene_state(scene_status);
     return AG_SUCCESS;
 }
 
@@ -68,10 +70,10 @@ Agos::AgResult Agos::Renderer::RendererCore::terminate()
     return AG_SUCCESS;
 }
 
-// * RendererCore ======================================================================
+// ** RendererCore ======================================================================
 
 
-// * ApplicationRenderer ===============================================================
+// ** ApplicationRenderer ===============================================================
 Agos::Renderer::ApplicationRenderer::ApplicationRenderer()
     :
     m_AppTitle              ("AgosGE"),
@@ -87,7 +89,7 @@ Agos::Renderer::ApplicationRenderer::~ApplicationRenderer()
 
 Agos::AgResult Agos::Renderer::ApplicationRenderer::init()
 {
-    m_AppRenderer->init(m_AppTitle, AG_DEFAULT_WINDOW_WIDTH, AG_DEFAULT_WINDOW_HEIGHT);
+    m_AppRenderer->init(m_AppTitle, AG_MAX_WINDOW_WIDTH, AG_MAX_WINDOW_HEIGHT);
     return AG_SUCCESS;
 }
 
@@ -99,13 +101,15 @@ Agos::AgResult Agos::Renderer::ApplicationRenderer::load_entities(
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::Renderer::ApplicationRenderer::update_entities()
+Agos::AgResult Agos::Renderer::ApplicationRenderer::query_scene_state(
+    const std::shared_ptr<Agos::SceneManager::SceneStatus>& scene_status
+)
 {
-    m_AppRenderer->update_entities();
+    m_AppRenderer->query_scene_state(scene_status);
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::Renderer::ApplicationRenderer::draw_scene()
+Agos::AgResult Agos::Renderer::ApplicationRenderer::draw_screen()
 {
     m_AppRenderer->draw();
     return AG_SUCCESS;
@@ -132,7 +136,7 @@ Agos::AgResult Agos::Renderer::ApplicationRenderer::terminate()
     }
     return AG_RENDERER_ALREADY_TERMINATED;
 }
-// * ApplicationRenderer ===============================================================
+// ** ApplicationRenderer ===============================================================
 
 #endif
-// ** Vulkan-based Renderer ===============================================================================================
+// *=* Vulkan-based Renderer ===============================================================================================

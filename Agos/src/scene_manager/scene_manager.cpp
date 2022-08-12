@@ -17,14 +17,51 @@
 #endif
 // !*!*! FOR DEV PURPOSES ONLY - DO NOT CONSIDER USING THIS IN ANY OTHER CONTEXT ================
 
+// ** SceneManagerCore ==============================================================================================
+Agos::SceneManager::SceneManagerCore::SceneStatus::SceneStatus()
+    : shall_draw_viewport   (true),
+    scene_closed            (false),
+    scene_opened            (false),
+    scene_new               (false),
+    scene_save_curr         (false),
+    scene_open              (false),
+    scene_close             (false),
+    // - - - - - - - - - - - - - - -
+    can_scene_new           (false),
+    can_scene_save_curr     (false),
+    can_scene_open          (false),
+    can_scene_close         (false),
+    // =============================
+    entity_new              (false),
+    entity_destroy          (false),
+    entity_load             (false),
+    entity_unload           (false),
+    entity_translate        (false),
+    entity_rotate           (false),
+    // - - - - - - - - - - - - - - -
+    can_entity_new          (false),
+    can_entity_destroy      (false),
+    can_entity_load         (false),
+    can_entity_unload       (false),
+    can_entity_translate    (false),
+    can_entity_rotate       (false),
+    // =============================
+    undo                    (false),
+    redo                    (false),
+    // - - - - - - - - - - - - - - -
+    can_undo                (false),
+    can_redo                (false)
+{
+}
+// ** SceneManagerCore ==============================================================================================
 
 
 // ** AgosGE ApplicationSceneManager class ==========================================================================
 // * = = = = = = = = = = = = = = = = = = = = constructor, destructor = = = = = = = = = = = = = = = = = = = =
 Agos::SceneManager::ApplicationSceneManager::ApplicationSceneManager()
-    : m_SceneClosed             (true),
-    m_AppSceneManagerTerminated (false)
+    : m_AppSceneManagerTerminated   (false)
 {
+    m_SceneStatus = std::make_shared<Agos::SceneManager::SceneStatus>();
 }
 
 Agos::SceneManager::ApplicationSceneManager::~ApplicationSceneManager()
@@ -41,7 +78,7 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::terminate()
 {
     if (!m_AppSceneManagerTerminated)
     {
-        for (const std::shared_ptr<Agos::Entities::Entity>& it : m_ScenesEntities)
+        for (const std::shared_ptr<Agos::Entities::Entity>& it : m_SceneEntities)
         {
             it->destroy_entity();
         }
@@ -67,8 +104,8 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::create_scene(
     std::filesystem::create_directories(scene_path + "/Entities");
     std::ofstream(scene_path + "/entities.json");
 
-    m_ScenePath     = scene_path;
-    m_SceneClosed   = false;
+    m_ScenePath                 = scene_path;
+    m_SceneStatus->scene_closed = false;
     AG_CORE_INFO("[Create Scene/SceneManager::ApplicationSceneManager - create_scene] Successfully created scene at path : \"" + scene_path + "\"!");
     return AG_SUCCESS;
 }
@@ -79,9 +116,9 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::delete_scene(
 {
     AG_CORE_WARN("[Delete Scene/SceneManager::ApplicationSceneManager - delete_scene] Deleting current scene (scene's path : \'" + scene_path + "\')...");
     std::filesystem::remove_all(scene_path);
-    m_ScenePath     = AG_SCENE_PATH_NONE;
-    m_SceneClosed   = true;
-    for (const std::shared_ptr<Agos::Entities::Entity>& it: m_ScenesEntities)
+    m_ScenePath                 = AG_SCENE_PATH_NONE;
+    m_SceneStatus->scene_closed = true;
+    for (const std::shared_ptr<Agos::Entities::Entity>& it: m_SceneEntities)
     {
         it->destroy_entity();
     }
@@ -106,8 +143,8 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::load_scene(
             entities_nb += 1;
             AG_MARK_AS_USED(it);
 		}
-        m_ScenesEntities.resize(entities_nb);
-        for (std::shared_ptr<Agos::Entities::Entity>& it : m_ScenesEntities)
+        m_SceneEntities.resize(entities_nb);
+        for (std::shared_ptr<Agos::Entities::Entity>& it : m_SceneEntities)
         {
             it = std::make_shared<Agos::Entities::Entity>();
         }
@@ -115,15 +152,15 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::load_scene(
         entities_nb = 0;
 		for (const std::filesystem::directory_entry& it : std::filesystem::directory_iterator(scene_path + std::string("/Entities")))
 		{
-            m_ScenesEntities[entities_nb]->get_entity_data().entity_name    = it.path().stem().c_str();
-            m_ScenesEntities[entities_nb]->get_entity_id()                  = this->m_GenerateNewEntityId();
-            m_ScenesEntities[entities_nb]->get_entity_gpu_status()          = false;
-            m_ScenesEntities[entities_nb]->should_be_shown()                = true;
+            m_SceneEntities[entities_nb]->get_entity_data().entity_name    = it.path().stem().c_str();
+            m_SceneEntities[entities_nb]->get_entity_id()                  = this->m_GenerateNewEntityId();
+            m_SceneEntities[entities_nb]->get_entity_gpu_status()          = false;
+            m_SceneEntities[entities_nb]->should_be_shown()                = true;
 
             // ${SCENE_PATH}/Entities/${ENTITY_NAME}/${ENTITY_NAME}.obj
-            m_ScenesEntities[entities_nb]->get_entity_data().obj_file_path =
-                scene_path + "/Entities/" + m_ScenesEntities[entities_nb]->get_entity_data().entity_name + "/" +
-                m_ScenesEntities[entities_nb]->get_entity_data().entity_name + ".obj";
+            m_SceneEntities[entities_nb]->get_entity_data().obj_file_path =
+                scene_path + "/Entities/" + m_SceneEntities[entities_nb]->get_entity_data().entity_name + "/" +
+                m_SceneEntities[entities_nb]->get_entity_data().entity_name + ".obj";
             entities_nb++;
 		}
 
@@ -134,7 +171,7 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::load_scene(
         // e_manifest
         nlohmann::json  entities = nlohmann::json::parse(e_manifest_stream);
 
-        for (std::shared_ptr<Agos::Entities::Entity>& it : m_ScenesEntities)
+        for (std::shared_ptr<Agos::Entities::Entity>& it : m_SceneEntities)
         {
             it->get_entity_data().translation.x             = entities["Entities"][it->get_entity_data().entity_name]["translation"]["x"];
             it->get_entity_data().translation.y             = entities["Entities"][it->get_entity_data().entity_name]["translation"]["y"];
@@ -169,11 +206,11 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::load_scene(
         }
         e_manifest_stream.close();
 
-        m_ScenePath     = scene_path;
-        m_SceneClosed   = false;
+        m_ScenePath                 = scene_path;
+        m_SceneStatus->scene_closed = false;
 
         // load each entity's vertex / index / maps data
-        for (const std::shared_ptr<Agos::Entities::Entity>& it : m_ScenesEntities)
+        for (const std::shared_ptr<Agos::Entities::Entity>& it : m_SceneEntities)
         {
             m_LoadEntityObjData(*it.get());
             m_LoadEntityTextures(*it.get());
@@ -190,7 +227,7 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::save_scene_to_path(c
 {
     AG_CORE_INFO("[Save Scene/SceneManager::ApplicationSceneManager - save_scene] Saving current scene to : \'" + scene_path + "\'...");
 	nlohmann::json json_contents;
-	for (const std::shared_ptr<Agos::Entities::Entity>& it : m_ScenesEntities)
+	for (const std::shared_ptr<Agos::Entities::Entity>& it : m_SceneEntities)
 	{
         json_contents["Entities"][it->get_entity_data().entity_name]["translation"]["x"]            = it->get_entity_data().translation.x;
         json_contents["Entities"][it->get_entity_data().entity_name]["translation"]["y"]            = it->get_entity_data().translation.y;
@@ -240,8 +277,8 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::save_scene()
 Agos::AgResult Agos::SceneManager::ApplicationSceneManager::close_current_scene()
 {
     save_scene();
-    m_ScenePath     = AG_SCENE_PATH_NONE;
-    m_SceneClosed   = true;
+    m_ScenePath                 = AG_SCENE_PATH_NONE;
+    m_SceneStatus->scene_closed = true;
     return AG_SUCCESS;
 }
 // * = = = = = = = = = = = = = = = = = = = = scene manip = = = = = = = = = = = = = = = = = = = =
@@ -252,7 +289,7 @@ Agos::AgResult Agos::SceneManager::ApplicationSceneManager::create_entity(
 )
 {
     // ! ======================== try to make sure its got enough room for allocation
-    // m_ScenesEntities.push_back(entity_properties);
+    // m_SceneEntities.push_back(entity_properties);
     return AG_SUCCESS;
 }
 
@@ -288,7 +325,7 @@ std::shared_ptr<Agos::Entities::Entity>& Agos::SceneManager::ApplicationSceneMan
     const size_t& entity_id
 )
 {
-    for (std::shared_ptr<Entities::Entity>& it : m_ScenesEntities)
+    for (std::shared_ptr<Entities::Entity>& it : m_SceneEntities)
     {
         if (it->get_entity_id() == entity_id)
         {
@@ -297,14 +334,14 @@ std::shared_ptr<Agos::Entities::Entity>& Agos::SceneManager::ApplicationSceneMan
     }
     AG_CORE_WARN("[LookForEntity/SceneManager::ApplicationSceneManager - m_LookFor] Failed to find entity with id : " + std::to_string(entity_id) + std::string(" !"));
 
-    return m_ScenesEntities[0];
+    return m_SceneEntities[0];
 }
 
 const std::shared_ptr<Agos::Entities::Entity>& Agos::SceneManager::ApplicationSceneManager::m_LookFor(
     const size_t& entity_id
 )   const
 {
-    for (const std::shared_ptr<Entities::Entity>& it : m_ScenesEntities)
+    for (const std::shared_ptr<Entities::Entity>& it : m_SceneEntities)
     {
         if (it->get_entity_id() == entity_id)
         {
@@ -313,7 +350,7 @@ const std::shared_ptr<Agos::Entities::Entity>& Agos::SceneManager::ApplicationSc
     }
     AG_CORE_WARN("[LookForEntity/SceneManager::ApplicationSceneManager - m_LookFor] Failed to find entity with id : " + std::to_string(entity_id) + std::string(" !"));
 
-    return m_ScenesEntities[0];
+    return m_SceneEntities[0];
 }
 
 

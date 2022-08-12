@@ -17,20 +17,62 @@ namespace SceneManager
 // ** SceneManagerCore ==================================================================
 namespace SceneManagerCore
 {
-    struct ScenesEntitiesInfo
+    struct SceneStatus
     {
+        bool shall_draw_viewport;       // = true;
 
+        bool scene_closed;              // = false;
+        bool scene_opened;              // = false;
+
+        bool scene_new;                 // = false;
+        bool scene_save_curr;           // = false;
+        bool scene_save_curr_as;        // = false;
+        bool scene_open;                // = false;
+        bool scene_close;               // = false;
+
+        bool can_scene_new;             // = false;
+        bool can_scene_save_curr;       // = false;
+        // bool can_scene_save_curr_as;
+        bool can_scene_open;            // = false;
+        bool can_scene_close;           // = false;
+
+
+        bool entity_new;                // = false;
+        bool entity_destroy;            // = false;
+        bool entity_load;               // = false;
+        bool entity_unload;             // = false;
+        bool entity_translate;          // = false;
+        bool entity_rotate;             // = false;
+
+        bool can_entity_new;            // = false;
+        bool can_entity_destroy;        // = false;
+        bool can_entity_load;           // = false;
+        bool can_entity_unload;         // = false;
+        bool can_entity_translate;      // = false;
+        bool can_entity_rotate;         // = false;
+
+
+        bool undo;                      // = false;
+        bool redo;                      // = false;
+
+        bool can_undo;                  // = false;
+        bool can_redo;                  // = false;
+
+        SceneStatus();
     };
+
 };
 // ** SceneManagerCore ==================================================================
 
 // ** ApplicationSceneManager ===========================================================
+using SceneStatus = Agos::SceneManager::SceneManagerCore::SceneStatus;
+
 class ApplicationSceneManager
 {
 private:
     std::string                                             m_ScenePath;
-    bool                                                    m_SceneClosed;                  // = true
-    std::vector<std::shared_ptr<Agos::Entities::Entity>>    m_ScenesEntities;
+    std::shared_ptr<SceneManagerCore::SceneStatus>          m_SceneStatus;
+    std::vector<std::shared_ptr<Agos::Entities::Entity>>    m_SceneEntities;
 
     bool                                                    m_AppSceneManagerTerminated;    // = false
 
@@ -43,9 +85,14 @@ public:
     ApplicationSceneManager& operator=(const ApplicationSceneManager& other)    = delete;
     ApplicationSceneManager& operator=(ApplicationSceneManager&& other)         = delete;
 
-    AgResult    init();
-    AgResult    terminate();
+    AgResult                init            ();
+    AgResult                terminate       ();
+    inline std::shared_ptr<SceneStatus>&    current_state   ()  { return m_SceneStatus; }
 
+private:
+    AgResult    check_status();
+
+public:
     // ** = = = = = scene manip = = = = =
     AgResult    create_scene        (const std::string& path);
     AgResult    delete_scene        (const std::string& path);
@@ -57,7 +104,7 @@ public:
     // ** = = = = = scene manip = = = = =
 
     // ** = = = = = entity misc = = = = = 
-    const std::vector<std::shared_ptr<Entities::Entity>>&   get_scenes_entities ()                                  { return m_ScenesEntities;      }
+    const std::vector<std::shared_ptr<Entities::Entity>>&   get_scenes_entities ()                                  { return m_SceneEntities;      }
     const std::shared_ptr<Entities::Entity>&                get_entity          (const size_t& entity_id)           { return m_LookFor(entity_id);  }
 
     AgResult                        create_entity       (const Entities::Entity& entity_data);
@@ -65,7 +112,7 @@ public:
     AgResult                        hide_entity         (const size_t& entity_id);
     AgResult                        set_entity_type     (const size_t& entity_id, const Entities::EntityData::Properties::EntityType& type);
 
-    const std::vector<std::shared_ptr<Entities::Entity>>&   get_scenes_entities ()                          const   { return m_ScenesEntities;      }
+    const std::vector<std::shared_ptr<Entities::Entity>>&   get_scenes_entities ()                          const   { return m_SceneEntities;      }
     const std::shared_ptr<Entities::Entity>&                get_entity          (const size_t& entity_id)   const   { return m_LookFor(entity_id);  }
     // ** = = = = = entity misc = = = = =
 

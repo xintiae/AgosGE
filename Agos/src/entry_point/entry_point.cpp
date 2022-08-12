@@ -28,13 +28,17 @@ Agos::AgResult Agos::Application::run()
     AG_CORE_WARN("[Entry Point/Application - run] => Running AgosGE... <=");
     m_AppSceneManager->load_scene   (AG_EXAMPLES_PATH + std::string("/scene_1-hello_agos"));
     m_AppRenderer->load_entities    (m_AppSceneManager->get_scenes_entities());
+    m_AppRenderer->query_scene_state(m_AppSceneManager->current_state());
 
     while (m_AppShouldRun)
     {
         // m_AppRenderer->draw_startup_menu();  // ImGui stuff
         // m_AppRenderer->draw_menu();          // ImGui stuff
-        m_AppRenderer->update_entities();
-        m_AppRenderer->draw_scene();
+        // m_AppRenderer->update_entities();
+        // m_AppRenderer->draw_scene();
+
+        m_AppRenderer->draw_screen();
+
         // performs glfwPollEvents()
         m_AppShouldRun = m_AppRenderer->app_should_run();
     }

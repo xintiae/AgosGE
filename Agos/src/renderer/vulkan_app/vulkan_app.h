@@ -18,8 +18,8 @@
 #include "Agos/src/renderer/vulkan_base/vulkan_base.h"
 #include "Agos/src/renderer/vulkan_app/vulkan_entity.h"
 #include "Agos/src/entities/entities.h"
-
-#include "Agos/src/renderer/imgui/vulkan/vulkan_imgui.h"
+#include "Agos/src/scene_manager/scene_manager.h"
+#include "Agos/src/renderer/imgui/agos_imgui.h"
 
 #include AG_VULKAN_INCLUDE
 #include AG_GLM_INCLUDE
@@ -119,6 +119,8 @@ private:
     // ** ImGui render target
     std::unique_ptr<Agos::ImGuiHandler::ImGuiVulkan::ImGuiInstance> m_ImGuiInterface;
 
+    // current scene's status is important since it tells us how to build our command buffers / manage our GUI
+    std::shared_ptr<Agos::SceneManager::SceneStatus>    m_SceneState;
 
     // destructions tracking
     bool                        m_SwapchainDestroyed;               // = false
@@ -164,15 +166,20 @@ public:
     VulkanApp& operator=(const VulkanApp& other)    = delete;
     VulkanApp& operator=(VulkanApp&& other)         = delete;
 
+    // ================================
     AgResult    init_vulkan_app     ();
+    // ================================
     // loads the specified entities onto the GPU, and saves them for later draw calls - meaning they'll be drawn
     AgResult    load_entities       (const std::vector<std::shared_ptr<Agos::Entities::Entity>>& entities_to_render);
-    // checks if the load_entities specified entities are still valid for the GPU to draw them (i.e. if an entity's signatured as destroyed, unload it from gpu and proceed to drawning "without it")
-    AgResult    update_entities     ();
+    AgResult    query_scene_state   (const std::shared_ptr<Agos::SceneManager::SceneStatus>& scene_status);
+    // drawing a frame consists of drawning the gui and the viewport
+    // ================================
     AgResult    draw_frame          ();
+    // ================================
     // clears m_ToRenderEntities
     AgResult    unload_entities     ();
     AgResult    terminate_vulkan_app();
+    // ================================
 
 protected:
     AgResult    recreate_swapchain  ();
@@ -223,9 +230,13 @@ private:
     AgResult    create_index_buffers                ();
     AgResult    create_descriptor_sets              ();
     //      }
-    // **   AgResult    update_entities();
+
+    // NOTE ! draw_imgui: if scene_status.shall_draw_viewport,
+    // NOTE ! proceed to building viewport ImGui-side and proceed to offscreen command buffers recording
     // **   AgResult    draw_frame()
     //      {
+    // checks if the load_entities specified entities are still valid for the GPU to draw them (i.e. if an entity's signatured as destroyed, unload it from gpu and proceed to drawning "without it")
+    AgResult    update_entities                     ();
     uint32_t    acquire_next_swapchain_image        ();
     AgResult    draw_imgui_objects                  (); // see at the end of class VulkanApp
     AgResult    update_vertex_buffers               ();
@@ -319,7 +330,7 @@ private:
     AgResult                    create_semaphore_objects();
     AgResult                    create_fence_objects();
     // ** ImGui layer
-    void    imgui_draw_parent();
+    void    imgui_draw_main_window();
     void    imgui_draw_viewport();
 };  // * class VulkanApp
 

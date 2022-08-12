@@ -129,16 +129,11 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::load_entities(const std::vector<s
     return AG_SUCCESS;
 }
 
-Agos::AgResult Agos::VulkanHandler::VulkanApp::update_entities()
+Agos::AgResult Agos::VulkanHandler::VulkanApp::query_scene_state(
+    const std::shared_ptr<Agos::SceneManager::SceneStatus>& scene_status
+)
 {
-    for (size_t i = 0; i < m_ToRenderEntities.size(); i++)
-    {
-        if ( m_ToRenderEntities[i]->entity_destroyed() || !(m_ToRenderEntities[i]->should_be_shown()) )
-        {
-            m_ToRenderEntities.erase(m_ToRenderEntities.begin() + i);
-        }
-    }
-
+    m_SceneState = std::move(scene_status);
     return AG_SUCCESS;
 }
 
@@ -193,17 +188,32 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::terminate_vulkan_app()
 // * = = = = = = = = = = = = = = = = = = = = draw_frame = = = = = = = = = = = = = = = = = = = =
 Agos::AgResult Agos::VulkanHandler::VulkanApp::draw_frame()
 {
+    update_entities();
     uint32_t imageIndex = acquire_next_swapchain_image();
-
     draw_imgui_objects              ();
-    // update_vertex_buffers        ();
-    // update_index_buffers         ();
+    // update_vertex_buffers           ();
+    // update_index_buffers            ();
     update_uniform_buffers          ();
     record_command_buffers          (imageIndex);
     submit_image_for_presentation   (imageIndex);
     return AG_SUCCESS;
 }
 // * = = = = = = = = = = = = = = = = = = = = draw_frame = = = = = = = = = = = = = = = = = = = =
+
+// * = = = = = = = = = = = = = = = = = = = = update_entities = = = = = = = = = = = = = = = = = = = =
+Agos::AgResult Agos::VulkanHandler::VulkanApp::update_entities()
+{
+    for (size_t i = 0; i < m_ToRenderEntities.size(); i++)
+    {
+        if ( m_ToRenderEntities[i]->entity_destroyed() || !(m_ToRenderEntities[i]->should_be_shown()) )
+        {
+            m_ToRenderEntities.erase(m_ToRenderEntities.begin() + i);
+        }
+    }
+
+    return AG_SUCCESS;
+}
+// * = = = = = = = = = = = = = = = = = = = = update_entities = = = = = = = = = = = = = = = = = = = =
 
 // * = = = = = = = = = = = = = = = = = = = = image acquisition, submition and presentation = = = = = = = = = = = = = = = = = = = =
 uint32_t Agos::VulkanHandler::VulkanApp::acquire_next_swapchain_image()
@@ -1686,6 +1696,7 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::record_command_buffers(const uint
     }
 
     // VulkanApp's entities
+    if (m_SceneState->shall_draw_viewport)
     {
         // render pass begin info
         VkRenderPassBeginInfo renderPassInfo{};
@@ -2365,7 +2376,6 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::create_imgui_render_target()
 {
     create_render_pass              ();
     create_swapchain_framebuffers   ();
-    // m_OffscreenImGuiID = ImGui_ImplVulkan_AddTexture(m_OffscreenSampler, m_OffscreenImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     return AG_SUCCESS;
 }
 
@@ -2373,16 +2383,51 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::draw_imgui_objects()
 {
     m_ImGuiInterface->new_frame();
 
-    imgui_draw_parent();
+
+    imgui_draw_main_window();
     imgui_draw_viewport();
 
     m_ImGuiInterface->end_frame();
     return AG_SUCCESS;
 }
 
-void Agos::VulkanHandler::VulkanApp::imgui_draw_parent()
+void Agos::VulkanHandler::VulkanApp::imgui_draw_main_window()
 {
     ImGui::DockSpaceOverViewport();
+    ImGui::ShowDemoWindow();
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("Viewport"))
+        {
+            ImGui::MenuItem("See Viewport", NULL, &m_SceneState->shall_draw_viewport);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::BeginMenu("New..."))
+            {
+                // ImGui::MenuItem("Scene", "CTRL+N", &create_new_scene);
+                // ImGui::MenuItem("Entity", "CTRL+E", &create_new_entity);
+                ImGui::EndMenu();
+            }
+
+            // ImGui::MenuItem("Save", NULL, &save_current_scene);
+            // ImGui::MenuItem("Save as...", NULL, &save_current_scene_as);
+
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("Edit"))
+        {
+            // ImGui::MenuItem("Undo", "CTRL+Z", &triggered_undo, can_undo);
+            // ImGui::MenuItem("Redo", "CTRL+Y", &triggered_redo, can_redo);
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
 }
 
 void Agos::VulkanHandler::VulkanApp::imgui_draw_viewport()
@@ -2390,7 +2435,14 @@ void Agos::VulkanHandler::VulkanApp::imgui_draw_viewport()
     ImGui::Begin("Viewport");
     // m_OffscreenImGuiID = ImGui_ImplVulkan_AddTexture(m_OffscreenSampler, m_OffscreenImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     m_OffscreenViewportSize = ImGui::GetWindowSize();
-    ImGui::Image(m_OffscreenImGuiID, m_OffscreenViewportSize);
+    if (m_SceneState->shall_draw_viewport)
+    {
+        ImGui::Image(m_OffscreenImGuiID, m_OffscreenViewportSize);
+    }
+    else
+    {
+        ImGui::GetWindowDrawList()->AddRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize, (ImU32)( (255 << 24) | (128 << 16) | (128 << 8) | (128) ));
+    }
     ImGui::End();
 }
 // ** ImGui managment ===============================================================================================================================

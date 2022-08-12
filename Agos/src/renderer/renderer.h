@@ -11,6 +11,7 @@
 
 #include AG_EVENTBUS_INCLUDE
 #include "Agos/src/renderer/glfw_instance.h"
+#include "Agos/src/scene_manager/scene_manager.h"
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
 
@@ -22,6 +23,8 @@ namespace Renderer
 {
 // ** RendererCore ======================================================================
 #ifdef AG_GRAPHICS_API_VULKAN
+
+class AG_API ApplicationRenderer;
 
 class AG_API RendererCore
 {
@@ -41,20 +44,20 @@ public:
     RendererCore& operator=(const RendererCore& other)  = delete;
     RendererCore& operator=(RendererCore&& other)       = delete;
 
-    AgResult    init            (const std::string& window_title, const int& window_width = AG_DEFAULT_WINDOW_WIDTH, const int& window_height = AG_DEFAULT_WINDOW_HEIGHT);
-    AgResult    load_entities   (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
-    AgResult    update_entities ();
-    AgResult    draw            ();
-    AgBool      app_should_run  ();
-    AgResult    unload_entities ();
-    AgResult    terminate       ();
+protected:
+    AgResult    init                (const std::string& window_title, const int& window_width = AG_DEFAULT_WINDOW_WIDTH, const int& window_height = AG_DEFAULT_WINDOW_HEIGHT);
+    AgResult    load_entities       (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
+    AgResult    query_scene_state   (const std::shared_ptr<SceneManager::SceneStatus>& scene_status);
+    AgResult    draw                ();
+    AgBool      app_should_run      ();
+    AgResult    unload_entities     ();
+    AgResult    terminate           ();
+
+    friend class Agos::Renderer::ApplicationRenderer;
 
 private:
-    //  draw_screen()
-    //  {
-    AgResult    draw_gui();
-    AgResult    draw_viewport();
-    //  }
+    // checks for valid entities to be drawn (i.e. if an entity's signatured as destroyed, unload it from gpu and proceed to drawning)
+    // AgResult    update_entities     ();
 };
 
 #elif defined AG_GRAPHICS_API_OPENGL
@@ -81,15 +84,17 @@ public:
     ApplicationRenderer& operator=(const ApplicationRenderer& other)  = delete;
     ApplicationRenderer& operator=(ApplicationRenderer&& other)       = delete;
 
-    AgResult    init            ();
+    AgResult    init                ();
     // loads the specified entities onto the GPU for drawing
-    AgResult    load_entities   (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
-    // checks for valid entities to be drawn (i.e. if an entity's signatured as destroyed, unload it from gpu and proceed to drawning)
-    AgResult    update_entities ();
-    AgResult    draw_scene      ();
-    AgBool      app_should_run  ();
-    AgResult    unload_entities ();
-    AgResult    terminate       ();
+    AgResult    load_entities       (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
+    // std::shared_ptr grants not having to load each frame current scene's status 
+    AgResult    query_scene_state   (const std::shared_ptr<SceneManager::SceneStatus>& scene_status);
+    AgResult    draw_screen         ();
+    AgBool      app_should_run      ();
+    AgResult    unload_entities     ();
+    AgResult    terminate           ();
+
+private:
 };  // class Renderer (within namespace Agos)
 // ** ApplicationRenderer ===============================================================
 }   // namespace Renderer (within namespace Agos)
