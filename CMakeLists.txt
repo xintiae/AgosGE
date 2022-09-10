@@ -96,6 +96,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_include_directories(AgosGE PUBLIC glfw3::glfw)
     target_link_libraries(AgosGE PUBLIC glfw)
 
+    find_package(fmt REQUIRED)
+    target_link_libraries(AgosGE PUBLIC fmt::fmt)
+
 else()
     add_subdirectory(Agos/vendor/GLFW)
     set( ENKITS_BUILD_EXAMPLES  OFF CACHE BOOL "Build basic example applications" )

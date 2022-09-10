@@ -11,6 +11,7 @@ See https://www.apache.org/licenses/LICENSE-2.0.html
 - GCC (Linux)
 - [Visual Studio](https://visualstudio.microsoft.com/) (Windows)
 - [LunarG (Vulkan SDK)](https://vulkan.lunarg.com/sdk/home)
+- [glslc compiler](https://github.com/google/shaderc/blob/main/downloads.md)
 
 *Note for Debian Users*: Agos will download every required packages automaticly (see [scripts/build_linux.sh](https://github.com/xintiae/AgosGE/blob/main/scripts/build_linux.sh))
 
@@ -22,7 +23,7 @@ See https://www.apache.org/licenses/LICENSE-2.0.html
 
 ### Linux
 - AgosGE's mainly developped and maintained on Debian-based linux distributions.
-- **DO NOT** clone the github repository **RECURSIVELY** ! When building AgosGE, all dependencies and required packages will be downloaded automatically (see scripts/build_linux.sh for more details).
+- **DO NOT** clone the github repository **RECURSIVELY** ! When building AgosGE, dependencies and required packages will be downloaded automatically (see scripts/build_linux.sh for more details).
 1. Clone the repository **without the recursive option** : ```git clone https://github.com/xintiae/AgosGE.git```
 2. Create a build repo (e.g. "build"): ```mkdir build```
 3. Cd in that repo : ```cd build```
