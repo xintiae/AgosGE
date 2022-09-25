@@ -63,7 +63,7 @@ namespace EventData
 struct Event
 {
     EventType type = EventType::undefined;
-    // void* data;
+    void* data;
 };
 
 

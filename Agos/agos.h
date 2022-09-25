@@ -12,6 +12,9 @@
 
 /**
  * TODO LIST
+ * !*!*!            CAMERA SYSTEM | implement new entity type : camera type
+ *                  -> enables observing scene from different point of views 
+ * -                camera move schementincs implementieren
  * // ?            move debug layers into renderer (since not in entry pt?)
  * // ?            idem but regarding event_manager
  * // !*!*!    get vulkan based graphics to work

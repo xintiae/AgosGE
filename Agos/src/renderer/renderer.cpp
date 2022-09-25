@@ -44,6 +44,14 @@ Agos::AgResult Agos::Renderer::RendererCore::query_scene_state(
     return AG_SUCCESS;
 }
 
+Agos::AgResult Agos::Renderer::RendererCore::set_viewport(
+    const std::shared_ptr<Agos::Clipping::CameraObject>& viewport_cam
+)
+{
+    m_VulkanRenderer->set_viewport(viewport_cam);
+    return AG_SUCCESS;
+}
+
 Agos::AgResult Agos::Renderer::RendererCore::draw()
 {
     m_VulkanRenderer->draw_frame();
@@ -105,6 +113,14 @@ Agos::AgResult Agos::Renderer::ApplicationRenderer::query_scene_state(
 )
 {
     m_AppRenderer->query_scene_state(scene_status);
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::Renderer::ApplicationRenderer::set_viewport_camera(
+    const std::shared_ptr<Agos::Clipping::CameraObject>& viewport
+)
+{
+    m_AppRenderer->set_viewport(viewport);
     return AG_SUCCESS;
 }
 

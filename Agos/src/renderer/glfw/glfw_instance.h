@@ -25,7 +25,6 @@ private:
     std::shared_ptr<dexode::EventBus::Listener>             m_EventBusListener;
 
     GLFWwindow*                 m_ApplicationWindow;
-    size_t                      m_CursorState;          // = 0;
     bool                        m_Terminated;           // = false;
 
 public:
@@ -51,6 +50,8 @@ public:
     inline std::shared_ptr<dexode::EventBus>&               get_event_bus   ()  { return m_ApplicationEventBus; }
     inline std::shared_ptr<dexode::EventBus::Listener>&     get_listener    ()  { return m_EventBusListener;    }
 
+    void            show_cursor()   { glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);   }
+    void            hide_cursor()   { glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); }
 };
 // ** class GLFWInstance ========================================================================================================================
 

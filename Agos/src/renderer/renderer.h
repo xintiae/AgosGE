@@ -11,6 +11,7 @@
 
 #include AG_EVENTBUS_INCLUDE
 #include "Agos/src/renderer/glfw/glfw_instance.h"
+#include "Agos/src/renderer/camera/camera.h"
 #include "Agos/src/scene_manager/scene_manager.h"
 #include "Agos/src/base.h"
 #include "Agos/src/core.h"
@@ -46,6 +47,7 @@ protected:
     AgResult    init                (const std::string& window_title, const int& window_width = AG_DEFAULT_WINDOW_WIDTH, const int& window_height = AG_DEFAULT_WINDOW_HEIGHT);
     AgResult    load_entities       (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
     AgResult    query_scene_state   (const std::shared_ptr<SceneManager::SceneStatus>& scene_status);
+    AgResult    set_viewport        (const std::shared_ptr<Clipping::CameraObject>& viewport_cam);
     AgResult    draw                ();
     AgBool      app_should_run      ();
     AgResult    unload_entities     ();
@@ -82,15 +84,17 @@ public:
     ApplicationRenderer& operator=(const ApplicationRenderer& other)  = delete;
     ApplicationRenderer& operator=(ApplicationRenderer&& other)       = delete;
 
-    AgResult    init                ();
+    AgResult    init                    ();
     // loads the specified entities onto the GPU for drawing
-    AgResult    load_entities       (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
-    // std::shared_ptr grants not having to load each frame current scene's status 
-    AgResult    query_scene_state   (const std::shared_ptr<SceneManager::SceneStatus>& scene_status);
-    AgResult    draw_screen         ();
-    AgBool      app_should_run      ();
-    AgResult    unload_entities     ();
-    AgResult    terminate           ();
+    AgResult    load_entities           (const std::vector<std::shared_ptr<Entities::Entity>>& entities);
+    // std::shared_ptr grants not having to load each frame current scene's status
+    AgResult    query_scene_state       (const std::shared_ptr<SceneManager::SceneStatus>& scene_status);
+    // std::shared_ptr grants not having to load each frame current scene's status
+    AgResult    set_viewport_camera     (const std::shared_ptr<Clipping::CameraObject>& viewport);
+    AgResult    draw_screen             ();
+    AgBool      app_should_run          ();
+    AgResult    unload_entities         ();
+    AgResult    terminate               ();
 
 private:
 };  // class Renderer (within namespace Agos)

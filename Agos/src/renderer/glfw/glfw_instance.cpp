@@ -11,14 +11,6 @@ Agos::GLFWHandler::GLFWInstance::GLFWInstance()
     m_EventBusListener          = std::make_shared<dexode::EventBus::Listener>(m_ApplicationEventBus);
 }
 
-/*
-Agos::GLFWHandler::GLFWInstance::GLFWInstance(const std::shared_ptr<dexode::EventBus>& event_bus)
-    : m_EventBusListener{event_bus}
-{
-    m_EventManager = std::make_shared<Agos::GLFWHandler::GLFWEvent::EventManager>(m_EventBusListener);
-}
-*/
-
 Agos::GLFWHandler::GLFWInstance::~GLFWInstance()
 {
     terminate();
@@ -38,44 +30,13 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::init(
     if ( (m_ApplicationWindow = glfwCreateWindow(width, height , window_title.c_str(), nullptr, nullptr)) == NULL)
     {
         AG_CORE_CRITICAL("[GLFW/GLFWHandler::GLFWInstance - init] Failed to create window!");
+        throw std::runtime_error("[GLFW/GLFWHandler::GLFWInstance - init] Failed to create window!");
         return AG_FAILED_TO_CREATE_GLFW_INSTANCE;
     }
 
-    // * all kind of glfwSetxxx
-    // user pointer
-    glfwSetWindowUserPointer(m_ApplicationWindow, this);
-    // * glfw's callbacks
-    glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-/*
-    m_EventBusListener.listen<Agos::GLFWHandler::GLFWEvent::Event>(
-        [this](const Agos::GLFWHandler::GLFWEvent::Event& event) -> void
-        {
-            this->on_event_process(event);
-        }
-    );
-*/
-    // framebuffer
-    glfwSetFramebufferSizeCallback(m_ApplicationWindow, m_ApplicationEventManager->framebufferResizeCallback);
-    // mouse button
-    glfwSetMouseButtonCallback(m_ApplicationWindow, m_ApplicationEventManager->mouseButtonCallback);
-    // mouse position
-    glfwSetCursorPosCallback(m_ApplicationWindow, m_ApplicationEventManager->cursorPositionCallback);
-
-/*
-    // mouse should appear or not
-    if (shall_cursor_exist)
-    {
-        glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        m_CursorState = GLFW_CURSOR_NORMAL;
-    }
-    else
-    {
-        glfwSetInputMode(m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        m_CursorState = GLFW_CURSOR_DISABLED;
-    }
-    glfwSetKeyCallback(m_ApplicationWindow, event_manager->keyboardCallback);
-*/
+    glfwSetWindowUserPointer        (m_ApplicationWindow, this);
+    glfwSetInputMode                (m_ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetFramebufferSizeCallback  (m_ApplicationWindow, m_ApplicationEventManager->framebufferResizeCallback);
 
     return AG_SUCCESS;
 }
@@ -104,11 +65,6 @@ Agos::AgResult Agos::GLFWHandler::GLFWInstance::terminate()
 }
 
 /*
-size_t& Agos::GLFWHandler::GLFWInstance::get_cursor_state()
-{
-    return m_CursorState;
-}
-
 void Agos::GLFWHandler::GLFWInstance::on_event_process(const Agos::GLFWHandler::GLFWEvent::Event& event)
 {
     switch (event.type)

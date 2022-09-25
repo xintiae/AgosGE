@@ -4,6 +4,7 @@
 #include "Agos/src/base.h"
 
 #include "Agos/src/entities/entities.h"
+#include "Agos/src/renderer/camera/camera.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -73,6 +74,8 @@ private:
     std::string                                             m_ScenePath;
     std::shared_ptr<SceneManagerCore::SceneStatus>          m_SceneStatus;
     std::vector<std::shared_ptr<Agos::Entities::Entity>>    m_SceneEntities;
+    std::shared_ptr<Clipping::CameraObject>                 m_ViewportCamera;
+
 
     bool                                                    m_AppSceneManagerTerminated;    // = false
 
@@ -87,7 +90,9 @@ public:
 
     AgResult                init            ();
     AgResult                terminate       ();
-    inline std::shared_ptr<SceneStatus>&    current_state   ()  { return m_SceneStatus; }
+
+    inline std::shared_ptr<SceneStatus>&            current_state   ()      { return m_SceneStatus;     }
+    inline std::shared_ptr<Clipping::CameraObject>& viewport_camera ()      { return m_ViewportCamera;  }
 
 private:
     AgResult    check_status();

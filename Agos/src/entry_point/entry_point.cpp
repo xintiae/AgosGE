@@ -16,7 +16,7 @@ Agos::Application::~Application()
 Agos::AgResult Agos::Application::init()
 {
     Agos::ag_init_loggers();
-    AG_CORE_WARN("[Entry Point/Application - init] Initializing AgosGE...");
+    AG_CORE_WARN("[Entry Point/Application - init] => Initializing AgosGE... <=");
     m_AppRenderer->init();
     m_AppSceneManager->init();
     AG_CORE_INFO("[Entry Point/Application - init] Done!");
@@ -28,7 +28,8 @@ Agos::AgResult Agos::Application::run()
     AG_CORE_WARN("[Entry Point/Application - run] => Running AgosGE... <=");
     m_AppSceneManager->load_scene   (AG_EXAMPLES_PATH + std::string("/scene_1-hello_agos"));
     m_AppRenderer->load_entities    (m_AppSceneManager->get_scenes_entities());
-    m_AppRenderer->query_scene_state(m_AppSceneManager->current_state());
+    m_AppRenderer->query_scene_state    (m_AppSceneManager->current_state());
+    m_AppRenderer->set_viewport_camera  (m_AppSceneManager->viewport_camera());
 
     while (m_AppShouldRun)
     {
@@ -51,7 +52,7 @@ Agos::AgResult Agos::Application::run()
 
 Agos::AgResult Agos::Application::terimnate()
 {
-    AG_CORE_WARN("[Entry Point/Application - terminate] Terminating AgosGE...");
+    AG_CORE_WARN("[Entry Point/Application - terminate] => Terminating AgosGE... <=");
     if (!m_AppTerminated)
     {
         m_AppSceneManager->terminate();

@@ -17,9 +17,10 @@
 #include "Agos/src/renderer/glfw/glfw_instance.h"
 #include "Agos/src/renderer/vulkan_base/vulkan_base.h"
 #include "Agos/src/renderer/vulkan_app/vulkan_entity.h"
+#include "Agos/src/renderer/camera/camera.h"
+#include "Agos/src/renderer/imgui/agos_imgui.h"
 #include "Agos/src/entities/entities.h"
 #include "Agos/src/scene_manager/scene_manager.h"
-#include "Agos/src/renderer/imgui/agos_imgui.h"
 
 #include AG_VULKAN_INCLUDE
 #include AG_GLM_INCLUDE
@@ -121,6 +122,9 @@ private:
 
     // current scene's status is important since it tells us how to build our command buffers / manage our GUI
     std::shared_ptr<Agos::SceneManager::SceneStatus>    m_SceneState;
+    // !*!*! cf agos.h
+    std::shared_ptr<Agos::Clipping::CameraObject>       m_ViewportCam;
+    bool                                                m_ViewportCamShallMove = false;  // = false
 
     // destructions tracking
     bool                        m_SwapchainDestroyed;               // = false
@@ -172,6 +176,7 @@ public:
     // loads the specified entities onto the GPU, and saves them for later draw calls - meaning they'll be drawn
     AgResult    load_entities       (const std::vector<std::shared_ptr<Agos::Entities::Entity>>& entities_to_render);
     AgResult    query_scene_state   (const std::shared_ptr<Agos::SceneManager::SceneStatus>& scene_status);
+    AgResult    set_viewport        (const std::shared_ptr<Agos::Clipping::CameraObject>& viewport_cam);
     // drawing a frame consists of drawning the gui and the viewport
     // ================================
     AgResult    draw_frame          ();
@@ -218,6 +223,10 @@ private:
     AgResult        create_swapchain_framebuffers   ();
     //          }
     AgResult    init_vulkan_imgui                   ();
+    //          {
+    AgResult        init_imgui_interface            ();
+    AgResult        add_imgui_textures              ();
+    //          }
     //          ---------------------------------------
     //      }
     // **   AgResult    init_vulkan_imgui();

@@ -61,7 +61,8 @@ Agos::SceneManager::SceneManagerCore::SceneStatus::SceneStatus()
 Agos::SceneManager::ApplicationSceneManager::ApplicationSceneManager()
     : m_AppSceneManagerTerminated   (false)
 {
-    m_SceneStatus = std::make_shared<Agos::SceneManager::SceneStatus>();
+    m_SceneStatus       = std::make_shared<Agos::SceneManager::SceneStatus>();
+    m_ViewportCamera    = std::make_shared<Agos::Clipping::CameraObject>();
 }
 
 Agos::SceneManager::ApplicationSceneManager::~ApplicationSceneManager()

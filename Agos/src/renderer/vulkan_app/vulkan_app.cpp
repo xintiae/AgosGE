@@ -84,6 +84,13 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::init_vulkan_app()
 // * = * = * = * = * ImGui * = * = * = * = *
 Agos::AgResult Agos::VulkanHandler::VulkanApp::init_vulkan_imgui()
 {
+    init_imgui_interface();
+    add_imgui_textures();
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::VulkanHandler::VulkanApp::init_imgui_interface()
+{
     Agos::VulkanHandler::VulkanBase::SwapchainSupportDetails swapchainSupport = Agos::VulkanHandler::VulkanBase::query_swapchain_support(
         m_PhysicalDevice,
         m_WindowSurface
@@ -110,7 +117,11 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::init_vulkan_imgui()
     imgui_initInfo.CheckVkResultFn      = Agos::ImGuiHandler::ImGuiVulkan::ag_vulkan_imgui_check_err;
 
     m_ImGuiInterface->init(&imgui_initInfo);
+    return AG_SUCCESS;
+}
 
+Agos::AgResult Agos::VulkanHandler::VulkanApp::add_imgui_textures()
+{
     m_OffscreenImGuiID = ImGui_ImplVulkan_AddTexture(m_OffscreenSampler, m_OffscreenImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     return AG_SUCCESS;
 }
@@ -140,6 +151,14 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::query_scene_state(
 )
 {
     m_SceneState = std::move(scene_status);
+    return AG_SUCCESS;
+}
+
+Agos::AgResult Agos::VulkanHandler::VulkanApp::set_viewport(
+    const std::shared_ptr<Agos::Clipping::CameraObject>& viewport_cam
+)
+{
+    m_ViewportCam = std::move(viewport_cam);
     return AG_SUCCESS;
 }
 
@@ -275,7 +294,7 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::submit_image_for_presentation(con
     // if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResizedFlag )
     if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        m_FramebufferResizedFlag = false;
+        // m_FramebufferResizedFlag = false;
         recreate_swapchain();
     }
     else if ( result != VK_SUCCESS )
@@ -301,7 +320,8 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::submit_image_for_presentation(con
 // ** Draw Calls ====================================================================================================================================
 
 
-// ** Swapchain Recreation ==========================================================================================================================
+// ** Swapchain Recreation and Event Process ========================================================================================================
+// * = = = = = = = = = = = = = = = = = = = = swapchain recreation = = = = = = = = = = = = = = = = = = = =
 Agos::AgResult Agos::VulkanHandler::VulkanApp::recreate_swapchain()
 {
     int width = 0, height = 0;
@@ -340,7 +360,55 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::terminate_swapchain()
     vkDeviceWaitIdle(m_LogicalDevice);
     return AG_SUCCESS;
 }
-// ** Swapchain Recreation ==========================================================================================================================
+// * = = = = = = = = = = = = = = = = = = = = swapchain recreation = = = = = = = = = = = = = = = = = = = =
+
+// * = = = = = = = = = = = = = = = = = = = = event processing = = = = = = = = = = = = = = = = = = = =
+// ~ WIP - all we care about is framebufferResizeCallback, since framebuffer resize isn't guaranteed to be triggered by
+// ~ Vulkan alone
+// ~ IOs like mouse, keyboard and such is handled through ImGui
+Agos::AgResult Agos::VulkanHandler::VulkanApp::process_events(
+    const Agos::GLFWHandler::GLFWEvent::Event& event
+)
+{
+    switch (event.type)
+    {
+        case Agos::GLFWHandler::GLFWEvent::EventType::framebufferResizeCallback:
+        {
+            // this->m_FramebufferResizedFlag = true;
+            this->recreate_swapchain();
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::mouseButtonCallback:
+        {
+            // clicky stuff goes brrrrrrrrrr
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::cursorPosCallback:
+        {
+            double x, y;
+            glfwGetCursorPos(m_GLFWInterfaceRef->get_window(), &x, &y);
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::keyboardCallback:
+        {
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::undefined:
+        {
+            AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - process_event] Undefined event triggered!");
+            break;
+        }
+        case Agos::GLFWHandler::GLFWEvent::EventType::invalid:
+        {
+            AG_CORE_ERROR("[Event Process /VulkanHandler::VulkanApp - process_event] Invalid event triggered!");
+            break;
+        }
+    }
+    return AG_SUCCESS;
+}
+// * = = = = = = = = = = = = = = = = = = = = event processing = = = = = = = = = = = = = = = = = = = =
+// ** Swapchain Recreation and Event Process ========================================================================================================
+
 
 // ** Swapchain Managment (includes swapchain images, image views and framebuffers) =================================================================
 // * = = = = = = = = = = = = = = = = = = = = swapchain = = = = = = = = = = = = = = = = = = = =
@@ -1613,19 +1681,18 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::destroy_uniform_buffers()
 
 Agos::AgResult Agos::VulkanHandler::VulkanApp::update_uniform_buffers()
 {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+    // static auto startTime = std::chrono::high_resolution_clock::now();
+    // auto currentTime = std::chrono::high_resolution_clock::now();
+    // float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 
     Agos::VulkanHandler::VulkanEntity::UBO::MVP       ubo_MVP;
     // Agos::VulkanHandler::VulkanEntity::UBO::Materials ubo_Materials;
     Agos::VulkanHandler::VulkanEntity::UBO::EnvLight  ubo_EnvLight;
 
-    // ubo_MVP.model   = glm::mat4(1.0f);
-    ubo_MVP.model   = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo_MVP.view    = glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo_MVP.proj    = glm::perspective(glm::radians(80.0f), m_OffscreenViewportSize.x / m_OffscreenViewportSize.y, 0.0625f, 500.0f);
+    ubo_MVP.model   = glm::mat4(1.0f);
+    ubo_MVP.view    = glm::lookAt(m_ViewportCam->position(), m_ViewportCam->direction() + m_ViewportCam->position(), m_ViewportCam->upwards());
+    ubo_MVP.proj    = glm::perspective(glm::radians(80.0f), m_OffscreenViewportSize.x / m_OffscreenViewportSize.y, m_ViewportCam->z_near(), m_ViewportCam->z_far());
     ubo_MVP.proj[1][1] *= -1;
 
     // ubo_EnvLight.lightColor = glm::vec3(0.25f * time, 1.0f - 0.25f*time, 1.0f - 0.25f*time);
@@ -2391,7 +2458,6 @@ Agos::AgResult Agos::VulkanHandler::VulkanApp::draw_imgui_objects()
 {
     m_ImGuiInterface->new_frame();
 
-
     imgui_draw_main_window();
     imgui_draw_viewport();
 
@@ -2442,66 +2508,60 @@ void Agos::VulkanHandler::VulkanApp::imgui_draw_viewport()
 {
     if (ImGui::Begin("Viewport")) 
     {
-        // m_OffscreenImGuiID = ImGui_ImplVulkan_AddTexture(m_OffscreenSampler, m_OffscreenImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-        m_OffscreenViewportSize = ImGui::GetWindowSize();
+        // m_OffscreenViewportSize = ImGui::GetWindowSize();
+        m_OffscreenViewportSize = ImGui::GetWindowContentRegionMax();
         if (m_SceneState->shall_draw_viewport)
         {
-            ImGui::Image(m_OffscreenImGuiID, m_OffscreenViewportSize);
+            ImGui::Image(m_OffscreenImGuiID, ImVec2(m_OffscreenViewportSize.x, m_OffscreenViewportSize.y));
         }
         else
         {
             ImGui::GetWindowDrawList()->AddRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize, (ImU32)( (255 << 24) | (128 << 16) | (128 << 8) | (128) ));
         }
-        
-        if (ImGui::IsMouseHoveringRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize))
+
+        // lmc over viewport
+        if (ImGui::IsMousePosValid() && ImGui::IsMouseHoveringRect(ImVec2(0.0f, 0.0f), m_OffscreenViewportSize))
         {
-            // do calculation stuff
+            // left click
+            if (ImGui::GetIO().MouseClicked[0])
+            {
+
+            }
+
+            // !*!*! =======================================================
+            // right down
+            // if (ImGui::GetIO().MouseDown[1])
+            if (ImGui::IsMouseDoubleClicked(1) && m_ViewportCamShallMove)
+            {
+                m_ViewportCamShallMove = false;
+                m_GLFWInterfaceRef->show_cursor();
+            }
+            else if (ImGui::IsMouseDoubleClicked(1) && !m_ViewportCamShallMove)
+            {
+                m_ViewportCamShallMove = true;
+                m_GLFWInterfaceRef->hide_cursor();
+            }
+            
+            if (m_ViewportCamShallMove)
+            {
+                ImVec2 delta = ImGui::GetIO().MouseDelta;
+                m_ViewportCam->yaw()    += delta.x * 0.125f;
+                m_ViewportCam->pitch()  -= delta.y * 0.125f;
+
+                m_ViewportCam->shrink_orientation();
+
+                glm::vec3 new_dir;
+                new_dir.x = cos(glm::radians(m_ViewportCam->yaw())) * cos(glm::radians(m_ViewportCam->pitch()));
+                new_dir.y = sin(glm::radians(m_ViewportCam->pitch()));
+                new_dir.z = sin(glm::radians(m_ViewportCam->yaw())) * cos(glm::radians(m_ViewportCam->pitch()));
+
+                m_ViewportCam->direction() = glm::normalize(new_dir);
+                // ImGui::SetCursorScreenPos(ImVec2(m_OffscreenViewportSize.x / 2, m_OffscreenViewportSize.y / 2));
+            }
         }
         ImGui::End();
     }
 }
 // ** ImGui managment ===============================================================================================================================
-
-Agos::AgResult Agos::VulkanHandler::VulkanApp::process_events(
-    const Agos::GLFWHandler::GLFWEvent::Event& event
-)
-{
-    switch (event.type)
-    {
-        case Agos::GLFWHandler::GLFWEvent::EventType::framebufferResizeCallback:
-        {
-            // this->m_FramebufferResizedFlag = true;
-            this->recreate_swapchain();
-            break;
-        }
-        case Agos::GLFWHandler::GLFWEvent::EventType::mouseButtonCallback:
-        {
-            // clicky stuff goes brrrrrrrrrr
-            break;
-        }
-        case Agos::GLFWHandler::GLFWEvent::EventType::cursorPosCallback:
-        {
-            double x, y;
-            glfwGetCursorPos(m_GLFWInterfaceRef->get_window(), &x, &y);
-            break;
-        }
-        case Agos::GLFWHandler::GLFWEvent::EventType::keyboardCallback:
-        {
-            break;
-        }
-        case Agos::GLFWHandler::GLFWEvent::EventType::undefined:
-        {
-            AG_CORE_WARN("[GLFW/AgGLFWHandlerInstance - process_event] Undefined event triggered!");
-            break;
-        }
-        case Agos::GLFWHandler::GLFWEvent::EventType::invalid:
-        {
-            AG_CORE_ERROR("[Event Process /VulkanHandler::VulkanApp - process_event] Invalid event triggered!");
-            break;
-        }
-    }
-    return AG_SUCCESS;
-}
-
 // * = = = = = = = = = = = = = = = = = = = = <...> helpers = = = = = = = = = = = = = = = = = = = =
 // * = = = = = = = = = = = = = = = = = = = = <...> helpers = = = = = = = = = = = = = = = = = = = =
